@@ -39,10 +39,7 @@ import org.apache.derby.iapi.sql.dictionary.ConglomerateDescriptor;
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
 import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
 import org.apache.derby.iapi.sql.dictionary.TriggerDescriptor;
-import org.apache.derby.iapi.sql.dictionary.TriggerDescriptorList;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
-import org.apache.derby.iapi.store.access.StaticCompiledOpenConglomInfo;
-import org.apache.derby.iapi.store.access.TransactionController;
+import org.apache.derby.iapi.sql.dictionary.TriggerDescriptorList; 
 import org.apache.derby.iapi.util.ReuseFactory;
 import org.apache.derby.vti.DeferModification;
 
@@ -65,8 +62,7 @@ class DeleteNode extends DMLModStatementNode
     private boolean deferred;
     private FromTable targetTable;
     private FormatableBitSet readColsBitSet;
-
-	private ConstantAction[] dependentConstantActions;
+ 
 	private boolean cascadeDelete;
 	private StatementNode[] dependentNodes;
 
@@ -121,88 +117,7 @@ class DeleteNode extends DMLModStatementNode
 		return resultSet.referencesSessionSchema();
 	}
 
-	/**
-	 * Compile constants that Execution will use
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-    @Override
-    public ConstantAction makeConstantAction() throws StandardException
-	{
-
-		/* Different constant actions for base tables and updatable VTIs */
-		if (targetTableDescriptor != null)
-		{
-			// Base table
-            int lckMode = resultSet.updateTargetLockMode();
-			long heapConglomId = targetTableDescriptor.getHeapConglomerateId();
-			TransactionController tc = getLanguageConnectionContext().getTransactionCompile();
-			StaticCompiledOpenConglomInfo[] indexSCOCIs = 
-				new StaticCompiledOpenConglomInfo[indexConglomerateNumbers.length];
-
-			for (int index = 0; index < indexSCOCIs.length; index++)
-			{
-				indexSCOCIs[index] = tc.getStaticCompiledConglomInfo(indexConglomerateNumbers[index]);
-			}
-
-			/*
-			** Do table locking if the table's lock granularity is
-			** set to table.
-			*/
-			if (targetTableDescriptor.getLockGranularity() == TableDescriptor.TABLE_LOCK_GRANULARITY)
-			{
-                lckMode = TransactionController.MODE_TABLE;
-			}
-
-			ResultDescription resultDescription = null;
-			if(isDependentTable)
-			{
-				//triggers need the result description ,
-				//dependent tables  don't have a source from generation time
-				//to get the result description
-				resultDescription = makeResultDescription();
-			}
-
-
-			return	getGenericConstantActionFactory().getDeleteConstantAction
-				( heapConglomId,
-				  targetTableDescriptor.getTableType(),
-				  tc.getStaticCompiledConglomInfo(heapConglomId),
-				  indicesToMaintain,
-				  indexConglomerateNumbers,
-				  indexSCOCIs,
-				  deferred,
-				  false,
-				  targetTableDescriptor.getUUID(),
-                  lckMode,
-				  null, null, null, 0, null, null, 
-				  resultDescription,
-				  getFKInfo(), 
-				  getTriggerInfo(), 
-				  (readColsBitSet == null) ? (FormatableBitSet)null : new FormatableBitSet(readColsBitSet),
-				  getReadColMap(targetTableDescriptor.getNumberOfColumns(),readColsBitSet),
-				  resultColumnList.getStreamStorableColIds(targetTableDescriptor.getNumberOfColumns()),
- 				  (readColsBitSet == null) ? 
-					  targetTableDescriptor.getNumberOfColumns() :
-					  readColsBitSet.getNumBitsSet(),			
-				  (UUID) null,
-				  resultSet.isOneRowResultSet(),
-				  dependentConstantActions,
-                  inMatchingClause());
-		}
-		else
-		{
-			/* Return constant action for VTI
-			 * NOTE: ConstantAction responsible for preserving instantiated
-			 * VTIs for in-memory queries and for only preserving VTIs
-			 * that implement Serializable for SPSs.
-			 */
-			return	getGenericConstantActionFactory().getUpdatableVTIConstantAction( DeferModification.DELETE_STATEMENT,
-						deferred);
-		}
-	}
-
-	 
+ 
 
 	/**
 	 * Return the type of statement, something from

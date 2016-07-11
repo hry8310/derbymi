@@ -30,8 +30,7 @@ import org.apache.derby.catalog.TypeDescriptor;
 import org.apache.derby.catalog.types.RoutineAliasInfo;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
@@ -347,10 +346,7 @@ class StaticMethodCallNode extends MethodCallNode
             }
 			
 
-
-			/* Query is dependent on the AliasDescriptor */
-			cc.createDependency(ad);
-
+ 
 
 			methodName = ad.getAliasInfo().getMethodName();
 			javaClassName = ad.getJavaClassName();
@@ -794,15 +790,7 @@ class StaticMethodCallNode extends MethodCallNode
                     argumentTypeId = dts.getTypeId();
                 }
 
-                if (! getTypeCompiler(parameterTypeId).storable(argumentTypeId, getClassFactory()))
-                {
-                    throw StandardException.newException
-                        (
-                         SQLState.LANG_NOT_STORABLE, 
-                         parameterTypeId.getSQLTypeName(),
-                         argumentTypeId.getSQLTypeName()
-                         );
-                }
+               
 
                 // if it's not an exact length match then some cast will be needed.
                 if (!paramdtd.isExactTypeAndLengthMatch(dts))   { needCast = true; }
@@ -898,15 +886,11 @@ class StaticMethodCallNode extends MethodCallNode
         //       pushNestedSessionContext((Activation)this);
 
 		acb.pushThisAsActivation(mb);
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, null,
-					  "getLanguageConnectionContext",
-					  ClassName.LanguageConnectionContext, 0);
+		 
 		acb.pushThisAsActivation(mb);
         mb.push(hadDefinersRights);
         mb.push(definer);
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, null,
-                      "pushNestedSessionContext",
-                      "void", 3);
+	 
 	}
 
 
@@ -953,13 +937,11 @@ class StaticMethodCallNode extends MethodCallNode
 						// constructor  - setting up correct parameter type info
 						MethodBuilder constructor = acb.getConstructor();
 						acb.pushThisAsActivation(constructor);
-						constructor.callMethod(VMOpcode.INVOKEINTERFACE, null,
-											"getParameterValueSet", ClassName.ParameterValueSet, 0);
+ 
 
 						constructor.push(applicationParameterNumber);
                         constructor.push(ParameterMetaData.parameterModeUnknown);
-						constructor.callMethod(VMOpcode.INVOKEINTERFACE, null,
-											"setParameterMode", "void", 2);
+ 
 						constructor.endStatement();
 					}
 				}
@@ -1162,24 +1144,12 @@ class StaticMethodCallNode extends MethodCallNode
 
 			if (statmentContextReferences != 0) {
 				acb.pushThisAsActivation(mb);
-				mb.callMethod(VMOpcode.INVOKEINTERFACE, null,
-									"getLanguageConnectionContext", ClassName.LanguageConnectionContext, 0);
-				mb.callMethod(VMOpcode.INVOKEINTERFACE, null,
-									"getStatementContext", "org.apache.derby.iapi.sql.conn.StatementContext", 0);
-
+		 
 				for (int scc = 1; scc < statmentContextReferences; scc++)
 					mb.dup();
 			}
 
-			/**
-				Set the statement context to reflect we are running
-				System procedures, so that we can execute non-standard SQL.
-			*/
-			if (isSystemCode) {
-				mb.callMethod(VMOpcode.INVOKEINTERFACE, null,
-									"setSystemCode", "void", 0);
-			}
-
+		 
 			// If no SQL, there is no need to setup a nested session
 			// context.
 			if (sqlAllowed != RoutineAliasInfo.NO_SQL) {
@@ -1190,27 +1160,14 @@ class StaticMethodCallNode extends MethodCallNode
                     routineDefiner);
 			}
 
-			// for a function we need to fetch the current SQL control
-			// so that we can reset it once the function is complete.
-			// 
-			if (isFunction)
-			{
-				functionEntrySQLAllowed = acb.newFieldDeclaration(Modifier.PRIVATE, "short");
-				mb.callMethod(VMOpcode.INVOKEINTERFACE, null,
-									"getSQLAllowed", "short", 0);
-				mb.setField(functionEntrySQLAllowed);
-
-			}
-			
+		 
 			
 			// Set up the statement context to reflect the
 			// restricted SQL execution allowed by this routine.
 
 			mb.push(sqlAllowed);
 			mb.push(false);
-			mb.callMethod(VMOpcode.INVOKEINTERFACE, null,
-								"setSQLAllowed", "void", 2);
-
+		 
 		}
 
 		// add in the ResultSet arrays. note that varargs and dynamic ResultSets
@@ -1311,10 +1268,7 @@ class StaticMethodCallNode extends MethodCallNode
 			mbcm = mbnc;
 		}
 
-		mbcm.callMethod(VMOpcode.INVOKESTATIC, method.getDeclaringClass().getName(), methodName,
-					actualMethodReturnType, nargs);
-
-
+	 
 		if (returnsNullOnNullState != null)
 		{
 			// DERBY-3360. In the case of function returning
@@ -1337,8 +1291,7 @@ class StaticMethodCallNode extends MethodCallNode
 			mbnc.complete();
 
 			// now call the wrapper method
-			mb.callMethod(VMOpcode.INVOKEVIRTUAL, acb.getClassBuilder().getFullName(), mbnc.getName(),
-					javaReturnType, nargs);
+			 
 			mbnc = null;
 		}
 
@@ -1347,33 +1300,14 @@ class StaticMethodCallNode extends MethodCallNode
 
 			// reset the SQL allowed setting that we set upon
 			// entry to the method.
-			if (functionEntrySQLAllowed != null) {
-				acb.pushThisAsActivation(mb);
-				mb.callMethod(VMOpcode.INVOKEINTERFACE, null,
-									"getLanguageConnectionContext", ClassName.LanguageConnectionContext, 0);
-				mb.callMethod(VMOpcode.INVOKEINTERFACE, null,
-									"getStatementContext", "org.apache.derby.iapi.sql.conn.StatementContext", 0);
-				mb.getField(functionEntrySQLAllowed);
-				mb.push(true); // override as we are ending the control set by this function all.
-				mb.callMethod(VMOpcode.INVOKEINTERFACE, null,
-									"setSQLAllowed", "void", 2);
-
-			}
-
+			 
 			if (outParamArrays != null) {
 
 				MethodBuilder constructor = acb.getConstructor();
 
 				// constructor  - setting up correct parameter type info
 				acb.pushThisAsActivation(constructor);
-				constructor.callMethod(VMOpcode.INVOKEINTERFACE, null,
-									"getParameterValueSet", ClassName.ParameterValueSet, 0);
-
-				// execute  - passing out parameters back.
-				acb.pushThisAsActivation(mb);
-				mb.callMethod(VMOpcode.INVOKEINTERFACE, null,
-									"getParameterValueSet", ClassName.ParameterValueSet, 0);
-
+				 
 				int[] parameterModes = routineInfo.getParameterModes();
 				for (int i = 0; i < outParamArrays.length; i++) {
 
@@ -1391,17 +1325,14 @@ class StaticMethodCallNode extends MethodCallNode
 						constructor.dup();
 						constructor.push(applicationParameterNumber);
 						constructor.push(parameterMode);
-						constructor.callMethod(VMOpcode.INVOKEINTERFACE, null,
-										"setParameterMode", "void", 2);
+ 
 
 						// Pass the value of the outparameters back to the calling code
 						LocalField lf = outParamArrays[i];
 
 						mb.dup(); 
 						mb.push(applicationParameterNumber);
-						mb.callMethod(VMOpcode.INVOKEINTERFACE, null,
-									"getParameter", ClassName.DataValueDescriptor, 1);
-
+					 
 						// see if we need to set the desired length/scale/precision of the type
 						DataTypeDescriptor paramdtd = sqlParamNode.getTypeServices();
 
@@ -1452,16 +1383,7 @@ class StaticMethodCallNode extends MethodCallNode
 						{
 							mb.upCast("java.lang.Object");
 						}
-
-						mb.callMethod(VMOpcode.INVOKEINTERFACE, null, "setValue", "void", 1);
-
-						if (paramdtd.getTypeId().variableLength()) {
-							mb.push(isNumericType ? paramdtd.getPrecision() : paramdtd.getMaximumWidth());
-							mb.push(paramdtd.getScale());
-							mb.push(isNumericType);
-							mb.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.VariableSizeDataValue, "setWidth", "void", 3);
-							// mb.endStatement();
-						}
+ 
 					}
 				}
 				constructor.endStatement();

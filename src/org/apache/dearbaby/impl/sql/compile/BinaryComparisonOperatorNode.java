@@ -182,29 +182,7 @@ public abstract class BinaryComparisonOperatorNode extends BinaryOperatorNode {
 		 */
 		boolean forEquals = operator.equals("=") || operator.equals("<>");
 
-		boolean cmp = leftOperand.getTypeServices().comparable(
-				rightOperand.getTypeServices(), forEquals, getClassFactory());
-		// Bypass the comparable check if this is a rewrite from the
-		// optimizer. We will assume Mr. Optimizer knows what he is doing.
-		if (!cmp && !forQueryRewrite) {
-			throw StandardException
-					.newException(SQLState.LANG_NOT_COMPARABLE, leftOperand
-							.getTypeServices().getSQLTypeNameWithCollation(),
-							rightOperand.getTypeServices()
-									.getSQLTypeNameWithCollation());
-
-		}
-
-		/*
-		 * * Set the result type of this comparison operator based on the*
-		 * operands. The result type is always SQLBoolean - the only question*
-		 * is whether it is nullable or not. If either of the operands is*
-		 * nullable, the result of the comparison must be nullable, too, so* we
-		 * can represent the unknown truth value.
-		 */
-		nullableResult = leftOperand.getTypeServices().isNullable()
-				|| rightOperand.getTypeServices().isNullable();
-		setType(new DataTypeDescriptor(TypeId.BOOLEAN_ID, nullableResult));
+		 
 
 	}
 
@@ -377,24 +355,7 @@ public abstract class BinaryComparisonOperatorNode extends BinaryOperatorNode {
 		 * If I have Java types, I need only add java->sql->java if the types
 		 * are not comparable
 		 */
-		if (leftTypeId.userType()) {
-			if (leftOperand.getTypeServices().comparable(
-					leftOperand.getTypeServices(), false, getClassFactory()))
-				return this;
-
-			leftOperand = leftOperand.genSQLJavaSQLTree();
-		}
-
-		TypeId rightTypeId = rightOperand.getTypeId();
-
-		if (rightTypeId.userType()) {
-			if (rightOperand.getTypeServices().comparable(
-					rightOperand.getTypeServices(), false, getClassFactory()))
-				return this;
-
-			rightOperand = rightOperand.genSQLJavaSQLTree();
-		}
-
+		 
 		return this;
 	}
 }

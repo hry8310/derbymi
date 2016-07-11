@@ -25,12 +25,10 @@ import java.sql.Types;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.compile.CompilerContext;
-import org.apache.derby.iapi.store.access.Qualifier;
+import org.apache.derby.iapi.sql.compile.CompilerContext; 
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.iapi.types.DataValueDescriptor;
 import org.apache.derby.iapi.types.JSQLType;
@@ -81,7 +79,7 @@ public class ParameterNode extends ValueNode
 	  */
 	private	JSQLType			jsqlType;
 
-	private int orderableVariantType = Qualifier.QUERY_INVARIANT;
+	private int orderableVariantType = 0;
 
 	/**
 	 * By default, we assume we are just a normal, harmless
@@ -351,8 +349,7 @@ public class ParameterNode extends ValueNode
         mb.pushThis();
         mb.push(parameterNumber); // arg
 
-        mb.callMethod(VMOpcode.INVOKEVIRTUAL, ClassName.BaseActivation, "getParameter",
-                      ClassName.DataValueDescriptor, 1);
+       
 
 		// For some types perform host variable checking
 		// to match DB2/JCC where if a host variable is too
@@ -362,11 +359,7 @@ public class ParameterNode extends ValueNode
 		case Types.BINARY:
 		case Types.VARBINARY:
 		case Types.LONGVARBINARY:
-		case Types.BLOB:
-			mb.dup();
-			mb.push(dtd.getMaximumWidth());
-			mb.callMethod(VMOpcode.INVOKEINTERFACE, (String) null, "checkHostVariable",
-                      "void", 1);
+		 
 			break;
 
 		default:
@@ -451,8 +444,7 @@ public class ParameterNode extends ValueNode
 			constructor.push(numberOfParameters); // first arg
 			constructor.push(hasReturnParam); // second arg
 
-			constructor.callMethod(VMOpcode.INVOKEVIRTUAL, ClassName.BaseActivation,
-									"setParameterValueSet", "void", 2);
+			 
 
 			//?Xconstructor.callMethod(VMOpcode.INVOKEINTERFACE, (String) null, "getParameterValueSet",
 			//?X					ClassName.ParameterValueSet, 2);
@@ -468,7 +460,6 @@ public class ParameterNode extends ValueNode
 			MethodBuilder	executeMethod = acb.getExecuteMethod();
 
 			executeMethod.pushThis();
-			executeMethod.callMethod(VMOpcode.INVOKEVIRTUAL, ClassName.BaseActivation, "throwIfMissingParms", "void", 0);
 		}
 	}
 

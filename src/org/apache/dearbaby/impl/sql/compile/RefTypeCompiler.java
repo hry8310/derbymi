@@ -21,8 +21,7 @@
 
 package org.apache.dearbaby.impl.sql.compile;
 
-import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.loader.ClassFactory;
+import org.apache.derby.iapi.reference.ClassName; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.TypeCompiler;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
@@ -68,12 +67,7 @@ class RefTypeCompiler extends BaseTypeCompiler
 	{
 		return convertible(otherType,false);
 	}
-
-	/** @see TypeCompiler#storable */
-	public boolean storable(TypeId otherType, ClassFactory cf)
-	{
-		return otherType.isRefTypeId();
-	}
+ 
 
 	/** @see TypeCompiler#interfaceName */
 	public String interfaceName()

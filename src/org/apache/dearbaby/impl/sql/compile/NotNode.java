@@ -23,8 +23,7 @@ package	org.apache.dearbaby.impl.sql.compile;
 
 import java.lang.reflect.Modifier;
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.ClassName; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
@@ -110,6 +109,6 @@ public final class NotNode extends UnaryLogicalOperatorNode
 				getTypeServices().getCollationType(), field);
 		mb.upCast(ClassName.DataValueDescriptor);
 
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, (String) null, "equals", interfaceName, 2);
+	 
 	}
 }

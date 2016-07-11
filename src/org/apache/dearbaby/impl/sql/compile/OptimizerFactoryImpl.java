@@ -69,51 +69,7 @@ public class OptimizerFactoryImpl
         ** by default.  It is used mainly for testing - there are many tests
         ** that assume the join order is fixed.
         */
-        String opt =
-            PropertyUtil.getSystemProperty(Optimizer.JOIN_ORDER_OPTIMIZATION);
-        if (opt != null)
-        {
-            joinOrderOptimization = Boolean.parseBoolean(opt);
-        }
-
-        /*
-		** This property determines whether to use rule-based or cost-based
-		** optimization.  It is used mainly for testing - there are many tests
-		** that assume rule-based optimization.  The default is cost-based
-		** optimization.
-		*/
-		ruleBasedOptimization =
-				Boolean.valueOf(
-					PropertyUtil.getSystemProperty(Optimizer.RULE_BASED_OPTIMIZATION)
-								).booleanValue();
-
-		/*
-		** This property determines whether the optimizer should ever stop
-		** optimizing a query because it has spent too long in optimization.
-		** The default is that it will.
-		*/
-		noTimeout =
-				Boolean.valueOf(
-					PropertyUtil.getSystemProperty(Optimizer.NO_TIMEOUT)
-								).booleanValue();
-
-		/*
-		** This property determines the maximum size of memory (in KB)
-		** the optimizer can use for each table.  If an access path takes
-		** memory larger than that size for a table, the access path is skipped.
-		** Default is 1024 (KB).
-		*/
-		String maxMemValue = PropertyUtil.getSystemProperty(Optimizer.MAX_MEMORY_PER_TABLE);
-		if (maxMemValue != null)
-		{
-			int intValue = Integer.parseInt(maxMemValue);
-			if (intValue >= 0)
-				maxMemoryPerTable = intValue * 1024;
-		}
-
-		String us =	PropertyUtil.getSystemProperty(Optimizer.USE_STATISTICS); 
-		if (us != null)
-			useStatistics = (Boolean.valueOf(us)).booleanValue();
+         
 
 		/* Allocation of joinStrategySet deferred til
 		 * getOptimizer(), even though we only need 1
@@ -168,15 +124,7 @@ public class OptimizerFactoryImpl
 							overridingPlan,
 							lcc);
 	}
-
-	/**
-	 * @see OptimizerFactory#getCostEstimate
-	 */
-	public CostEstimate getCostEstimate()
-	{
-		return new CostEstimateImpl();
-	}
-
+ 
 	/**
 	 * @see OptimizerFactory#supportsOptimizerTrace
 	 */

@@ -26,8 +26,7 @@ import java.sql.Types;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
@@ -377,8 +376,7 @@ class TernaryOperatorNode extends OperatorNode
 			receiverType = receiverInterfaceType;
         }
             
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, receiverType, methodName, resultInterfaceType, nargs);
-
+		 
 		/*
 		** Store the result of the method call in the field, so we can re-use
 		** the object.

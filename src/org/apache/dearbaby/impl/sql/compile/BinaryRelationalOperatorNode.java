@@ -1209,17 +1209,9 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 		switch (relOpType) {
 		case RelationalOperator.EQUALS_RELOP:
 		case RelationalOperator.LESS_EQUALS_RELOP:
-		case RelationalOperator.GREATER_EQUALS_RELOP:
-			return ScanController.GE;
-		case RelationalOperator.LESS_THAN_RELOP:
-		case RelationalOperator.GREATER_THAN_RELOP:
-			return ScanController.GT;
-		case RelationalOperator.NOT_EQUALS_RELOP:
-			if (SanityManager.DEBUG)
-				SanityManager.THROWASSERT("!= cannot be a start operator");
-			return ScanController.NA;
+		 
 		default:
-			return ScanController.NA;
+			return 0;
 
 		}
 	}
@@ -1229,17 +1221,12 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 		switch (relOpType) {
 		case RelationalOperator.EQUALS_RELOP:
 		case RelationalOperator.GREATER_EQUALS_RELOP:
-		case RelationalOperator.LESS_EQUALS_RELOP:
-			return ScanController.GT;
+		case RelationalOperator.LESS_EQUALS_RELOP: 
 		case RelationalOperator.LESS_THAN_RELOP:
 		case RelationalOperator.GREATER_THAN_RELOP:
-			return ScanController.GE;
-		case RelationalOperator.NOT_EQUALS_RELOP:
-			if (SanityManager.DEBUG)
-				SanityManager.THROWASSERT("!= cannot be a stop operator");
-			return ScanController.NA;
+			 
 		default:
-			return ScanController.NA;
+			return 8;
 		}
 	}
 

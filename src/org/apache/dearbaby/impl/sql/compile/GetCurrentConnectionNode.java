@@ -23,12 +23,10 @@ package	org.apache.dearbaby.impl.sql.compile;
 
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.ClassName; 
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.compile.CompilerContext;
-import org.apache.derby.iapi.store.access.Qualifier;
+import org.apache.derby.iapi.sql.compile.CompilerContext; 
 import org.apache.derby.iapi.util.JBitSet;
 
 /**
@@ -158,7 +156,7 @@ public final class GetCurrentConnectionNode extends JavaValueNode
     @Override
     int getOrderableVariantType()
 	{
-		return Qualifier.QUERY_INVARIANT;
+		return 0;
 	}
 	/**
 	 *
@@ -173,7 +171,6 @@ public final class GetCurrentConnectionNode extends JavaValueNode
 									throws StandardException
 	{
 		mb.pushThis();
-		mb.callMethod(VMOpcode.INVOKEVIRTUAL, ClassName.BaseActivation, "getCurrentConnection", getJavaTypeName(), 0);
 	}
 
 	/**

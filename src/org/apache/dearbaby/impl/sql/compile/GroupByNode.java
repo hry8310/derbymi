@@ -35,9 +35,7 @@ import org.apache.derby.iapi.sql.ResultColumnDescriptor;
 import org.apache.derby.iapi.sql.compile.AccessPath;
 import org.apache.derby.iapi.sql.compile.Optimizable;
 import org.apache.derby.iapi.sql.compile.OptimizablePredicate;
-import org.apache.derby.iapi.sql.dictionary.DataDictionary;
-import org.apache.derby.impl.sql.execute.AggregatorInfo;
-import org.apache.derby.impl.sql.execute.AggregatorInfoList;
+import org.apache.derby.iapi.sql.dictionary.DataDictionary; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
@@ -72,13 +70,7 @@ class GroupByNode extends SingleChildResultSetNode
 	 * that contains this group by.
 	 */
     private List<AggregateNode> aggregates;
-
-	/**
-	 * Information that is used at execution time to
-	 * process aggregates.
-	 */
-	private AggregatorInfoList	aggInfo;
-
+ 
 	/**
 	 * The parent to the GroupByNode.  If we need to
 	 * generate a ProjectRestrict over the group by
@@ -247,24 +239,7 @@ class GroupByNode extends SingleChildResultSetNode
 					"Should not have more than 1 distinct aggregate per Group By node");
 			}
 			
-			AggregatorInfo agg = null;
-			int count = aggInfo.size();
-			for (int i = 0; i < count; i++)
-			{
-                agg = aggInfo.elementAt(i);
-				if (agg.isDistinct())
-				{
-					break;
-				}
-			}
-
-			if (SanityManager.DEBUG)
-			{
-				SanityManager.ASSERT(agg != null && agg.isDistinct());
-			}
-
-			addDistinctAggregate = true;
-			addDistinctAggregateColumnNum = agg.getInputColNum();
+			  
 		}
 	}
 	
@@ -519,54 +494,7 @@ class GroupByNode extends SingleChildResultSetNode
 	 */
 	private void addNewColumnsForAggregation()
 		throws StandardException
-	{
-		aggInfo = new AggregatorInfoList();
-		ArrayList<SubstituteExpressionVisitor> havingRefsToSubstitute = null;
-
-		if (groupingList != null)
-		{
-			havingRefsToSubstitute = addUnAggColumns();
-		}
-
-		addAggregateColumns();
-
-		if (havingClause != null) {
-
-			// Now do the substitution of the group by expressions in the
-			// having clause.
-			if (havingRefsToSubstitute != null) {
-				for (int r = 0; r < havingRefsToSubstitute.size(); r++) {
-                    havingClause.accept(havingRefsToSubstitute.get(r));
-				}
-			}
-
-			// we have replaced group by expressions in the having clause.
-			// there should be no column references in the having clause 
-			// referencing this table. Skip over aggregate nodes.
-			//   select a, sum(b) from t group by a having a+c > 1 
-			//  is not valid because of column c.
-			// 
-			// it is allright to have columns from parent or child subqueries;
-			//   select * from p where p.p1 in 
-			//      (select c.c1 from c group by c.c1 having count(*) = p.p2
-            CollectNodesVisitor<ColumnReference> collectNodesVisitor =
-                new CollectNodesVisitor<ColumnReference>(
-                    ColumnReference.class, AggregateNode.class);
-			havingClause.accept(collectNodesVisitor);
-
-            for (ColumnReference cr: collectNodesVisitor.getList())
-			{
-				if ( ! (cr.getGeneratedToReplaceAggregate() ||
-						cr.getGeneratedToReplaceWindowFunctionCall()) &&
-					 cr.getSourceLevel() == level) {
-					throw StandardException.newException(
-							SQLState.LANG_INVALID_COL_HAVING_CLAUSE, 
-							cr.getSQLColumnName());						
-				}
-			}
-		}
-
-	}
+	{ }
 	
 	/**
 	 * In the query rewrite involving aggregates, add the columns for
@@ -718,20 +646,7 @@ class GroupByNode extends SingleChildResultSetNode
 			*/
             aggRCL = new ResultColumnList((getContextManager()));
 			aggRCL.addElement(aggResultRC);
-
-			/*
-			** Note that the column ids in the row are 0 based
-			** so we have to subtract 1.
-			*/
-			aggInfo.addElement(new AggregatorInfo(
-					aggregate.getAggregateName(),
-					aggregate.getAggregatorClassName(),
-					aggInputVColId - 1,			// aggregate input column
-					aggResultVColId -1,			// the aggregate result column
-					aggregatorVColId - 1,		// the aggregator column	
-					aggregate.isDistinct(),
-					lf.getResultDescription(aggRCL.makeResultDescriptors(), "SELECT")
-			));
+ 
 		}
 	}
 

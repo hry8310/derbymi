@@ -393,36 +393,7 @@ public abstract class QueryTreeNode implements Visitable {
     	return list;
     }
     
-    
-	/**
-	 * Gets the constant action factory for this database.
-	 *
-	 * @return the constant action factory.
-	 */
-	public final GenericConstantActionFactory getGenericConstantActionFactory() {
-		if (constantActionFactory == null) {
-			GenericExecutionFactory execFactory = (GenericExecutionFactory) getExecutionFactory();
-			constantActionFactory = execFactory.getConstantActionFactory();
-		}
-
-		return constantActionFactory;
-	}
-
-	public final ExecutionFactory getExecutionFactory() {
-		ExecutionFactory ef = getLanguageConnectionContext()
-				.getLanguageConnectionFactory().getExecutionFactory();
-
-		return ef;
-	}
-
-	/**
-	 * Get the ClassFactory to use with this database.
-	 */
-	protected final ClassFactory getClassFactory() {
-		return getLanguageConnectionContext().getLanguageConnectionFactory()
-				.getClassFactory();
-	}
-
+      
 	/**
 	 * Gets the LanguageConnectionContext for this connection.
 	 *
@@ -821,18 +792,7 @@ public abstract class QueryTreeNode implements Visitable {
 		return ((CompilerContextImpl) getCompilerContext()).getParameterTypes();
 	}
 
-	/**
-	 * This creates a class that will do the work that's constant across all
-	 * Executions of a PreparedStatement. It's up to our subclasses to override
-	 * this method if they need to compile constant actions into
-	 * PreparedStatements.
-	 *
-	 * @exception StandardException
-	 *                Thrown on failure
-	 */
-	public ConstantAction makeConstantAction() throws StandardException {
-		return null;
-	}
+	 
 
 	/**
 	 * Get the DataDictionary
@@ -843,11 +803,7 @@ public abstract class QueryTreeNode implements Visitable {
 	final public DataDictionary getDataDictionary() {
 		return getLanguageConnectionContext().getDataDictionary();
 	}
-
-	final DependencyManager getDependencyManager() {
-		return getDataDictionary().getDependencyManager();
-	}
-
+ 
 	/**
 	 * Get the CompilerContext
 	 *
@@ -1269,16 +1225,8 @@ public abstract class QueryTreeNode implements Visitable {
 		// because there is no physical SESSION schema
 		if (schema.getUUID() == null)
 			return null;
-
-		// it is not a temporary table, so go through the data dictionary to
-		// find the physical persistent table
-		TableDescriptor td = getDataDictionary().getTableDescriptor(tableName,
-				schema,
-				this.getLanguageConnectionContext().getTransactionCompile());
-		if (td == null || td.isSynonymDescriptor())
-			return null;
-
-		return td;
+ 
+		return null;
 	}
 
 	/**
@@ -1370,8 +1318,7 @@ public abstract class QueryTreeNode implements Visitable {
 			if (nextAD == null)
 				break;
 
-			/* Query is dependent on the AliasDescriptor */
-			cc.createDependency(nextAD);
+		 
 
 			found = true;
 			SynonymAliasInfo info = ((SynonymAliasInfo) nextAD.getAliasInfo());
@@ -1399,28 +1346,7 @@ public abstract class QueryTreeNode implements Visitable {
 	 * @exception StandardException
 	 *                Thrown on error
 	 */
-	void verifyClassExist(String javaClassName) throws StandardException {
-		ClassInspector classInspector = getClassFactory().getClassInspector();
-
-		Throwable reason = null;
-		boolean foundMatch = false;
-		try {
-
-			foundMatch = classInspector.accessible(javaClassName);
-
-		} catch (ClassNotFoundException cnfe) {
-
-			reason = cnfe;
-		}
-
-		if (!foundMatch)
-			throw StandardException.newException(
-					SQLState.LANG_TYPE_DOESNT_EXIST2, reason, javaClassName);
-
-		if (ClassInspector.primitiveType(javaClassName))
-			throw StandardException.newException(
-					SQLState.LANG_TYPE_DOESNT_EXIST3, javaClassName);
-	}
+	void verifyClassExist(String javaClassName) throws StandardException { }
 
 	/**
 	 * set the Information gathered from the parent table that is required to
@@ -1439,19 +1365,7 @@ public abstract class QueryTreeNode implements Visitable {
 	 * Add an authorization check into the passed in method.
 	 */
 	void generateAuthorizeCheck(ActivationClassBuilder acb, MethodBuilder mb,
-			int sqlOperation) {
-		// add code to authorize statement execution.
-		acb.pushThisAsActivation(mb);
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, null,
-				"getLanguageConnectionContext",
-				ClassName.LanguageConnectionContext, 0);
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, null, "getAuthorizer",
-				ClassName.Authorizer, 0);
-
-		acb.pushThisAsActivation(mb);
-		mb.push(sqlOperation);
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, null, "authorize", "void", 2);
-	}
+			int sqlOperation) { }
 
 	/**
 	 * Bind time logic. Raises an error if this ValueNode, once compiled,
@@ -1496,15 +1410,7 @@ public abstract class QueryTreeNode implements Visitable {
 	 *                Thrown on error
 	 */
 	public void checkReliability(int fragmentBitMask, String fragmentType)
-			throws StandardException {
-		// if we're in a context that forbids unreliable fragments, raise an
-		// error
-		if ((getCompilerContext().getReliability() & fragmentBitMask) != 0) {
-			String fragmentTypeTxt = MessageService
-					.getTextMessage(fragmentType);
-			throwReliabilityException(fragmentTypeTxt, fragmentBitMask);
-		}
-	}
+			throws StandardException { }
 
 	/**
 	 * Bind a UDT. This involves looking it up in the DataDictionary and filling
@@ -1670,14 +1576,7 @@ public abstract class QueryTreeNode implements Visitable {
 	 * and check that you have privilege to use it.
 	 */
 	private void createTypeDependency(AliasDescriptor ad)
-			throws StandardException {
-		getCompilerContext().createDependency(ad);
-
-		if (isPrivilegeCollectionRequired()
-				&& !getCompilerContext().skippingTypePrivileges()) {
-			getCompilerContext().addRequiredUsagePriv(ad);
-		}
-	}
+			throws StandardException { }
 
 	/**
 	 * Common code for the 2 checkReliability functions. Always throws

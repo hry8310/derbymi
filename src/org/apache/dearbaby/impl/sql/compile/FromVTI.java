@@ -39,13 +39,11 @@ import org.apache.derby.catalog.UUID;
 import org.apache.derby.catalog.types.RoutineAliasInfo;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.io.FormatableHashtable;
-import org.apache.derby.iapi.services.loader.ClassInspector;
+import org.apache.derby.iapi.services.io.FormatableHashtable; 
 import org.apache.derby.iapi.sql.compile.Optimizable;
 import org.apache.derby.iapi.sql.compile.OptimizablePredicate;
 import org.apache.derby.iapi.sql.compile.Visitable;
@@ -54,8 +52,7 @@ import org.apache.derby.iapi.sql.conn.LanguageConnectionContext;
 import org.apache.derby.iapi.sql.dictionary.ColumnDescriptor;
 import org.apache.derby.iapi.sql.dictionary.ColumnDescriptorList;
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.transaction.TransactionControl;
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.iapi.types.DataValueDescriptor;
 import org.apache.derby.iapi.util.JBitSet;
@@ -733,11 +730,8 @@ class FromVTI extends FromTable implements VTIEnvironment
 
         try
         {
-            ClassInspector classInspector = getClassFactory().getClassInspector();
-            String javaClassName = methodCall.getJavaClassName();
-            Constructor<?> constr = classInspector.getClass(javaClassName).getConstructor(paramTypeClasses);
-
-            return constr.newInstance(paramObjects);
+           
+            return null;
         }
 		catch(Throwable t)
 		{
@@ -1459,8 +1453,7 @@ class FromVTI extends FromTable implements VTIEnvironment
 			  closeActivationMethod.push(0); // work around for no support for real if statements
 			closeActivationMethod.startElseCode(); 
 			  closeActivationMethod.getField(psHolder);
-			  closeActivationMethod.callMethod(VMOpcode.INVOKEINTERFACE, "java.sql.Statement",
-				  "close", "void", 0);
+			  
 			  closeActivationMethod.push(0);
 
 			closeActivationMethod.completeConditional();
@@ -1521,23 +1514,7 @@ class FromVTI extends FromTable implements VTIEnvironment
 	private UUID getSpecialTriggerVTITableName(LanguageConnectionContext lcc, String className)
 		throws StandardException
 	{
-		if (className.equals(ClassName.TriggerNewTransitionRows) ||
-		    className.equals(ClassName.TriggerOldTransitionRows))
-		{
-			// if there isn't an active trigger being compiled, error
-			if (lcc.getTriggerTable() != null)
-			{
-				return lcc.getTriggerTable().getUUID();
-			}
-			else if (lcc.getTriggerExecutionContext() != null)
-			{
-				return lcc.getTriggerExecutionContext().getTargetTableId();
-			}
-			else
-			{
-				throw StandardException.newException(SQLState.LANG_CANNOT_BIND_TRIGGER_V_T_I, className);
-			}
-		}
+		 
 		return (UUID)null;
 	}
 
@@ -1589,7 +1566,7 @@ class FromVTI extends FromTable implements VTIEnvironment
 	}
 	
     final public int getStatementIsolationLevel() {
-		return TransactionControl.jdbcIsolationLevel( getCompilerContext().getScanIsolationLevel() );
+		return 0;
 	}
 
 	public void setSharedState(String key, java.io.Serializable value) {
@@ -1714,13 +1691,7 @@ class FromVTI extends FromTable implements VTIEnvironment
     private Class<?> lookupClass( String className )
         throws StandardException
     {
-        try {
-            return getClassFactory().getClassInspector().getClass( className );
-        }
-        catch (ClassNotFoundException t)
-        {
-            throw StandardException.unexpectedUserException( t );
-        }
+        return null;
     }
 
 }

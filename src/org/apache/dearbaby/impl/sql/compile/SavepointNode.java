@@ -24,7 +24,6 @@ package	org.apache.dearbaby.impl.sql.compile;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.shared.common.sanity.SanityManager;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
 
 /**
  * A SavepointNode is the root of a QueryTree that represents a Savepoint (ROLLBACK savepoint, RELASE savepoint and SAVEPOINT)
@@ -112,19 +111,5 @@ class SavepointNode extends DDLStatementNode
 		return false;
 	}
 
-	// We inherit the generate() method from DDLStatementNode.
-
-	/**
-	 * Create the Constant information that will drive the guts of Execution.
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-    @Override
-    public ConstantAction makeConstantAction() throws StandardException
-	{
-		return(
-            getGenericConstantActionFactory().getSavepointConstantAction(
-                savepointName,
-                savepointStatementType));
-	}
+	 
 }

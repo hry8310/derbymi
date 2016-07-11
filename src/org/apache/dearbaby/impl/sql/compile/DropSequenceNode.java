@@ -23,8 +23,7 @@ package org.apache.dearbaby.impl.sql.compile;
 
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.compile.Visitor;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
+import org.apache.derby.iapi.sql.compile.Visitor; 
 
 /**
  * A DropSequenceNode  represents a DROP SEQUENCE statement.
@@ -54,16 +53,7 @@ class DropSequenceNode extends DDLStatementNode {
     // inherit generate() method from DDLStatementNode
 
 
-    /**
-     * Create the Constant information that will drive the guts of Execution.
-     *
-     * @throws StandardException Thrown on failure
-     */
-    @Override
-    public ConstantAction makeConstantAction() throws StandardException {
-        return getGenericConstantActionFactory().getDropSequenceConstantAction(getSchemaDescriptor(), getRelativeName());
-	}
-
+ 
     @Override
     void acceptChildren(Visitor v) throws StandardException {
         super.acceptChildren(v);

@@ -25,13 +25,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.sql.SQLException;
-import org.apache.derby.iapi.db.OptimizerTrace;
+import java.sql.SQLException; 
 import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.context.ContextService;
-import org.apache.derby.iapi.services.i18n.MessageService;
-import org.apache.derby.iapi.services.loader.ClassFactory;
-import org.apache.derby.iapi.services.loader.ClassFactoryContext;
+import org.apache.derby.iapi.services.context.ContextService; 
 import org.apache.derby.iapi.sql.compile.OptTrace;
 import org.apache.derby.iapi.sql.dictionary.OptionalTool;
 
@@ -88,42 +84,12 @@ public	class   OptimizerTracer  implements OptionalTool
     {
         OptTrace    tracer;
 
-        if ( (configurationParameters == null) || (configurationParameters.length == 0) )
-        {
-            tracer = new DefaultOptTrace();
-        }
-        else if ( "xml".equals( configurationParameters[ 0 ] ) )
-        {
-            try {
-                tracer = new XMLOptTrace();
-            }
-            catch (Throwable t) { throw wrap( t ); }
-        }
-        else if ( "custom".equals( configurationParameters[ 0 ] ) )
-        {
-            if ( configurationParameters.length != 2 )
-            { throw wrap( MessageService.getTextMessage( SQLState.LANG_BAD_OPTIONAL_TOOL_ARGS ) ); }
-
-            String  customOptTraceName = configurationParameters[ 1 ];
-
-            try {
-                ClassFactoryContext cfc = (ClassFactoryContext) ContextService.getContext( ClassFactoryContext.CONTEXT_ID );
-                ClassFactory    classFactory = cfc.getClassFactory();
-
-                tracer = (OptTrace) classFactory.loadApplicationClass( customOptTraceName ).newInstance();
-            }
-            catch (InstantiationException cnfe) { throw cantInstantiate( customOptTraceName ); }
-            catch (ClassNotFoundException cnfe) { throw cantInstantiate( customOptTraceName ); }
-            catch (IllegalAccessException cnfe) { throw cantInstantiate( customOptTraceName ); }
-            catch (Throwable t) { throw wrap( t ); }
-        }
-        else { throw wrap( MessageService.getTextMessage( SQLState.LANG_BAD_OPTIONAL_TOOL_ARGS ) ); }
-                     
-        OptimizerTrace.setOptimizerTracer( tracer );
+         
+         
     }
     private SQLException    cantInstantiate( String className )
     {
-        return wrap( MessageService.getTextMessage( SQLState.LANG_CANT_INSTANTIATE_CLASS, className ) );
+        return null;
     }
 
     /**
@@ -138,47 +104,7 @@ public	class   OptimizerTracer  implements OptionalTool
     public  void    unloadTool( final String... configurationParameters )
         throws SQLException
     {
-        try {
-            final   OptTrace    tracer = OptimizerTrace.getOptimizerTracer();
-
-            boolean     needsClosing = false;
-            PrintWriter pw;
-            
-            if (
-                (configurationParameters != null) &&
-                (configurationParameters.length > 0)
-                )
-            {
-                pw = AccessController.doPrivileged
-                    (
-                     new PrivilegedAction<PrintWriter>()
-                     {
-                         public PrintWriter run()
-                         {
-                             try {
-                                 return new PrintWriter( configurationParameters[ 0 ] );
-                             } catch (IOException ioe) { throw new IllegalArgumentException( ioe.getMessage(), ioe ); }
-                         }  
-                     }
-                     );
-                needsClosing = true;
-            }
-            else { pw = new PrintWriter( System.out ); }
         
-            if ( tracer != null )
-            {
-                tracer.printToWriter( pw );
-                pw.flush();
-            }
-
-            if ( needsClosing ) { pw.close(); }
-            
-        }
-        catch (Exception e) { throw wrap( e ); }
-        finally
-        {
-            OptimizerTrace.setOptimizerTracer( null );
-        }
     }
 
     ////////////////////////////////////////////////////////////////////////

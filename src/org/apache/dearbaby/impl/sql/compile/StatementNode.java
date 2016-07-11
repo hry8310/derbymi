@@ -190,30 +190,7 @@ public abstract class StatementNode extends QueryTreeNode
 		/* we need to lock only if the data dictionary is in DDL cache mode
 		 */
 		if (dd.getCacheMode() == DataDictionary.DDL_MODE)
-		{
-			ConglomerateController  heapCC;
-			TransactionController tc =
-				getLanguageConnectionContext().getTransactionCompile();
-
-			heapCC = tc.openConglomerate(td.getHeapConglomerateId(),
-                                    false,
-									TransactionController.OPENMODE_FORUPDATE |
-									TransactionController.OPENMODE_FOR_LOCK_ONLY,
-									TransactionController.MODE_RECORD,
-									TransactionController.ISOLATION_SERIALIZABLE);
-			heapCC.close();
-			/*
-			** Need to get TableDescriptor again after getting the lock, in
-			** case for example, a concurrent add column thread commits
-			** while we are binding.
-			*/
-			String tableName = td.getName();
-			td = getTableDescriptor(td.getName(), getSchemaDescriptor(td.getSchemaName()));
-			if (td == null)
-			{
-				throw StandardException.newException(SQLState.LANG_TABLE_NOT_FOUND, tableName);
-			}
-		}
+		{ }
 		return td;
 	}
 

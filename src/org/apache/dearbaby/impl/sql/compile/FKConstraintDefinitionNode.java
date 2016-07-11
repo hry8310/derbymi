@@ -31,8 +31,7 @@ import org.apache.derby.iapi.sql.conn.Authorizer;
 import org.apache.derby.iapi.sql.dictionary.ColumnDescriptor;
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
 import org.apache.derby.iapi.sql.dictionary.SchemaDescriptor;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.impl.sql.execute.ConstraintInfo;
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
 
 /**
  * A FKConstraintDefintionNode represents table constraint definitions.
@@ -105,10 +104,7 @@ public final class FKConstraintDefinitionNode extends ConstraintDefinitionNode
 
 		// Verify if REFERENCES_PRIV is granted to columns referenced
 		getCompilerContext().pushCurrentPrivType(getPrivType());
-
-		// Indicate that this statement has a dependency on the
-		// table which is referenced by this foreign key:
-		getCompilerContext().createDependency(td);
+ 
 
 		// If references clause doesn't have columnlist, get primary key info
 		if (refRcl.size()==0 && (td.getPrimaryKey() != null))
@@ -144,17 +140,7 @@ public final class FKConstraintDefinitionNode extends ConstraintDefinitionNode
 		getCompilerContext().popCurrentPrivType();
 	}
 
-    ConstraintInfo getReferencedConstraintInfo()
-	{
-		if (SanityManager.DEBUG)
-		{
-			SanityManager.ASSERT(refTableSd != null, 
-					"You must call bind() before calling getConstraintInfo");
-		}
-		return new ConstraintInfo(refTableName.getTableName(), refTableSd,
-								  refRcl.getColumnNames(), refActionDeleteRule,
-								  refActionUpdateRule);
-	}
+     
 
 	public	TableName	getRefTableName() { return refTableName; }
 

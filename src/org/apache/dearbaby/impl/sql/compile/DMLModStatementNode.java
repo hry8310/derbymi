@@ -29,8 +29,7 @@ import org.apache.derby.catalog.DefaultInfo;
 import org.apache.derby.catalog.UUID;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.services.io.FormatableBitSet;
@@ -41,8 +40,7 @@ import org.apache.derby.iapi.sql.compile.Parser;
 import org.apache.derby.iapi.sql.compile.Visitable;
 import org.apache.derby.iapi.sql.compile.Visitor;
 import org.apache.derby.iapi.sql.conn.Authorizer;
-import org.apache.derby.iapi.sql.conn.LanguageConnectionContext;
-import org.apache.derby.iapi.sql.depend.Dependent;
+import org.apache.derby.iapi.sql.conn.LanguageConnectionContext; 
 import org.apache.derby.iapi.sql.dictionary.ColumnDescriptor;
 import org.apache.derby.iapi.sql.dictionary.ColumnDescriptorList;
 import org.apache.derby.iapi.sql.dictionary.ConglomerateDescriptor;
@@ -56,9 +54,7 @@ import org.apache.derby.iapi.sql.dictionary.SchemaDescriptor;
 import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
 import org.apache.derby.iapi.sql.dictionary.TriggerDescriptor;
 import org.apache.derby.iapi.sql.dictionary.TriggerDescriptorList;
-import org.apache.derby.iapi.types.DataTypeDescriptor;
-import org.apache.derby.impl.sql.execute.FKInfo;
-import org.apache.derby.impl.sql.execute.TriggerInfo;
+import org.apache.derby.iapi.types.DataTypeDescriptor; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
@@ -75,9 +71,7 @@ abstract class DMLModStatementNode extends DMLStatementNode
 	protected ResultColumnList	resultColumnList;
 	protected int 				lockMode;		// lock mode for the target table
 
-	protected FKInfo[]			fkInfo;			// array of FKInfo structures
-												// generated during bind
-	protected TriggerInfo		triggerInfo;	// generated during bind
+ 
     TableDescriptor     targetTableDescriptor;
 
 
@@ -185,11 +179,7 @@ abstract class DMLModStatementNode extends DMLStatementNode
 		{
             MethodBuilder mb = acb.getExecuteMethod();
 			mb.pushThis();
-			mb.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.Activation,
-									"getLanguageConnectionContext", ClassName.LanguageConnectionContext, 0);
-			mb.push(targetTableDescriptor.getName());
-			mb.callMethod(VMOpcode.INVOKEINTERFACE, null, "markTempTableAsModifiedInUnitOfWork",
-						"void", 1);
+		 
 			mb.endStatement();
 		}
 	}
@@ -258,7 +248,7 @@ abstract class DMLModStatementNode extends DMLStatementNode
 			 */
 			targetTableDescriptor = lockTableForCompilation(targetTableDescriptor);
 
-			getCompilerContext().createDependency(targetTableDescriptor);
+		 
 		}
 		else
 		{
@@ -593,108 +583,7 @@ abstract class DMLModStatementNode extends DMLStatementNode
 		return	clauseTree;
 	}
 
-	/**
-	 * Gets and binds all the constraints for an INSERT/UPDATE/DELETE.
-	 * First finds the constraints that are relevant to this node.
-	 * This is done by calling getAllRelevantConstriants().  If
-	 * getAllRelevantConstraints() has already been called, then
-	 * this list is used.  Then it creates appropriate 
-	 * dependencies. Then binds check constraints.  It also 
-	 * generates the array of FKInfo items that are used in
-	 * code generation.
-
-	 * Note: we have a new flag here to see if defer processing is enabled or
-	 *       not, the only scenario that is disabled is when we reapply the
-	 *		 reply message we get from the source
-	 *
-	 *
-	 * @param dataDictionary		The DataDictionary
-	 * @param targetTableDescriptor	The TableDescriptor
-	 * @param dependent			Parent object that will depend on all the constraints
-	 *							that we look up. If this argument is null, then we
-	 *							use the default dependent (the statement being compiled).
-	 * @param sourceRCL				RCL of the table being changed
-	 * @param changedColumnIds		If null, all columns being changed, otherwise array
-	 *								of 1-based column ids for columns being changed
-	 * @param readColsBitSet		bit set for the read scan
-	 * @param includeTriggers		whether triggers are included in the processing
-     * @param hasDeferrableCheckConstraints
-     *                        OUT semantics: set element 0 to true if the
-     *                        target table has any deferrable CHECK constraints
-	 *
-	 * @return	The bound, ANDed check constraints as a query tree.
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-	ValueNode bindConstraints
-	(
-		DataDictionary		dataDictionary,
-        OptimizerFactory    optimizerFactory,
-		TableDescriptor		targetTableDescriptor,
-		Dependent			dependent,
-		ResultColumnList	sourceRCL,
-		int[]				changedColumnIds,
-		FormatableBitSet				readColsBitSet,
-        boolean             includeTriggers,
-        boolean[]           hasDeferrableCheckConstraints
-    )
-		throws StandardException
-	{
-		bound = true;
-
-		/* Nothing to do if updatable VTI */
-		if (targetVTI != null)
-		{
-			return null;
-		}
-
-        CompilerContext compilerContext = getCompilerContext();
-        
-        // Do not need privileges to execute constraints
-		compilerContext.pushCurrentPrivType( Authorizer.NULL_PRIV);
-		try {
-			getAllRelevantConstraints(dataDictionary, 	
-											targetTableDescriptor, 
-											changedColumnIds);
-			createConstraintDependencies(dataDictionary, relevantCdl, dependent);
-			generateFKInfo(relevantCdl, dataDictionary, targetTableDescriptor, readColsBitSet);
-
-			getAllRelevantTriggers(dataDictionary, targetTableDescriptor,
-							   changedColumnIds, includeTriggers);
-			createTriggerDependencies(relevantTriggers, dependent);
-            generateTriggerInfo(relevantTriggers);
-
-            checkConstraints = generateCheckTree(
-                    relevantCdl,
-                    targetTableDescriptor,
-                    hasDeferrableCheckConstraints);
-
-            if (checkConstraints != null)
-			{
-                SchemaDescriptor    originalCurrentSchema = targetTableDescriptor.getSchemaDescriptor();
-                compilerContext.pushCompilationSchema( originalCurrentSchema );
-
-                try {
-                    bindRowScopedExpression(optimizerFactory,
-                                            getContextManager(),
-                                            targetTableDescriptor,
-                                            sourceRCL,
-                                            checkConstraints);
-                }
-                finally
-                {
-                    compilerContext.popCompilationSchema();
-                }
-			}
-		}
-		finally
-		{
-			compilerContext.popCurrentPrivType();
-		}
-
-		return	checkConstraints;
-	}
-
+	 
 	/**
 	 * Binds an already parsed expression that only involves columns in a single
 	 * row. E.g., a check constraint or a generation clause.
@@ -895,182 +784,7 @@ abstract class DMLModStatementNode extends DMLStatementNode
     )
 		throws StandardException
 	{
-        ArrayList<FKInfo>         fkList = new ArrayList<FKInfo>();
-		int 								type;
-        UUID[]                              uuids;
-        long[]                              conglomNumbers;
-        String[]                            fkNames;
-		ConstraintDescriptorList			fkcdl;
-		ReferencedKeyConstraintDescriptor	refcd;
-		boolean[]							isSelfReferencingFK;
-		ConstraintDescriptorList			activeList = dd.getActiveConstraintDescriptors(cdl);
-		int[]								rowMap = getRowMap(readColsBitSet, td);
-        int[]                               raRules;
-        boolean[]                           deferrable;
-        UUID[]                              fkIds;
-		ArrayList<String>              refTableNames = new ArrayList<String>(1);
-		ArrayList<Long>               refIndexConglomNum = new ArrayList<Long>(1);
-		ArrayList<Integer>            refActions = new ArrayList<Integer>(1);
-		ArrayList<ColumnDescriptorList> refColDescriptors = new ArrayList<ColumnDescriptorList>(1);
-		ArrayList<int[]>                fkColMap = new ArrayList<int[]>(1);
-		int activeSize = activeList.size();
-		for (int index = 0; index < activeSize; index++)
-		{
-			ConstraintDescriptor cd = activeList.elementAt(index);
-
-			if (cd instanceof ForeignKeyConstraintDescriptor)
-			{
-				/*
-				** We are saving information for checking the
-				** primary/unique key that is referenced by this
-				** foreign key, so type is FOREIGN KEY.
-				*/	
-				type = FKInfo.FOREIGN_KEY;
-				refcd = ((ForeignKeyConstraintDescriptor)cd).getReferencedConstraint();
-				uuids = new UUID[1];
-                deferrable = new boolean[1];
-                fkIds = new UUID[1];
-				conglomNumbers = new long[1];
-				fkNames = new String[1];
-				isSelfReferencingFK = new boolean[1];
-				raRules = new int[1];
-                fkSetupArrays(
-                    dd, (ForeignKeyConstraintDescriptor)cd,
-                    0, uuids, conglomNumbers,
-                    fkNames, isSelfReferencingFK, raRules, deferrable, fkIds);
-
-				// oops, get the right constraint name -- for error
-				// handling we want the FK name, not refcd name
-				fkNames[0] = cd.getConstraintName();
-			}
-			else if (cd instanceof ReferencedKeyConstraintDescriptor)
-			{	
-				refcd = (ReferencedKeyConstraintDescriptor)cd;
-
-				/*
-				** We are saving information for checking the
-				** foreign key(s) that is dependent on this referenced
-				** key, so type is REFERENCED KEY.
-				*/	
-				type = FKInfo.REFERENCED_KEY;
-				fkcdl = dd.getActiveConstraintDescriptors
-					( ((ReferencedKeyConstraintDescriptor)cd).getForeignKeyConstraints(ConstraintDescriptor.ENABLED) );
-	
-				int size = fkcdl.size();
-				if (size == 0) 
-				{ 
-					continue; 
-				}
-
-				uuids = new UUID[size];
-                deferrable = new boolean[size];
-                fkIds = new UUID[size];
-				fkNames = new String[size];
-				conglomNumbers = new long[size];
-				isSelfReferencingFK = new boolean[size];
-				raRules = new int[size];
-				TableDescriptor fktd;
-				ColumnDescriptorList coldl;
-				int[] refColumns; 
-				ColumnDescriptor cold; 
-				int[] colArray = remapReferencedColumns(cd, rowMap);
-				for (int inner = 0; inner < size; inner++)
-				{
-                    ForeignKeyConstraintDescriptor fkcd =
-                        (ForeignKeyConstraintDescriptor) fkcdl.elementAt(inner);
-                    fkSetupArrays(
-                        dd, fkcd,
-                        inner, uuids, conglomNumbers, fkNames,
-                        isSelfReferencingFK, raRules, deferrable, fkIds);
-
-					if((raRules[inner] == StatementType.RA_CASCADE) || 
-					   (raRules[inner] ==StatementType.RA_SETNULL))
-					{
-						//find  the referencing  table Name
-						fktd = fkcd.getTableDescriptor();
-						refTableNames.add(fktd.getSchemaName() + "." + fktd.getName());
-                        refActions.add(Integer.valueOf(raRules[inner]));
-						//find the referencing column name required for update null.
-						refColumns = fkcd.getReferencedColumns();
-						coldl = fktd.getColumnDescriptorList();
-						ColumnDescriptorList releventColDes = new ColumnDescriptorList();
-						for(int i = 0 ; i < refColumns.length; i++)
-						{
-                            cold = coldl.elementAt(refColumns[i]-1);
-							releventColDes.add(cold);
-						}
-						refColDescriptors.add(releventColDes);
-                        refIndexConglomNum.add(
-                            Long.valueOf(conglomNumbers[inner]));
-						fkColMap.add(colArray);
-					}
-				}
-			}
-			else
-			{
-				continue;
-			}
-
-            final TableDescriptor   pktd = refcd.getTableDescriptor();
-            final UUID pkIndexId = refcd.getIndexId();
-            final ConglomerateDescriptor pkIndexConglom =
-                    pktd.getConglomerateDescriptor(pkIndexId);
-
-            final TableDescriptor refTd = cd.getTableDescriptor();
-
-            fkList.add(
-                new FKInfo(
-                    fkNames,                // foreign key names
-                    cd.getSchemaDescriptor().getSchemaName(),
-                    refTd.getName(),        // table being modified
-                    statementType,          // INSERT|UPDATE|DELETE
-                    type,                   // FOREIGN_KEY|REFERENCED_KEY
-                    pkIndexId,              // referenced backing index uuid
-                    pkIndexConglom.getConglomerateNumber(),
-                                            // referenced backing index conglom
-                    refcd.getUUID(),
-                    refcd.deferrable(),     // referenced constraint is
-                                            // deferrable?
-                    uuids,                  // fk backing index uuids
-                    conglomNumbers,         // fk backing index congloms
-                    isSelfReferencingFK,    // is self ref array of bool
-                    remapReferencedColumns(cd, rowMap),
-                                            // columns referenced by key
-                    dd.getRowLocationTemplate(getLanguageConnectionContext(),
-                                              refTd),
-                                            // row location template for table
-                                            // being modified
-                    raRules,                // referential action rules
-                    deferrable,             // deferrable flags
-                    fkIds));                // UUID of fks
-
-		}
-		
-        // Now convert the list into an array.
-        if (!fkList.isEmpty()) {
-            fkInfo = fkList.toArray(new FKInfo[fkList.size()]);
-        }
-
-        // Convert the ref action info lists to arrays.
-		int size = refActions.size();
-		if (size > 0)
-		{
-			fkTableNames = new String[size];
-			fkRefActions  = new int[size];
-			fkColDescriptors = new ColumnDescriptorList[size];
-			fkIndexConglomNumbers = new long[size];
-			fkColArrays = new int[size][];
-			for (int i = 0; i < size; i++)
-			{
-				fkTableNames[i] = refTableNames.get(i);
-				fkRefActions[i]  = (refActions.get(i)).intValue();
-				fkColDescriptors[i] =
-					refColDescriptors.get(i);
-				fkIndexConglomNumbers[i] =
-					(refIndexConglomNum.get(i)).longValue();
-				fkColArrays[i] = (fkColMap.get(i));
-			}
-		}		
+       	
 
 	}
 
@@ -1111,46 +825,10 @@ abstract class DMLModStatementNode extends DMLStatementNode
 	 */
     private void generateTriggerInfo(TriggerDescriptorList triggerList)
 	{	
-        if ((triggerList != null) && (!triggerList.isEmpty()))
-		{
-            triggerInfo = new TriggerInfo(triggerList);
-		}
+       
 	}
 
-	/**
-	 * Return the FKInfo structure.  Just  a little wrapper
-	 * to make sure we don't try to access it until after
-	 * binding.
-	 *
-	 * @return the array of fkinfos
-	 */
-    FKInfo[] getFKInfo()
-	{
-		if (SanityManager.DEBUG)
-		{
-			SanityManager.ASSERT(bound, "attempt to access FKInfo "+
-					"before binding");
-		}
-		return fkInfo;
-	}
-
-	/**
-	 * Return the TriggerInfo structure.  Just  a little wrapper
-	 * to make sure we don't try to access it until after
-	 * binding.
-	 *
-	 * @return the trigger info
-	 */
-    TriggerInfo getTriggerInfo()
-	{
-		if (SanityManager.DEBUG)
-		{
-			SanityManager.ASSERT(bound, "attempt to access TriggerInfo "+
-					"before binding");
-		}
-		return triggerInfo;
-	}
-
+	  
 	/**
 	 * Get the check constraints for this node
 	 *
@@ -1165,38 +843,7 @@ abstract class DMLModStatementNode extends DMLStatementNode
 		}
 		return checkConstraints;
 	}	
-			
-	/**
-	 * Makes the calling object (usually a Statement) dependent on all the constraints.
-	 *
-	 * @param tdl				The trigger descriptor list
-	 * @param dependent			Parent object that will depend on all the constraints
-	 *							that we look up. If this argument is null, then we
-	 *							use the default dependent (the statement being compiled).
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-	private void createTriggerDependencies
-	(
-        TriggerDescriptorList       tdl,
-		Dependent					dependent
-	)
-		throws StandardException
-	{
-		CompilerContext 			compilerContext = getCompilerContext();
-
-        for (TriggerDescriptor td : tdl) {
-            /*
-            ** The dependent now depends on this trigger.
-            ** The default dependent is the statement being compiled.
-            */
-            if (dependent == null) {
-                compilerContext.createDependency(td);
-            } else {
-                compilerContext.createDependency(dependent, td);
-            }
-        }
-	}
+	 
 
 	/**
 	 * Get all the triggers relevant to this DML operation
@@ -1238,93 +885,7 @@ abstract class DMLModStatementNode extends DMLStatementNode
 		if( !requiresDeferredProcessing ) { requiresDeferredProcessing = adjustment; }
 	}
 
-	/**
-	 * Get all of our dependents due to a constraint.
-	 *
-	 * Makes the calling object (usually a Statement) dependent on all the constraints.
-	 *
-	 * @param dd				The data dictionary
-	 * @param cdl				The constraint descriptor list
-	 * @param dependent			Parent object that will depend on all the constraints
-	 *							that we look up. If this argument is null, then we
-	 *							use the default dependent (the statement being compiled).
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-	private void createConstraintDependencies
-	(
-		DataDictionary				dd,
-		ConstraintDescriptorList 	cdl,
-		Dependent					dependent
-	)
-		throws StandardException
-	{
-		CompilerContext 			compilerContext = getCompilerContext();
-
-		int cdlSize = cdl.size();
-		for (int index = 0; index < cdlSize; index++)
-		{
-			ConstraintDescriptor cd = cdl.elementAt(index);
-
-			/*
-			** The dependent now depends on this constraint. 
-			** the default dependent is the statement 
-			** being compiled.
-			*/
-			if (dependent == null) 
-			{ 
-				compilerContext.createDependency(cd); 
-			}
-			else 
-			{ 
-				compilerContext.createDependency(dependent, cd); 
-			}
-
-			/*
-			** We are also dependent on all referencing keys --
-			** if one of them is deleted, we'll have to recompile.
-			** Also, if there is a BULK_INSERT on the table
-			** we are going to scan to validate the constraint,
-			** the index number will change, so we'll add a
-			** dependency on all tables we will scan.
-			*/
-			if (cd instanceof ReferencedKeyConstraintDescriptor)
-			{	
-				ConstraintDescriptorList fkcdl = dd.getActiveConstraintDescriptors
-					( ((ReferencedKeyConstraintDescriptor)cd).getForeignKeyConstraints(ConstraintDescriptor.ENABLED) );
-	
-				int fklSize = fkcdl.size();
-				for (int inner = 0; inner < fklSize; inner++)
-				{
-					ConstraintDescriptor fkcd = fkcdl.elementAt(inner);
-					if (dependent == null) 
-					{ 
-						compilerContext.createDependency(fkcd); 
-						compilerContext.createDependency(fkcd.getTableDescriptor()); 
-					}
-					else 
-					{ 
-						compilerContext.createDependency(dependent, fkcd); 
-						compilerContext.createDependency(dependent, fkcd.getTableDescriptor()); 
-					}
-				}
-			}
-			else if (cd instanceof ForeignKeyConstraintDescriptor)
-			{
-				ForeignKeyConstraintDescriptor fkcd = (ForeignKeyConstraintDescriptor) cd;
-				if (dependent == null) 
-				{ 
-					compilerContext.createDependency(fkcd.getReferencedConstraint().getTableDescriptor()); 
-				}
-				else
-				{
-					compilerContext.createDependency(dependent, 
-									fkcd.getReferencedConstraint().getTableDescriptor()); 
-				}
-			}
-		}
-	}
-
+	 
 	/**
 	 * Get all the constraints relevant to this DML operation
 	 *
@@ -1623,8 +1184,7 @@ abstract class DMLModStatementNode extends DMLStatementNode
         /* Push the the current row onto the stack. */
         userExprFun.pushThis();
         userExprFun.push( rsNumber );
-        userExprFun.callMethod(VMOpcode.INVOKEVIRTUAL, ClassName.BaseActivation, "getCurrentRow", ClassName.Row, 1);
-
+         
 		// Loop through the result columns, computing generated columns
         // as we go. 
         int     size = rcl.size();
@@ -1665,9 +1225,7 @@ abstract class DMLModStatementNode extends DMLStatementNode
 
             rc.generateExpression(ecb, userExprFun);
             userExprFun.cast(ClassName.DataValueDescriptor);
-                
-            userExprFun.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.Row, "setColumn", "void", 2);
-        }
+           }
 
 		/* generates:
 		 *    return;
@@ -1808,8 +1366,7 @@ abstract class DMLModStatementNode extends DMLStatementNode
 			indexConglomerateNumbers[ ictr ] = cd.getConglomerateNumber();
 			indexNames[ictr] = 
 				((cd.isConstraint()) ? null : cd.getConglomerateName());
-
-			cc.createDependency(cd);
+ 
 		}
 
 	}

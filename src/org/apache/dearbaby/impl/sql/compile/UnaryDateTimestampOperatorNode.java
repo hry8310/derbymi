@@ -25,8 +25,7 @@ import java.sql.Types;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
@@ -185,7 +184,7 @@ class UnaryDateTimestampOperatorNode extends UnaryOperatorNode
         acb.pushDataValueFactory( mb);
         operand.generateExpression( acb, mb);
         mb.cast( ClassName.DataValueDescriptor);
-        mb.callMethod( VMOpcode.INVOKEINTERFACE, (String) null, methodName, getTypeCompiler().interfaceName(), 1);
+        
     } // end of generateExpression
 
     @Override

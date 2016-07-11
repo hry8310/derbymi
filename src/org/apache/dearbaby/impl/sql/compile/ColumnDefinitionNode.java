@@ -30,18 +30,15 @@ import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.Limits;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.io.StoredFormatIds;
-import org.apache.derby.iapi.services.loader.ClassInspector;
+import org.apache.derby.iapi.services.io.StoredFormatIds; 
 import org.apache.derby.shared.common.sanity.SanityManager;
-import org.apache.derby.iapi.sql.compile.CompilerContext;
-import org.apache.derby.iapi.sql.depend.ProviderList;
+import org.apache.derby.iapi.sql.compile.CompilerContext; 
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
 import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.iapi.types.DataValueDescriptor;
 import org.apache.derby.iapi.types.StringDataValue;
-import org.apache.derby.iapi.types.TypeId;
-import org.apache.derby.impl.sql.execute.ColumnInfo;
+import org.apache.derby.iapi.types.TypeId; 
 
 /**
  * A ColumnDefinitionNode represents a column definition in a DDL statement.
@@ -392,38 +389,7 @@ public class ColumnDefinitionNode extends TableElementNode
         // bind the UDT if necessary
         setType( bindUserType( getType() ) );
 
-		ClassInspector classInspector = getClassFactory().getClassInspector();
-
-		columnTypeName =
-			getType().getTypeId().getCorrespondingJavaTypeName();
-
-		/* User type - We first check for the columnTypeName as a java class.
-		 * If that fails, then we treat it as a class alias.
-		 */
-
-		boolean foundMatch = false;
-		Throwable reason = null;
-		try {
-			foundMatch = classInspector.accessible(columnTypeName);
-		} catch (ClassNotFoundException cnfe) {
-			reason = cnfe;
-		}
-
-		if (!foundMatch)
-		{
-			throw StandardException.newException(SQLState.LANG_TYPE_DOESNT_EXIST, reason, columnTypeName,
-																name);
-		}
-
-		if (! classInspector.assignableTo(columnTypeName,
-											"java.io.Serializable")  &&
-            // Before Java2, SQLData is not defined, assignableTo call returns false
-            ! classInspector.assignableTo(columnTypeName,"java.sql.SQLData"))
-        {
-			getCompilerContext().addWarning(
-				StandardException.newWarning(SQLState.LANG_TYPE_NOT_SERIALIZABLE, columnTypeName,
-																 name));
-		}
+		 
 	}
 
 	/**
@@ -443,7 +409,7 @@ public class ColumnDefinitionNode extends TableElementNode
 	 */
 	int getAction()
 	{
-		return ColumnInfo.CREATE;
+		return 0;
 	}
 
 	/**
@@ -594,77 +560,7 @@ public class ColumnDefinitionNode extends TableElementNode
 		 * and that it is type compatable with the column.
 		 */
 		final int previousReliability = cc.getReliability();
-		try
-		{
-			/*
-				Defaults cannot have dependencies as they
-				should just be constants. Code used to exist
-				to handle dependencies in defaults, now this
-				is under sanity to ensure no dependencies exist.
-			 */
-			ProviderList apl = null;
-			ProviderList prevAPL = null;
-
-			if (SanityManager.DEBUG) {
-				apl = new ProviderList();
-				prevAPL = cc.getCurrentAuxiliaryProviderList();
-				cc.setCurrentAuxiliaryProviderList(apl);
-			}
-			
-			// Tell the compiler context to only allow deterministic nodes
-			cc.setReliability( CompilerContext.DEFAULT_RESTRICTION );
-			defaultTree = defaultTree.bindExpression(
-                            new FromList(
-                                getOptimizerFactory().doJoinOrderOptimization(),
-								getContextManager()), 
-							(SubqueryList) null,
-							(List<AggregateNode>) null);
-
-			TypeId columnTypeId = getType().getTypeId();
-			TypeId defaultTypeId = defaultTree.getTypeId();
-
-			// Check for 'invalid default' errors (42894)
-			// before checking for 'not storable' errors (42821).
-			if (!defaultTypeIsValid(columnTypeId, getType(),
-					defaultTypeId, defaultTree, defaultNode.getDefaultText()))
-			{
-					throw StandardException.newException(
-						SQLState.LANG_DB2_INVALID_DEFAULT_VALUE,
-						this.name);
-			}
-
-			// Now check 'not storable' errors.
-			if (! getTypeCompiler(columnTypeId).
-								storable(defaultTypeId, getClassFactory()))
-			{
-				throw StandardException.newException(SQLState.LANG_NOT_STORABLE, 
-					columnTypeId.getSQLTypeName(),
-					defaultTypeId.getSQLTypeName() );
-			}
-
-			// Save off the default text
-			// RESOLVEDEFAULT - Convert to constant if possible
-			defaultInfo = new DefaultInfoImpl(false,
-							  defaultNode.getDefaultText(), 
-							  defaultValue);
-
-			if (SanityManager.DEBUG)
-			{
-				/* Save the APL off in the constraint node */
-				if (apl.size() > 0)
-				{
-
-					SanityManager.THROWASSERT("DEFAULT clause has unexpected dependencies");
-				}
-				// Restore the previous AuxiliaryProviderList
-				cc.setCurrentAuxiliaryProviderList(prevAPL);
-			}
-
-		}
-		finally
-		{
-			cc.setReliability(previousReliability);
-		}
+		 
 	}
 
 

@@ -25,8 +25,7 @@ package	org.apache.dearbaby.impl.sql.compile;
 import java.util.List;
 
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
@@ -89,16 +88,5 @@ class GrantNode extends DDLStatementNode
 
 	 
 
-
-	/**
-	 * Create the Constant information that will drive the guts of Execution.
-	 *
-	 * @exception StandardException	Standard error policy.
-	 */
-    @Override
-	public ConstantAction makeConstantAction() throws StandardException
-	{
-		return getGenericConstantActionFactory().getGrantConstantAction( privileges.makePrivilegeInfo(),
-																		 grantees);
-	}
+ 
 }

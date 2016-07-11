@@ -32,14 +32,10 @@ import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.Property;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.io.FormatableBitSet;
-import org.apache.derby.iapi.services.property.PropertyUtil;
+import org.apache.derby.iapi.services.io.FormatableBitSet; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.StatementType;
-import org.apache.derby.iapi.sql.compile.CompilerContext;
-import org.apache.derby.iapi.sql.depend.DependencyManager;
-import org.apache.derby.iapi.sql.depend.ProviderInfo;
-import org.apache.derby.iapi.sql.depend.ProviderList;
+import org.apache.derby.iapi.sql.compile.CompilerContext;  
 import org.apache.derby.iapi.sql.dictionary.ColumnDescriptor;
 import org.apache.derby.iapi.sql.dictionary.ColumnDescriptorList;
 import org.apache.derby.iapi.sql.dictionary.ConstraintDescriptor;
@@ -48,11 +44,7 @@ import org.apache.derby.iapi.sql.dictionary.DataDictionary;
 import org.apache.derby.iapi.sql.dictionary.SchemaDescriptor;
 import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
-import org.apache.derby.iapi.types.TypeId;
-import org.apache.derby.impl.sql.execute.ColumnInfo;
-import org.apache.derby.impl.sql.execute.ConstraintConstantAction;
-import org.apache.derby.impl.sql.execute.ConstraintInfo;
-import org.apache.derby.impl.sql.execute.IndexConstantAction;
+import org.apache.derby.iapi.types.TypeId; 
 
 /**
  * A TableElementList represents the list of columns and other table elements
@@ -303,8 +295,7 @@ class TableElementList extends QueryTreeNodeVector<TableElementNode>
 								(sd.getSchemaName() + "."+ dropConstraintName),
 								td.getQualifiedName());
 					}
-					/* Statement is dependendent on the ConstraintDescriptor */
-					getCompilerContext().createDependency(cd);
+				 
 				}
 			}
 
@@ -426,90 +417,7 @@ class TableElementList extends QueryTreeNodeVector<TableElementNode>
 		return numColumns;
 	}
 
-	/**
-	 * Fill in the ColumnInfo[] for this table element list.
-	 * 
-	 * @param colInfos	The ColumnInfo[] to be filled in.
-	 *
-	 * @return int		The number of constraints in the create table.
-	 */
-    int genColumnInfos( ColumnInfo[] colInfos)
-        throws StandardException
-	{
-		int	numConstraints = 0;
-		int size = size();
-
-		for (int index = 0; index < size; index++)
-		{
-            if (elementAt(index).getElementType() == TableElementNode.AT_DROP_COLUMN)
-			{
-                String columnName = elementAt(index).getName();
-
-				colInfos[index] = new ColumnInfo(
-								columnName,
-								td.getColumnDescriptor( columnName ).getType(),
-                                null, null, null, null, null,
-								ColumnInfo.DROP, 0, 0, 0);
-				break;
-			}
-
-			if (! (elementAt(index) instanceof ColumnDefinitionNode))
-			{
-				if (SanityManager.DEBUG)
-				{
-					SanityManager.ASSERT( elementAt(index) instanceof ConstraintDefinitionNode,
-						"elementAt(index) expected to be instanceof " +
-						"ConstraintDefinitionNode");
-				}
-
-				/* Remember how many constraints we've seen */
-				numConstraints++;
-				continue;
-			}
-
-			ColumnDefinitionNode coldef = (ColumnDefinitionNode) elementAt(index);
-
-            //
-            // Generated columns may depend on functions mentioned in their
-            // generation clauses.
-            //
-            ProviderList apl = null;
-            ProviderInfo[]	providerInfos = null;
-			if ( coldef.hasGenerationClause() )
-			{
-				apl = coldef.getGenerationClauseNode().getAuxiliaryProviderList();
-			}
-            if (apl != null && apl.size() > 0)
-            {
-                DependencyManager dm = getDataDictionary().getDependencyManager();
-                providerInfos = dm.getPersistentProviderInfos(apl);
-            }
-
-			colInfos[index - numConstraints] = 
-				new ColumnInfo(coldef.getColumnName(),
-							   coldef.getType(),
-							   coldef.getDefaultValue(),
-							   coldef.getDefaultInfo(),
-							   providerInfos,
-							   (UUID) null,
-							   coldef.getOldDefaultUUID(),
-							   coldef.getAction(),
-							   (coldef.isAutoincrementColumn() ? 
-								coldef.getAutoincrementStart() : 0),
-							   (coldef.isAutoincrementColumn() ? 
-								coldef.getAutoincrementIncrement() : 0),
-							   (coldef.isAutoincrementColumn() ? 
-								coldef.getAutoinc_create_or_modify_Start_Increment() : -1));
-
-			/* Remember how many constraints that we've seen */
-        if (coldef.hasConstraint())
-			{
-				numConstraints++;
-			}
-		}
-
-		return numConstraints;
-	}
+	 
 	/**
 	 * Append goobered up ResultColumns to the table's RCL.
 	 * This is useful for binding check constraints for CREATE and ALTER TABLE.
@@ -586,43 +494,7 @@ class TableElementList extends QueryTreeNodeVector<TableElementNode>
 			// verify that it evaluates to a boolean
 			final int previousReliability = cc.getReliability();
 			try
-			{
-				/* Each check constraint can have its own set of dependencies.
-				 * These dependencies need to be shared with the prepared
-				 * statement as well.  We create a new auxiliary provider list
-				 * for the check constraint, "push" it on the compiler context
-				 * by swapping it with the current auxiliary provider list
-				 * and the "pop" it when we're done by restoring the old 
-				 * auxiliary provider list.
-				 */
-				ProviderList apl = new ProviderList();
-
-				ProviderList prevAPL = cc.getCurrentAuxiliaryProviderList();
-				cc.setCurrentAuxiliaryProviderList(apl);
-
-				// Tell the compiler context to only allow deterministic nodes
-				cc.setReliability( CompilerContext.CHECK_CONSTRAINT );
-                checkTree = checkTree.bindExpression(
-                        fromList, (SubqueryList) null, aggregates);
-
-				// no aggregates, please
-                if (!aggregates.isEmpty())
-				{
-					throw StandardException.newException(SQLState.LANG_INVALID_CHECK_CONSTRAINT, cdn.getConstraintText());
-				}
-				
-				checkTree = checkTree.checkIsBoolean();
-				cdn.setCheckCondition(checkTree);
-
-				/* Save the APL off in the constraint node */
-				if (apl.size() > 0)
-				{
-					cdn.setAuxiliaryProviderList(apl);
-				}
-
-				// Restore the previous AuxiliaryProviderList
-				cc.setCurrentAuxiliaryProviderList(prevAPL);
-			}
+			{ }
 			finally
 			{
 				cc.setReliability(previousReliability);
@@ -710,87 +582,7 @@ class TableElementList extends QueryTreeNodeVector<TableElementNode>
 
 			// bind the generation clause
 			final int previousReliability = cc.getReliability();
-            ProviderList prevAPL = cc.getCurrentAuxiliaryProviderList();
-			try
-			{
-				/* Each generation clause can have its own set of dependencies.
-				 * These dependencies need to be shared with the prepared
-				 * statement as well.  We create a new auxiliary provider list
-				 * for the generation clause, "push" it on the compiler context
-				 * by swapping it with the current auxiliary provider list
-				 * and the "pop" it when we're done by restoring the old 
-				 * auxiliary provider list.
-				 */
-				ProviderList apl = new ProviderList();
-
-				cc.setCurrentAuxiliaryProviderList(apl);
-
-				// Tell the compiler context to forbid subqueries and
-				// non-deterministic functions.
-				cc.setReliability( CompilerContext.GENERATION_CLAUSE_RESTRICTION );
-                generationTree = generationClauseNode.bindExpression(
-                        fromList, (SubqueryList) null, aggregates);
-
-                SelectNode.checkNoWindowFunctions(generationClauseNode, "generation clause");
-
-                //
-                // If the user did not declare a type for this column, then the column type defaults
-                // to the type of the generation clause.
-                // However, if the user did declare a type for this column, then the
-                // type of the generation clause must be assignable to the declared
-                // type.
-                //
-                DataTypeDescriptor  generationClauseType = generationTree.getTypeServices();
-                DataTypeDescriptor  declaredType = cdn.getType();
-                if ( declaredType == null )
-                {
-                    cdn.setType( generationClauseType );
-
-                    //
-                    // Poke the type into the FromTable so that constraints will
-                    // compile.
-                    //
-                    tableColumns.getResultColumn( cdn.getColumnName(), false ).setType( generationClauseType );
-
-                    //
-                    // We skipped these steps earlier on because we didn't have
-                    // a datatype. Now that we have a datatype, revisit these
-                    // steps.
-                    //
-                    setCollationTypeOnCharacterStringColumn( sd, cdn );
-                    cdn.checkUserType( table.getTableDescriptor() );
-                }
-                else
-                {
-                    TypeId  declaredTypeId = declaredType.getTypeId();
-                    TypeId  resolvedTypeId = generationClauseType.getTypeId();
-
-                    if ( !getTypeCompiler( resolvedTypeId ).convertible( declaredTypeId, false ) )
-                    {
-                        throw StandardException.newException
-                            ( SQLState.LANG_UNASSIGNABLE_GENERATION_CLAUSE, cdn.getName(), resolvedTypeId.getSQLTypeName() );
-                    }
-                }
-
-				// no aggregates, please
-                if (!aggregates.isEmpty())
-				{
-					throw StandardException.newException( SQLState.LANG_AGGREGATE_IN_GENERATION_CLAUSE, cdn.getName());
-				}
-				
-				/* Save the APL off in the constraint node */
-				if (apl.size() > 0)
-				{
-					generationClauseNode.setAuxiliaryProviderList(apl);
-				}
-
-			}
-			finally
-			{
-				// Restore previous compiler state
-				cc.setCurrentAuxiliaryProviderList(prevAPL);
-				cc.setReliability(previousReliability);
-			}
+           
 
 			/* We have a valid generation clause, now build an array of
 			 * 1-based columnIds that the clause references.
@@ -913,240 +705,10 @@ class TableElementList extends QueryTreeNodeVector<TableElementNode>
 		FromBaseTable				table = (FromBaseTable) fromList.elementAt(0);
         ResultColumnList        tableColumns = table.getResultColumns();
 
-        // loop through the foreign keys, looking for keys which violate the
-        // rulse we're enforcing
-        for (TableElementNode element : this)
-		{
-			if (! (element instanceof FKConstraintDefinitionNode))
-			{
-				continue;
-			}
-
-			FKConstraintDefinitionNode fk = (FKConstraintDefinitionNode) element;
-            ConstraintInfo                      ci = fk.getReferencedConstraintInfo();
-            int                                     deleteRule = ci.getReferentialActionDeleteRule();
-            int                                     updateRule = ci.getReferentialActionUpdateRule();
-
-            //
-            // Currently we don't support ON UPDATE CASCADE. Someday we might.
-            // We're laying a trip-wire here so that we won't neglect to code the appropriate check
-            // when we support ON UPDATE CASCADE.
-            //
-            if (
-                ( updateRule != StatementType.RA_RESTRICT ) &&
-                ( updateRule != StatementType.RA_NOACTION )
-                )
-            {
-                throw StandardException.newException( SQLState.BTREE_UNIMPLEMENTED_FEATURE );
-            }
-            
-            if (
-                ( deleteRule != StatementType.RA_SETNULL ) &&
-                ( deleteRule != StatementType.RA_SETDEFAULT )
-                )
-            { continue; }
-
-            //
-            // OK, we have found a foreign key whose referential action is SET NULL or
-            // SET DEFAULT or whose update rule is ON UPDATE CASCADE.
-            // See if any of the key columns are generated columns.
-            //
-            for (ResultColumn keyCol : fk.getColumnList())
-            {
-                String keyColName = keyCol.getName();
-                int position = tableColumns.getPosition( keyColName, 1 );
-
-                if ( generatedColumns.isSet(  position ) )
-                {
-                    throw StandardException.newException(SQLState.LANG_BAD_FK_ON_GENERATED_COLUMN, keyColName );
-                }
-            }
-
-        }   // end of loop through table elements
+        
     }
     
-	/**
-	 * Fill in the ConstraintConstantAction[] for this create/alter table.
-	 * 
-     * @param forCreateTable ConstraintConstantAction is for a create table.
-	 * @param conActions	The ConstraintConstantAction[] to be filled in.
-	 * @param tableName		The name of the Table being created.
-	 * @param tableSd		The schema for that table.
-	 * @param dd	    	The DataDictionary
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-	void genConstraintActions(boolean forCreateTable,
-				ConstraintConstantAction[] conActions,
-				String tableName,
-				SchemaDescriptor tableSd,
-				DataDictionary dd)
-		throws StandardException
-	{
-		int conActionIndex = 0;
-
-        for (TableElementNode ten : this)
-		{
-			String[]	columnNames = null;
-			IndexConstantAction indexAction = null;
-
-            if (! ten.hasConstraint() ||
-                ten instanceof ColumnDefinitionNode)
-			{
-				continue;
-			}
-
-			ConstraintDefinitionNode constraintDN = (ConstraintDefinitionNode) ten;
-
-			if (constraintDN.getColumnList() != null)
-			{
-				columnNames = new String[constraintDN.getColumnList().size()];
-				constraintDN.getColumnList().exportNames(columnNames);
-			}
-
-			int constraintType = constraintDN.getConstraintType();
-            boolean[] cChars = constraintDN.getCharacteristics();
-			String constraintText = constraintDN.getConstraintText();
-
-			/*
-			** If the constraint is not named (e.g.
-			** create table x (x int primary key)), then
-			** the constraintSd is the same as the table.
-			*/
-			String constraintName = constraintDN.getConstraintMoniker();
-
-			/* At execution time, we will generate a unique name for the backing
-			 * index (for CREATE CONSTRAINT) and we will look up the conglomerate
-			 * name (for DROP CONSTRAINT).
-			 */
-			if (constraintDN.requiresBackingIndex())
-			{
-                // implement unique constraints using a unique backing index 
-                // unless it is soft upgrade in version before 10.4, or if 
-                // constraint contains no nullable columns.  In 10.4 use 
-                // "unique with duplicate null" backing index for constraints 
-                // that contain at least one nullable column.
-
-				if (constraintDN.constraintType ==
-					DataDictionary.UNIQUE_CONSTRAINT && 
-					(dd.checkVersion(
-                         DataDictionary.DD_VERSION_DERBY_10_4, null))) 
-                {
-                    boolean contains_nullable_columns = 
-                        areColumnsNullable(constraintDN, td);
-
-                    // if all the columns are non nullable, continue to use
-                    // a unique backing index.
-                    boolean unique = 
-                        !contains_nullable_columns;
-
-                    // Only use a "unique with duplicate nulls" backing index
-                    // for constraints with nullable columns.
-                    boolean uniqueWithDuplicateNulls = 
-                        contains_nullable_columns;
-
-					indexAction = genIndexAction(
-						forCreateTable,
-						unique,
-                        uniqueWithDuplicateNulls,
-                        cChars[0], // deferrable?
-                        cChars[1], // initiallyDeferred?
-						null, constraintDN,
-						columnNames, true, tableSd, tableName,
-						constraintType, dd);
-				} 
-                else 
-                {   // PRIMARY KEY, FOREIGN KEY
-                    // For foreign key constraint we do no mark the
-                    // index as deferrable; since checking isn't done on
-                    // duplicate keys there.
-					indexAction = genIndexAction(
-						forCreateTable,
-						constraintDN.requiresUniqueIndex(), false,
-                        cChars[0],
-                        cChars[1],
-						null, constraintDN,
-						columnNames, true, tableSd, tableName,
-						constraintType, dd);
-				}
-			}
-
-			if (constraintType == DataDictionary.DROP_CONSTRAINT)
-			{
-                if (SanityManager.DEBUG)
-                {
-                    // Can't drop constraints on a create table.
-                    SanityManager.ASSERT(!forCreateTable);
-                }
-				conActions[conActionIndex] = 
-					getGenericConstantActionFactory().
-						getDropConstraintConstantAction(
-												 constraintName, 
-												 constraintDN.getDropSchemaName(), /// FiX
-												 tableName,
-												 td.getUUID(),
-												 tableSd.getSchemaName(),
-												 indexAction,
-												 constraintDN.getDropBehavior(),
-                                                 constraintDN.getVerifyType());
-			}
-            else if (constraintType == DataDictionary.MODIFY_CONSTRAINT) {
-                conActions[conActionIndex] =
-                    getGenericConstantActionFactory().
-                        getAlterConstraintConstantAction(
-                                                 constraintName,
-                                                 constraintDN.getDropSchemaName(),
-                                                 cChars,
-                                                 tableName,
-                                                 td.getUUID(),
-                                                 tableSd.getSchemaName(),
-                                                 indexAction);
-
-            }
-			else
-			{
-				ProviderList apl = constraintDN.getAuxiliaryProviderList();
-				ConstraintInfo refInfo = null;
-                ProviderInfo[]  providerInfos;
-
-				if (constraintDN instanceof FKConstraintDefinitionNode)
-				{
-					refInfo = ((FKConstraintDefinitionNode)constraintDN).getReferencedConstraintInfo();
-				}				
-
-				/* Create the ProviderInfos, if the constraint is dependent on any Providers */
-				if (apl != null && apl.size() > 0)
-				{
-					/* Get all the dependencies for the current statement and transfer
-					 * them to this view.
-					 */
-					DependencyManager dm = dd.getDependencyManager();
-					providerInfos = dm.getPersistentProviderInfos(apl);
-				}
-				else
-				{
-					providerInfos = new ProviderInfo[0];
-					// System.out.println("TABLE ELEMENT LIST EMPTY");
-				}
-
-				conActions[conActionIndex++] = 
-					getGenericConstantActionFactory().
-						getCreateConstraintConstantAction(
-												 constraintName, 
-											     constraintType,
-                                                 cChars,
-                                                 forCreateTable,
-												 tableName, 
-												 ((td != null) ? td.getUUID() : (UUID) null),
-												 tableSd.getSchemaName(),
-												 columnNames,
-												 indexAction,
-												 constraintText,
-												 refInfo,
-												 providerInfos);
-			}
-		}
-	}
+	 
 
       //check if one array is same as another 
 	private boolean columnsMatch(String[] columnNames1, String[] columnNames2)
@@ -1174,100 +736,7 @@ class TableElementList extends QueryTreeNodeVector<TableElementNode>
 
 		return true;
 	}
-
-    /**
-     * utility to generated the call to create the index.
-     * <p>
-     *
-     *
-     * @param forCreateTable                Executed as part of a CREATE TABLE
-     * @param isUnique		                True means it will be a unique index
-     * @param isUniqueWithDuplicateNulls    True means index check and disallow
-     *                                      any duplicate key if key has no 
-     *                                      column with a null value.  If any 
-     *                                      column in the key has a null value,
-     *                                      no checking is done and insert will
-     *                                      always succeed.
-     * @param hasDeferrableChecking         True if index is used to back a
-     *                                      deferrable constraint
-     * @param initiallyDeferred             True means the deferrable constraint
-     *                                      has deferred mode
-     * @param indexName	                    The type of index (BTREE, for 
-     *                                      example)
-     * @param cdn
-     * @param columnNames	                Names of the columns in the index,
-     *                                      in order.
-     * @param isConstraint	                TRUE if index is backing up a 
-     *                                      constraint, else FALSE.
-     * @param sd
-     * @param tableName	                    Name of table the index will be on
-     * @param constraintType
-     * @param dd
-     **/
-	private IndexConstantAction genIndexAction(
-    boolean                     forCreateTable,
-    boolean                     isUnique,
-    boolean                     isUniqueWithDuplicateNulls,
-    boolean                     hasDeferrableChecking,
-    boolean                     initiallyDeferred,
-    String                      indexName,
-    ConstraintDefinitionNode    cdn,
-    String[]                    columnNames,
-    boolean                     isConstraint,
-    SchemaDescriptor            sd,
-    String                      tableName,
-    int                         constraintType,
-    DataDictionary              dd)
-		throws StandardException
-	{
-		if (indexName == null) 
-        { 
-            indexName = cdn.getBackingIndexName(dd); 
-        }
-
-		if (constraintType == DataDictionary.DROP_CONSTRAINT)
-		{
-            if (SanityManager.DEBUG)
-            {
-                if (forCreateTable)
-                    SanityManager.THROWASSERT(
-                        "DROP INDEX with forCreateTable true");
-            }
-
-			return getGenericConstantActionFactory().getDropIndexConstantAction(
-                      null,
-                      indexName,
-                      tableName,
-                      sd.getSchemaName(),
-                      td.getUUID(),
-                      td.getHeapConglomerateId());
-		}
-		else
-		{
-			boolean[]	isAscending = new boolean[columnNames.length];
-
-			for (int i = 0; i < isAscending.length; i++)
-				isAscending[i] = true;
-
-			return	getGenericConstantActionFactory().getCreateIndexConstantAction(
-                    forCreateTable, 
-                    isUnique, 
-                    isUniqueWithDuplicateNulls,
-                    hasDeferrableChecking,
-                    initiallyDeferred,
-                    constraintType,
-                    "BTREE", // indexType
-                    sd.getSchemaName(),
-                    indexName,
-                    tableName,
-                    ((td != null) ? td.getUUID() : (UUID) null),
-                    columnNames,
-                    isAscending,
-                    isConstraint,
-                    cdn.getBackingIndexUUID(),
-                    checkIndexPageSizeProperty(cdn));
-		}
-	}
+ 
     /**
      * Checks if the index should use a larger page size.
      *
@@ -1285,44 +754,7 @@ class TableElementList extends QueryTreeNodeVector<TableElementNode>
      */
     private Properties checkIndexPageSizeProperty(ConstraintDefinitionNode cdn) 
         throws StandardException
-    {
-        Properties result = cdn.getProperties();
-        if (result == null)
-            result = new Properties();
-        if ( result.get(Property.PAGE_SIZE_PARAMETER) != null ||
-             PropertyUtil.getServiceProperty(
-                 getLanguageConnectionContext().getTransactionCompile(),
-                 Property.PAGE_SIZE_PARAMETER) != null)
-        {
-            // do not override the user's choice of page size, whether it
-            // is set for the whole database or just set on this statement.
-            return result;
-        }
-
-        int approxLength = 0;
-
-        for (ResultColumn rc : cdn.getColumnList())
-        {
-            String colName = rc.getName();
-            DataTypeDescriptor dtd;
-            if (td == null)
-                dtd = getColumnDataTypeDescriptor(colName);
-            else
-                dtd = getColumnDataTypeDescriptor(colName, td);
-            // There may be no DTD if the column does not exist. That syntax
-            // error is not caught til later in processing, so here we just
-            // skip the length checking if the column doesn't exist.
-            if (dtd != null)
-                approxLength+=dtd.getTypeId().getApproximateLengthInBytes(dtd);
-        }
-        if (approxLength > Property.IDX_PAGE_SIZE_BUMP_THRESHOLD)
-        {
-            result.put(
-                    Property.PAGE_SIZE_PARAMETER,
-                    Property.PAGE_SIZE_DEFAULT_LONG);
-        }
-        return result;
-    }
+    {return null;}
 
 
 	/**

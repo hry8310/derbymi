@@ -94,14 +94,7 @@ public class CompilerContextImpl extends ContextImpl implements CompilerContext 
 
 			int severity = se.getSeverity();
 
-			if (severity < ExceptionSeverity.SYSTEM_SEVERITY) {
-				if (currentDependent != null) {
-					currentDependent.makeInvalid(
-							DependencyManager.COMPILE_FAILED, lcc);
-				}
-				closeStoreCostControllers();
-				closeSortCostControllers();
-			}
+			 
 			// anything system or worse, or non-DB errors,
 			// will cause the whole system to shut down.
 
@@ -124,7 +117,7 @@ public class CompilerContextImpl extends ContextImpl implements CompilerContext 
 		compilationSchema = null;
 		parameterList = null;
 		parameterDescriptors = null;
-		scanIsolationLevel = TransactionControl.UNSPECIFIED_ISOLATION_LEVEL;
+		scanIsolationLevel = 0;
 		warnings = null;
 		savedObjects = null;
 		reliability = CompilerContext.SQL_LEGAL;
@@ -207,10 +200,6 @@ public class CompilerContextImpl extends ContextImpl implements CompilerContext 
 	}
 
 	public String getUniqueClassName() {
-		// REMIND: should get a new UUID if we roll over...
-		if (SanityManager.DEBUG) {
-			SanityManager.ASSERT(nextClassName <= Long.MAX_VALUE);
-		}
 		return classPrefix.concat(Long.toHexString(nextClassName++));
 	}
 
@@ -223,80 +212,15 @@ public class CompilerContextImpl extends ContextImpl implements CompilerContext 
 		return ++nextEquivalenceClass;
 	}
 
-	public ClassFactory getClassFactory() {
-		return lcf.getClassFactory();
-	}
+	 
 
 	public JavaFactory getJavaFactory() {
 		return lcf.getJavaFactory();
 	}
 
-	public void setCurrentDependent(Dependent d) {
-		currentDependent = d;
-	}
+	 
 
-	/**
-	 * Get the current auxiliary provider list from this CompilerContext.
-	 *
-	 * @return The current AuxiliaryProviderList.
-	 *
-	 */
-
-	public ProviderList getCurrentAuxiliaryProviderList() {
-		return currentAPL;
-	}
-
-	/**
-	 * Set the current auxiliary provider list for this CompilerContext.
-	 *
-	 * @param apl
-	 *            The new current AuxiliaryProviderList.
-	 */
-
-	public void setCurrentAuxiliaryProviderList(ProviderList apl) {
-		currentAPL = apl;
-	}
-
-	public void createDependency(Provider p) throws StandardException {
-		if (SanityManager.DEBUG)
-			SanityManager.ASSERT(currentDependent != null,
-					"no current dependent for compilation");
-
-		addProviderToAuxiliaryList(p);
-	}
-
-	/**
-	 * Add a dependency between two objects.
-	 *
-	 * @param d
-	 *            The Dependent object.
-	 * @param p
-	 *            The Provider of the dependency.
-	 * @exception StandardException
-	 *                thrown on failure.
-	 *
-	 */
-	public void createDependency(Dependent d, Provider p)
-			throws StandardException {
-		if (dm == null)
-			dm = lcc.getDataDictionary().getDependencyManager();
-
-		dm.addDependency(d, p, getContextManager());
-		addProviderToAuxiliaryList(p);
-	}
-
-	/**
-	 * Add a Provider to the current AuxiliaryProviderList, if one exists.
-	 *
-	 * @param p
-	 *            The Provider to add.
-	 */
-	private void addProviderToAuxiliaryList(Provider p) {
-		if (currentAPL != null) {
-			currentAPL.addProvider(p);
-		}
-	}
-
+	   
 	public int addSavedObject(Object obj) {
 		if (savedObjects == null) {
 			savedObjects = new ArrayList<Object>();
@@ -394,69 +318,15 @@ public class CompilerContextImpl extends ContextImpl implements CompilerContext 
 	public int getReliability() {
 		return reliability;
 	}
-
-	/**
-	 * @see CompilerContext#getStoreCostController
-	 *
-	 * @exception StandardException
-	 *                Thrown on error
-	 */
-	public StoreCostController getStoreCostController(long conglomerateNumber)
-			throws StandardException {
-		Long conglomNum = ReuseFactory.getLong(conglomerateNumber);
-
-		// Try to find the given conglomerate number among the already
-		// opened conglomerates.
-		StoreCostController retval = storeCostControllers.get(conglomNum);
-
-		if (retval == null) {
-			// Not found, so get a StoreCostController from the store.
-			retval = lcc.getTransactionCompile().openStoreCost(
-					conglomerateNumber);
-			storeCostControllers.put(conglomNum, retval);
-		}
-
-		return retval;
-	}
+ 
 
 	/**
 	 *
 	 */
 	private void closeStoreCostControllers() {
-		Iterator<StoreCostController> it = storeCostControllers.values()
-				.iterator();
-		while (it.hasNext()) {
-			StoreCostController scc = it.next();
-			try {
-				scc.close();
-			} catch (StandardException se) {
-			}
-		}
-
-		storeCostControllers.clear();
+ 
 	}
-
-	/**
-	 * @see CompilerContext#getSortCostController
-	 *
-	 * @exception StandardException
-	 *                Thrown on error
-	 */
-	public SortCostController getSortCostController() throws StandardException {
-		/*
-		 * * Re-use a single SortCostController for each compilation
-		 */
-		if (sortCostController == null) {
-			/*
-			 * * Get a StoreCostController from the store.
-			 */
-
-			sortCostController = lcc.getTransactionCompile()
-					.openSortCostController();
-		}
-
-		return sortCostController;
-	}
+ 
 
 	/**
 	 *
@@ -464,10 +334,7 @@ public class CompilerContextImpl extends ContextImpl implements CompilerContext 
 	 *                Thrown on error
 	 */
 	private void closeSortCostControllers() {
-		if (sortCostController != null) {
-			sortCostController.close();
-			sortCostController = null;
-		}
+		 
 	}
 
 	/**

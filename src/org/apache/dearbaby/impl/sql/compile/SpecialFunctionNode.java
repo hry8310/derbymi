@@ -25,15 +25,13 @@ import java.lang.reflect.Modifier;
 import java.sql.Types;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.ClassName; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.CompilerContext;
-import org.apache.derby.iapi.sql.dictionary.DataDictionary;
-import org.apache.derby.iapi.store.access.Qualifier;
+import org.apache.derby.iapi.sql.dictionary.DataDictionary; 
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 
 /**
@@ -237,7 +235,7 @@ class SpecialFunctionNode extends ValueNode
     @Override
 	protected int getOrderableVariantType()
 	{
-		return Qualifier.QUERY_INVARIANT;
+		return 0;
 	}
 
 	/**
@@ -255,8 +253,7 @@ class SpecialFunctionNode extends ValueNode
 									throws StandardException
 	{
 		mb.pushThis();
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.Activation, "getLanguageConnectionContext",
-											 ClassName.LanguageConnectionContext, 0);
+		 
 		int argCount = 0;
 
 		if (methodName.equals("getCurrentRoleIdDelimited") ||
@@ -266,10 +263,7 @@ class SpecialFunctionNode extends ValueNode
 			acb.pushThisAsActivation(mb);
 			argCount++;
 		}
-
-		mb.callMethod(VMOpcode.INVOKEINTERFACE,
-					  (String) null, methodName, methodType, argCount);
-
+ 
 		String fieldType = getTypeCompiler().interfaceName();
 		LocalField field = acb.newFieldDeclaration(Modifier.PRIVATE, fieldType);
 

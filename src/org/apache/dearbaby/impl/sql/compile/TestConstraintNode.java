@@ -24,8 +24,7 @@ package	org.apache.dearbaby.impl.sql.compile;
 import java.util.List;
 import org.apache.derby.catalog.UUID;
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.ClassName; 
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.sql.dictionary.ConstraintDescriptor;
@@ -137,19 +136,6 @@ class TestConstraintNode extends UnaryLogicalOperatorNode
 		mb.push(tableName);
         mb.push(constraintName);
 
-        if (deferrable) {
-            acb.pushThisAsActivation(mb); // arg 4
-            mb.push(acb.addItem(cid)); // arg 5
-
-            mb.callMethod(
-                VMOpcode.INVOKEINTERFACE,
-                ClassName.BooleanDataValue,
-                "throwExceptionIfImmediateAndFalse",
-                ClassName.BooleanDataValue,
-                5);
-        } else {
-            mb.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.BooleanDataValue,
-                    "throwExceptionIfFalse", ClassName.BooleanDataValue, 3);
-        }
+        
 	}
 }

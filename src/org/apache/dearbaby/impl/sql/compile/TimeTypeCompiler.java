@@ -22,8 +22,7 @@
 package org.apache.dearbaby.impl.sql.compile;
 
 import java.sql.Types;
-import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.loader.ClassFactory;
+import org.apache.derby.iapi.reference.ClassName; 
 import org.apache.derby.iapi.sql.compile.TypeCompiler;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.iapi.types.TypeId;
@@ -69,34 +68,7 @@ class TimeTypeCompiler extends BaseTypeCompiler
 	{
 		return convertible(otherType,false);
 	}
-
-	/**
-	 * User types are storable into other user types that they
-	 * are assignable to. The other type must be a subclass of
-	 * this type, or implement this type as one of its interfaces.
-	 *
-	 * Built-in types are also storable into user types when the built-in
-	 * type's corresponding Java type is assignable to the user type.
-	 *
-	 * @param otherType the type of the instance to store into this type.
-	 * @param cf		A ClassFactory
-	 * @return true if otherType is storable into this type, else false.
-	 */
-	public boolean storable(TypeId otherType, ClassFactory cf)
-	{
-		int	otherJDBCTypeId = otherType.getJDBCTypeId();
-
-		if (otherJDBCTypeId == Types.TIME ||
-			(otherJDBCTypeId == Types.CHAR) ||
-			(otherJDBCTypeId == Types.VARCHAR))
-		{
-			return true;
-		}
-
-		return cf.getClassInspector().assignableTo(
-			   otherType.getCorrespondingJavaTypeName(),
-			   "java.sql.Time");
-	}
+ 
 
 	/** @see TypeCompiler#interfaceName */
 	public String interfaceName()

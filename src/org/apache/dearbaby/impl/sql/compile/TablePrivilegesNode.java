@@ -27,27 +27,21 @@ import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.services.io.FormatableBitSet;
-import org.apache.derby.iapi.sql.conn.LanguageConnectionContext;
-import org.apache.derby.iapi.sql.depend.DependencyManager;
-import org.apache.derby.iapi.sql.depend.Provider;
-import org.apache.derby.iapi.sql.depend.ProviderInfo;
+import org.apache.derby.iapi.sql.conn.LanguageConnectionContext; 
 import org.apache.derby.iapi.sql.dictionary.AliasDescriptor;
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
 import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.sql.dictionary.ViewDescriptor;
-import org.apache.derby.impl.sql.execute.PrivilegeInfo;
-import org.apache.derby.impl.sql.execute.TablePrivilegeInfo;
+import org.apache.derby.iapi.sql.dictionary.ViewDescriptor; 
 
 /**
  * This class represents a set of privileges on one table.
  */
 class TablePrivilegesNode extends QueryTreeNode
 {
-	private boolean[] actionAllowed = new boolean[ TablePrivilegeInfo.ACTION_COUNT];
-	private ResultColumnList[] columnLists = new ResultColumnList[ TablePrivilegeInfo.ACTION_COUNT];
-	private FormatableBitSet[] columnBitSets = new FormatableBitSet[ TablePrivilegeInfo.ACTION_COUNT];
-	private TableDescriptor td;  
-	private List<Provider> descriptorList; 
+	private boolean[] actionAllowed = new boolean[ 1];
+	private ResultColumnList[] columnLists = new ResultColumnList[ 1];
+	private FormatableBitSet[] columnBitSets = new FormatableBitSet[1];
+	private TableDescriptor td;   
 
     TablePrivilegesNode(ContextManager cm) {
         super(cm);
@@ -58,11 +52,7 @@ class TablePrivilegesNode extends QueryTreeNode
 	 */
     void addAll()
 	{
-		for( int i = 0; i < TablePrivilegeInfo.ACTION_COUNT; i++)
-		{
-			actionAllowed[i] = true;
-			columnLists[i] = null;
-		}
+		 
 	} // end of addAll
 
 	/**
@@ -94,17 +84,7 @@ class TablePrivilegesNode extends QueryTreeNode
 	{
 		this.td = td;
 			
-		for( int action = 0; action < TablePrivilegeInfo.ACTION_COUNT; action++)
-		{
-			if( columnLists[ action] != null)
-				columnBitSets[action] = columnLists[ action].bindResultColumnsByName( td, (DMLStatementNode) null);
-
-			// Prevent granting non-SELECT privileges to views
-			if (td.getTableType() == TableDescriptor.VIEW_TYPE && action != TablePrivilegeInfo.SELECT_ACTION)
-				if (actionAllowed[action])
-					throw StandardException.newException(SQLState.AUTH_GRANT_REVOKE_NOT_ALLOWED,
-									td.getQualifiedName());
-		}
+		 
 		
 		if (isGrant && td.getTableType() == TableDescriptor.VIEW_TYPE)
 		{
@@ -112,14 +92,7 @@ class TablePrivilegesNode extends QueryTreeNode
 		}
 	}
 	
-	/**
-	 * @return PrivilegeInfo for this node
-	 */
-    PrivilegeInfo makePrivilegeInfo()
-	{
-		return new TablePrivilegeInfo( td, actionAllowed, columnBitSets, 
-				descriptorList);
-	}
+	 
 	
 	/**
 	 *  Retrieve all the underlying stored dependencies such as table(s), 
@@ -137,27 +110,7 @@ class TablePrivilegesNode extends QueryTreeNode
 	 */
 	private void bindPrivilegesForView ( TableDescriptor td) 
 		throws StandardException
-	{
-		LanguageConnectionContext lcc = getLanguageConnectionContext();
-		DataDictionary dd = lcc.getDataDictionary();
-		ViewDescriptor vd = dd.getViewDescriptor(td);
-		DependencyManager dm = dd.getDependencyManager();
-		ProviderInfo[] pis = dm.getPersistentProviderInfos(vd);
-		this.descriptorList = new ArrayList<Provider>();
-					
-		int siz = pis.length;
-		for (int i=0; i < siz; i++) 
-		{
-				Provider provider = (Provider) pis[i].getDependableFinder().getDependable(dd, pis[i].getObjectId());
-							
-				if (provider instanceof TableDescriptor || 
-					provider instanceof ViewDescriptor ||
-					provider instanceof AliasDescriptor)
-				{
-					descriptorList.add(provider);
-				}	   
-		}
-	}
+	{ }
 	
 }
 	

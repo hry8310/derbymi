@@ -27,9 +27,7 @@ import org.apache.derby.catalog.AliasInfo;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.loader.ClassFactory;
-import org.apache.derby.iapi.services.loader.ClassInspector;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.iapi.sql.compile.CompilerContext;
 import org.apache.derby.iapi.sql.compile.Visitor;
 import org.apache.derby.iapi.sql.dictionary.AliasDescriptor;
@@ -51,8 +49,7 @@ public class AggregateNode extends UnaryOperatorNode
     private TableName           userAggregateName;
 	private StringBuffer			aggregatorClassName;
 	private String					aggregateDefinitionClassName;
-    private Class<?>                aggregateDefinitionClass;
-	private ClassInspector			classInspector;
+    private Class<?>                aggregateDefinitionClass; 
 	public String					aggregateName;
 
 	/*
@@ -291,10 +288,7 @@ public class AggregateNode extends UnaryOperatorNode
 	{
         DataDictionary  dd = getDataDictionary();
 		DataTypeDescriptor 	dts = null;
-		ClassFactory		cf;
-
-		cf = getClassFactory();
-		classInspector = cf.getClassInspector();
+	 
 
         if ( userAggregateName != null )
         {
@@ -336,7 +330,7 @@ public class AggregateNode extends UnaryOperatorNode
 
             // set up dependency on the user-defined aggregate and compile a check for USAGE
             // priv if needed
-            getCompilerContext().createDependency( ad );
+            
 
             if ( isPrivilegeCollectionRequired() )
             {
@@ -403,11 +397,7 @@ public class AggregateNode extends UnaryOperatorNode
 				** to check to see if the type implements Orderable
 				**
 				*/
-				if (!operand.getTypeId().orderable(cf))
-				{
-					throw StandardException.newException(SQLState.LANG_COLUMN_NOT_ORDERABLE_DURING_EXECUTION, 
-							dts.getTypeId().getSQLTypeName());
-				}
+				 
 
 			}
 
@@ -484,13 +474,7 @@ public class AggregateNode extends UnaryOperatorNode
 	{
 		verifyClassExist(className);
 
-		if (!classInspector.assignableTo(className, "org.apache.derby.iapi.sql.execute.ExecAggregator"))
-		{
-			throw StandardException.newException(SQLState.LANG_BAD_AGGREGATOR_CLASS2, 
-													className, 
-													getSQLName(),
-													operand.getTypeId().getSQLTypeName());
-		}
+		 
 	}
 
 		
@@ -509,14 +493,7 @@ public class AggregateNode extends UnaryOperatorNode
                 String aggClassName = aggregateDefinitionClassName;
                 verifyClassExist(aggClassName);
 
-                try
-                {
-                    theClass = classInspector.getClass(aggClassName);
-                }
-                catch (Throwable t)
-                {
-                    throw StandardException.unexpectedUserException(t);
-                }
+                
             }
 
             // get an instance

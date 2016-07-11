@@ -23,8 +23,7 @@ package	org.apache.dearbaby.impl.sql.compile;
 
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
@@ -99,24 +98,5 @@ class DropTableNode extends DDLStatementNode
 	}
 
 	// inherit generate() method from DDLStatementNode
-
-
-	/**
-	 * Create the Constant information that will drive the guts of Execution.
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-    @Override
-    public ConstantAction makeConstantAction() throws StandardException
-	{
-		return	getGenericConstantActionFactory().getDropTableConstantAction(
-			getFullName(),
-			getRelativeName(),
-			getSchemaDescriptor(td.getTableType() !=
-								TableDescriptor.GLOBAL_TEMPORARY_TABLE_TYPE,
-								true),
-			conglomerateNumber,
-			td.getUUID(),
-			dropBehavior);
-	}
+ 
 }

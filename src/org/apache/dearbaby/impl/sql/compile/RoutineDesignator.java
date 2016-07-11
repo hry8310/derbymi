@@ -23,9 +23,7 @@ package	org.apache.dearbaby.impl.sql.compile;
 
 import java.util.List;
 import org.apache.derby.catalog.TypeDescriptor;
-import org.apache.derby.iapi.sql.dictionary.AliasDescriptor;
-import org.apache.derby.impl.sql.execute.PrivilegeInfo;
-import org.apache.derby.impl.sql.execute.RoutinePrivilegeInfo;
+import org.apache.derby.iapi.sql.dictionary.AliasDescriptor; 
 
 /**
  * This node represents a routine signature.
@@ -55,12 +53,5 @@ class RoutineDesignator
 	{
 		this.aliasDescriptor = aliasDescriptor;
 	}
-	
-	/**
-	 * @return PrivilegeInfo for this node
-	 */
-	PrivilegeInfo makePrivilegeInfo()
-	{
-		return new RoutinePrivilegeInfo( aliasDescriptor);
-	}
+	 
 }

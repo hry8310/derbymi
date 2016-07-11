@@ -29,8 +29,7 @@ import java.util.Properties;
 import org.apache.dearbaby.query.SinQuery;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.compile.CostEstimate;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.iapi.sql.compile.Optimizable;
 import org.apache.derby.iapi.sql.compile.OptimizablePredicate;
 import org.apache.derby.iapi.util.JBitSet;
@@ -901,17 +900,7 @@ class HalfOuterJoinNode extends JoinNode {
 
 		return this;
 	}
-
-	/** @see JoinNode#adjustNumberOfRowsReturned */
-	@Override
-	protected void adjustNumberOfRowsReturned(CostEstimate costEstimate) {
-		/*
-		 * * An outer join returns at least as many rows as in the outer* table.
-		 * Even if this started as a right outer join, it will* have been
-		 * transformed to a left outer join by this point.
-		 */
-		 
-	}
+ 
 
 	 
 

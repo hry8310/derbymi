@@ -26,15 +26,11 @@ import java.util.Properties;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.Property;
 import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.property.PropertyUtil;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.iapi.sql.compile.Visitor;
 import org.apache.derby.iapi.sql.dictionary.SchemaDescriptor;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
-import org.apache.derby.iapi.types.DataTypeDescriptor;
-import org.apache.derby.impl.sql.execute.ColumnInfo;
-import org.apache.derby.impl.sql.execute.CreateConstraintConstantAction;
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
+import org.apache.derby.iapi.types.DataTypeDescriptor; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
@@ -254,90 +250,7 @@ class CreateTableNode extends DDLStatementNode
 				true));
 	}
 
-	/**
-	 * Create the Constant information that will drive the guts of Execution.
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-    @Override
-    public ConstantAction makeConstantAction() throws StandardException
-	{
-		TableElementList		coldefs = tableElementList;
-
-		// for each column, stuff system.column
-		ColumnInfo[] colInfos = new ColumnInfo[coldefs.countNumberOfColumns()];
-
-	    int numConstraints = coldefs.genColumnInfos(colInfos);
-
-		/* If we've seen a constraint, then build a constraint list */
-		CreateConstraintConstantAction[] conActions = null;
-
-		SchemaDescriptor sd = getSchemaDescriptor(
-			tableType != TableDescriptor.GLOBAL_TEMPORARY_TABLE_TYPE,
-			true);
-
-		
-		if (numConstraints > 0)
-		{
-			conActions =
-                new CreateConstraintConstantAction[numConstraints];
-
-			coldefs.genConstraintActions(true,
-                conActions, getRelativeName(), sd, getDataDictionary());
-		}
-
-        // if the any of columns are "long" and user has not specified a
-        // page size, set the pagesize to 32k.
-        // Also in case where the approximate sum of the column sizes is
-        // greater than the bump threshold , bump the pagesize to 32k
-
-        boolean table_has_long_column = false;
-        int approxLength = 0;
-
-        for (int i = 0; i < colInfos.length; i++)
-        {
-            DataTypeDescriptor dts = colInfos[i].getDataType();
-            if (dts.getTypeId().isLongConcatableTypeId())
-            {
-                table_has_long_column = true;
-                break;
-            }
-
-            approxLength += dts.getTypeId().getApproximateLengthInBytes(dts);
-        }
-
-        if (table_has_long_column || (approxLength > Property.TBL_PAGE_SIZE_BUMP_THRESHOLD))
-        {
-			if (((properties == null) ||
-                 (properties.get(Property.PAGE_SIZE_PARAMETER) == null)) &&
-                (PropertyUtil.getServiceProperty(
-                     getLanguageConnectionContext().getTransactionCompile(),
-                     Property.PAGE_SIZE_PARAMETER) == null))
-            {
-                // do not override the user's choice of page size, whether it
-                // is set for the whole database or just set on this statement.
-
-                if (properties == null)
-                    properties = new Properties();
-
-                properties.put(
-                    Property.PAGE_SIZE_PARAMETER,
-                    Property.PAGE_SIZE_DEFAULT_LONG);
-            }
-        }
-
-		return(
-            getGenericConstantActionFactory().getCreateTableConstantAction(
-                sd.getSchemaName(),
-                getRelativeName(),
-                tableType,
-                colInfos,
-                conActions,
-                properties,
-                lockGranularity,
-                onCommitDeleteRows,
-                onRollbackDeleteRows));
-	}
+	 
 
 	/**
 	 * Accept the visitor for all visitable children of this node.

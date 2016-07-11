@@ -33,8 +33,7 @@ import org.apache.derby.catalog.types.UDTAliasInfo;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.dictionary.DataDictionary;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
+import org.apache.derby.iapi.sql.dictionary.DataDictionary; 
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.iapi.types.TypeId;
 import org.apache.derby.shared.common.sanity.SanityManager;
@@ -346,21 +345,6 @@ class CreateAliasNode extends DDLStatementNode
 
 	   
 
-	/**
-	 * Create the Constant information that will drive the guts of Execution.
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-    @Override
-    public ConstantAction makeConstantAction() throws StandardException
-	{
-		String schemaName = getSchemaDescriptor().getSchemaName();
-
-		return	getGenericConstantActionFactory().getCreateAliasConstantAction(
-											  getRelativeName(),
-											  schemaName,
-											  javaClassName,
-											  aliasInfo,
-											  aliasType);
-	}
+ 
+	 
 }

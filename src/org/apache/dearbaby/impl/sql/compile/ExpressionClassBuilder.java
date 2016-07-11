@@ -25,22 +25,18 @@ import java.io.Serializable;
 import java.lang.reflect.Modifier;
 
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.ClassName; 
 import org.apache.derby.iapi.services.compiler.ClassBuilder;
 import org.apache.derby.iapi.services.compiler.JavaFactory;
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.iapi.services.io.FormatableArrayHolder;
-import org.apache.derby.iapi.services.loader.GeneratedClass;
+import org.apache.derby.iapi.services.io.FormatableArrayHolder; 
 import org.apache.derby.iapi.sql.compile.CompilerContext;
 import org.apache.derby.iapi.sql.compile.ExpressionClassBuilderInterface;
-import org.apache.derby.iapi.sql.compile.TypeCompiler;
-import org.apache.derby.iapi.store.access.ColumnOrdering;
+import org.apache.derby.iapi.sql.compile.TypeCompiler; 
 import org.apache.derby.iapi.types.TypeId;
 import org.apache.derby.iapi.util.ByteArray;
-import org.apache.derby.impl.services.bytecode.BCJava;
-import org.apache.derby.impl.sql.execute.IndexColumnOrder;
+import org.apache.derby.impl.services.bytecode.BCJava; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
@@ -66,8 +62,7 @@ abstract class ExpressionClassBuilder implements
 	//
 	// /////////////////////////////////////////////////////////////////////
 
-	protected ClassBuilder cb;
-	protected GeneratedClass gc;
+	protected ClassBuilder cb; 
 	protected int nextExprNum;
 	protected int nextNonFastExpr;
 	protected int nextFieldNum;
@@ -109,10 +104,7 @@ abstract class ExpressionClassBuilder implements
 		if (className == null) {
 			className = myCompCtx.getUniqueClassName();
 		}
-
-		// start the class
-		cb = javaFac.newClassBuilder(myCompCtx.getClassFactory(),
-				getPackageName(), modifiers, className, superClass);
+ 
 
 		beginConstructor();
 	}
@@ -395,8 +387,7 @@ abstract class ExpressionClassBuilder implements
 
 		mb.pushThis(); // instance
 		mb.push(exprMethod.getName()); // arg
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.GeneratedByteCode,
-				"getMethod", ClassName.GeneratedMethod, 1);
+ 
 	}
 
 	/**
@@ -433,8 +424,7 @@ abstract class ExpressionClassBuilder implements
 		// generated Java:
 		// this.cdt.getCurrentDate();
 		mb.getField(lf);
-		mb.callMethod(VMOpcode.INVOKEVIRTUAL, (String) null, "getCurrentDate",
-				"java.sql.Date", 0);
+	 
 	}
 
 	/**
@@ -450,8 +440,7 @@ abstract class ExpressionClassBuilder implements
 		// generated Java:
 		// this.cdt.getCurrentTime();
 		mb.getField(lf);
-		mb.callMethod(VMOpcode.INVOKEVIRTUAL, (String) null, "getCurrentTime",
-				"java.sql.Time", 0);
+	 
 	}
 
 	/**
@@ -467,8 +456,7 @@ abstract class ExpressionClassBuilder implements
 		// generated Java:
 		// this.cdt.getCurrentTimestamp();
 		mb.getField(lf);
-		mb.callMethod(VMOpcode.INVOKEVIRTUAL, (String) null,
-				"getCurrentTimestamp", "java.sql.Timestamp", 0);
+	 
 	}
 
 	// /////////////////////////////////////////////////////////////////////
@@ -476,86 +464,7 @@ abstract class ExpressionClassBuilder implements
 	// COLUMN ORDERING
 	//
 	// /////////////////////////////////////////////////////////////////////
-
-	/**
-	 * These utility methods buffers compilation from the IndexColumnOrder
-	 * class.
-	 * 
-	 * They create an ordering based on their parameter, stuff that into the
-	 * prepared statement, and then return the entry # for use in the generated
-	 * code.
-	 * 
-	 * We could write another utility method to generate code to turn an entry #
-	 * back into an object, but so far no-one needs it.
-	 * 
-	 * WARNING: this is a crafty method that ASSUMES that you want every column
-	 * in the list ordered, and that every column in the list is the entire
-	 * actual result colunm. It is only useful for DISTINCT in select.
-	 */
-	FormatableArrayHolder getColumnOrdering(ResultColumnList rclist) {
-		IndexColumnOrder[] ordering;
-		int numCols = (rclist == null) ? 0 : rclist.size();
-		// skip the columns which are not exclusively part of the insert list
-		// ie columns with default and autoincrement. These columns will not
-		// be part of ordering.
-		int numRealCols = 0;
-		for (int i = 0; i < numCols; i++) {
-			if (!(rclist.getResultColumn(i + 1)
-					.isGeneratedForUnmatchedColumnInInsert()))
-				numRealCols++;
-		}
-
-		ordering = new IndexColumnOrder[numRealCols];
-		for (int i = 0, j = 0; i < numCols; i++) {
-			if (!(rclist.getResultColumn(i + 1)
-					.isGeneratedForUnmatchedColumnInInsert())) {
-				ordering[j] = new IndexColumnOrder(i);
-				j++;
-			}
-		}
-		return new FormatableArrayHolder(ordering);
-	}
-
-	/**
-	 * Add a column to the existing Ordering list. Takes a column id and only
-	 * adds it if it isn't in the list.
-	 *
-	 *
-	 * @return the ColumnOrdering array
-	 */
-	FormatableArrayHolder addColumnToOrdering(
-			FormatableArrayHolder orderingHolder, int columnNum) {
-		/*
-		 * * We don't expect a lot of order by columns, so* linear search.
-		 */
-		ColumnOrdering[] ordering = orderingHolder
-				.getArray(ColumnOrdering[].class);
-		int length = ordering.length;
-		for (int i = 0; i < length; i++) {
-			if (ordering[i].getColumnId() == columnNum)
-				return orderingHolder;
-		}
-
-		/*
-		 * * Didn't find it. Allocate a bigger array* and add it to the end
-		 */
-		IndexColumnOrder[] newOrdering = new IndexColumnOrder[length + 1];
-		System.arraycopy(ordering, 0, newOrdering, 0, length);
-		newOrdering[length] = new IndexColumnOrder(columnNum);
-
-		return new FormatableArrayHolder(newOrdering);
-	}
-
-	FormatableArrayHolder getColumnOrdering(OrderedColumnList<?> oclist) {
-		int numCols = (oclist == null) ? 0 : oclist.size();
-
-		if (numCols == 0) {
-			return new FormatableArrayHolder(new IndexColumnOrder[0]);
-		}
-
-		return new FormatableArrayHolder(oclist.getColumnOrdering());
-	}
-
+  
 	int addItem(Object o) {
 		if (SanityManager.DEBUG) {
 			if ((o != null) && !(o instanceof Serializable)) {
@@ -581,13 +490,7 @@ abstract class ExpressionClassBuilder implements
 		// generates:
 		// getDataValueFactory()
 		//
-
-		if (getDVF == null) {
-			getDVF = mb.describeMethod(VMOpcode.INVOKEVIRTUAL,
-					getBaseClassName(), "getDataValueFactory",
-					ClassName.DataValueFactory);
-		}
-
+ 
 		mb.pushThis();
 		mb.callMethod(getDVF);
 	}
@@ -608,16 +511,7 @@ abstract class ExpressionClassBuilder implements
 	private Object getRSF;
 
 	void pushGetResultSetFactoryExpression(MethodBuilder mb) {
-		// generated Java:
-		// this.getResultSetFactory()
-		//
-		if (getRSF == null) {
-			getRSF = mb.describeMethod(VMOpcode.INVOKEVIRTUAL,
-					getBaseClassName(), "getResultSetFactory",
-					ClassName.ResultSetFactory);
-		}
-		mb.pushThis();
-		mb.callMethod(getRSF);
+	 
 	}
 
 	/**
@@ -632,11 +526,7 @@ abstract class ExpressionClassBuilder implements
 	private Object getEF;
 
 	void pushGetExecutionFactoryExpression(MethodBuilder mb) {
-		if (getEF == null) {
-			getEF = mb.describeMethod(VMOpcode.INVOKEVIRTUAL,
-					getBaseClassName(), "getExecutionFactory",
-					ClassName.ExecutionFactory);
-		}
+		 
 
 		// generated Java:
 		// this.getExecutionFactory()
@@ -672,8 +562,7 @@ abstract class ExpressionClassBuilder implements
 		mb.pushThis();
 		mb.push(rsNumber);
 		mb.push(colId);
-		mb.callMethod(VMOpcode.INVOKEVIRTUAL, ClassName.BaseActivation,
-				"getColumnFromRow", ClassName.DataValueDescriptor, 2);
+	 
 
 		// System.out.println("pushColumnReference ");
 		// pushRowArrayReference(mb);
@@ -764,37 +653,7 @@ abstract class ExpressionClassBuilder implements
 	// GENERATE BYTE CODE
 	//
 	// /////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Take the generated class, and turn it into an actual class.
-	 * <p>
-	 * This method assumes, does not check, that the class and its parts are all
-	 * complete.
-	 *
-	 * @param savedBytes
-	 *            place to save generated bytes. if null, it is ignored
-	 * @exception StandardException
-	 *                thrown when exception occurs
-	 */
-	GeneratedClass getGeneratedClass(ByteArray savedBytes)
-			throws StandardException {
-		if (gc != null)
-			return gc;
-
-		if (savedBytes != null) {
-			ByteArray classBytecode = cb.getClassBytecode();
-
-			// note: be sure to set the length since
-			// the class builder allocates the byte array
-			// in big chunks
-			savedBytes.setBytes(classBytecode.getArray());
-			savedBytes.setLength(classBytecode.getLength());
-		}
-
-		gc = cb.getGeneratedClass();
-
-		return gc; // !! yippee !! here it is...
-	}
+ 
 
 	/**
 	 * Get a "this" expression declared as an Activation. This is the commonly

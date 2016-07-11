@@ -127,12 +127,7 @@ public abstract class ResultSetNode extends QueryTreeNode {
 		cursorTargetTable = yesOrNo;
 	}
 
-	 
-
-	/** Set the scratch estimate */
-	void setScratchCostEstimate(CostEstimate ce) {
-		scratchCostEstimate = ce;
-	}
+	  
 
 	/**
 	 * Get the resultSetNumber in this ResultSetNode. Expected to be set during
@@ -863,8 +858,7 @@ public abstract class ResultSetNode extends QueryTreeNode {
 					if (SanityManager.DEBUG) {
 						SanityManager.ASSERT(defaultDescriptor != null,
 								"defaultDescriptor expected to be non-null");
-					}
-					getCompilerContext().createDependency(defaultDescriptor);
+					} 
 				}
 			} else if (colDesc.isAutoincrement()) {
 				newResultColumn = new ResultColumn(colDesc, null,
@@ -1051,7 +1045,7 @@ public abstract class ResultSetNode extends QueryTreeNode {
 	public ResultDescription makeResultDescription() {
 		ResultColumnDescriptor[] colDescs = makeResultDescriptors();
 
-		return getExecutionFactory().getResultDescription(colDescs, null);
+		return null;
 	}
 
 	/**
@@ -1278,18 +1272,7 @@ public abstract class ResultSetNode extends QueryTreeNode {
 	void setOptimizer(Optimizer opt) {
 		optimizer = opt;
 	}
-
-	/**
-	 * Get a cost estimate to use for this ResultSetNode.
-	 *
-	 * @exception StandardException
-	 *                Thrown on error
-	 */
-	protected CostEstimate getNewCostEstimate() throws StandardException {
-		OptimizerFactory optimizerFactory = getLanguageConnectionContext()
-				.getOptimizerFactory();
-		return optimizerFactory.getCostEstimate();
-	}
+ 
 
 	/**
 	 * Accept the visitor for all visitable children of this node.
@@ -1446,7 +1429,7 @@ public abstract class ResultSetNode extends QueryTreeNode {
 	 * @return The lock mode
 	 */
 	int updateTargetLockMode() {
-		return TransactionController.MODE_TABLE;
+		return 0;
 	}
 
 	/**

@@ -72,13 +72,7 @@ class MaxMinAggregateDefinition
 		** are in business.  Return type is same as input
 		** type.
 		*/
-		if (compType.orderable(
-						lcc.getLanguageConnectionFactory().getClassFactory()))
-		{
-			aggregatorClass.append(ClassName.MaxMinAggregator);
-			
-			return dts;
-		}
+		 
 		return null;
 	}
 

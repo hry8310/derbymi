@@ -22,8 +22,7 @@
 package	org.apache.dearbaby.impl.sql.compile;
 
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
@@ -89,14 +88,5 @@ class CreateSchemaNode extends DDLStatementNode
 
 	// We inherit the generate() method from DDLStatementNode.
 
-	/**
-	 * Create the Constant information that will drive the guts of Execution.
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-    @Override
-    public ConstantAction makeConstantAction()
-	{
-		return	getGenericConstantActionFactory().getCreateSchemaConstantAction(name, aid);
-	}
+	 
 }

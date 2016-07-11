@@ -27,8 +27,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import org.apache.derby.catalog.TypeDescriptor;
-import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.error.StandardException; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
@@ -272,7 +271,7 @@ class UserTypeConstantNode extends ConstantNode {
 			String typeName = getTypeId().getCorrespondingJavaTypeName();
 
             mb.push(val.toString());
-			mb.callMethod(VMOpcode.INVOKESTATIC, typeName, "valueOf", typeName, 1);
+		 
 
 			LocalField field = acb.newFieldDeclaration(Modifier.PRIVATE, fieldType);
 

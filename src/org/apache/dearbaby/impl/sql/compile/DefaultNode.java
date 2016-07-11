@@ -196,9 +196,7 @@ public  class DefaultNode extends ValueNode
 
 			/* Query is dependent on the DefaultDescriptor */
 			DefaultDescriptor defaultDescriptor = cd.getDefaultDescriptor(
-													getDataDictionary());
-			getCompilerContext().createDependency(defaultDescriptor);
-
+													getDataDictionary()); 
             return defaultTre.bindExpression(
 									fromList, 
 									subqueryList,

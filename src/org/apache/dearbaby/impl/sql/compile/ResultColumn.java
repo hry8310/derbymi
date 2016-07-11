@@ -970,11 +970,7 @@ public class ResultColumn extends ValueNode implements ResultColumnDescriptor,
 			throws StandardException {
 		TypeId toStoreTypeId = source.getTypeId();
 
-		if (!getTypeCompiler().storable(toStoreTypeId, getClassFactory())) {
-			throw StandardException.newException(SQLState.LANG_NOT_STORABLE,
-					getTypeId().getSQLTypeName(),
-					toStoreTypeId.getSQLTypeName());
-		}
+	 
 	}
 
 	/**
@@ -1511,32 +1507,8 @@ public class ResultColumn extends ValueNode implements ResultColumnDescriptor,
 	 *                thrown on error
 	 */
 	@Override
-	protected int getOrderableVariantType() throws StandardException {
-		/*
-		 * * If the expression is VARIANT, then* return VARIANT. Otherwise, we
-		 * return* CONSTANT. For result columns that are* generating
-		 * autoincrement values, the result* is variant.
-		 */
-		int expType;
-		if (isAutoincrementGenerated()) {
-			expType = Qualifier.VARIANT;
-		} else if (_expression != null) {
-			expType = _expression.getOrderableVariantType();
-		} else {
-			expType = Qualifier.CONSTANT;
-		}
-
-		switch (expType) {
-		case Qualifier.VARIANT:
-			return Qualifier.VARIANT;
-
-		case Qualifier.SCAN_INVARIANT:
-		case Qualifier.QUERY_INVARIANT:
-			return Qualifier.SCAN_INVARIANT;
-
-		default:
-			return Qualifier.CONSTANT;
-		}
+	protected int getOrderableVariantType() throws StandardException { 
+		return 9;
 	}
 
 	/**
@@ -1564,16 +1536,7 @@ public class ResultColumn extends ValueNode implements ResultColumnDescriptor,
 	 *                Thrown on error
 	 */
 	void verifyOrderable() throws StandardException {
-		/*
-		 * Do not check to see if we can map user types to built-in types. The
-		 * ability to do so does not mean that ordering will work. In fact, as
-		 * of version 2.0, ordering does not work on user types.
-		 */
-		if (!getTypeId().orderable(getClassFactory())) {
-			throw StandardException.newException(
-					SQLState.LANG_COLUMN_NOT_ORDERABLE_DURING_EXECUTION,
-					getTypeId().getSQLTypeName());
-		}
+		 
 	}
 
 	/**

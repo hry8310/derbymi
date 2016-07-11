@@ -24,11 +24,9 @@ package	org.apache.dearbaby.impl.sql.compile;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.loader.ClassInspector;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.CompilerContext;
 import org.apache.derby.iapi.sql.compile.Visitable;
@@ -230,54 +228,7 @@ class ConditionalNode extends ValueNode
         // Set the type of the parameters.
         thenElseList.setParameterDescriptor(getTypeServices());
 
-		/* The then and else expressions must be type compatible */
-		ClassInspector cu = getClassFactory().getClassInspector();
-
-		/*
-		** If it is comparable, then we are ok.  Note that we
-		** could in fact allow any expressions that are convertible()
-		** since we are going to generate a cast node, but that might
-		** be confusing to users...
-		*/
-        for (ValueNode expr : thenElseList) {
-            DataTypeDescriptor dtd = expr.getTypeServices();
-            String javaTypeName =
-                    dtd.getTypeId().getCorrespondingJavaTypeName();
-            String resultJavaTypeName =
-                    getTypeId().getCorrespondingJavaTypeName();
-
-            if (!dtd.comparable(getTypeServices(), false, getClassFactory())
-                    && !cu.assignableTo(javaTypeName, resultJavaTypeName)
-                    && !cu.assignableTo(resultJavaTypeName, javaTypeName)) {
-                throw StandardException.newException(
-                        SQLState.LANG_NOT_TYPE_COMPATIBLE,
-                        dtd.getTypeId().getSQLTypeName(),
-                        getTypeId().getSQLTypeName());
-            }
-        }
-
-        // The result is nullable if and only if at least one of the result
-        // expressions is nullable (DERBY-6567).
-        setNullability(thenElseList.isNullable());
-
-		/*
-		** Generate a CastNode if necessary and
-		** stick it over the original expression
-		*/
-		TypeId condTypeId = getTypeId();
-        for (int i = 0; i < thenElseList.size(); i++) {
-            ValueNode expr = thenElseList.elementAt(i);
-            if (expr.getTypeId().typePrecedence()
-                    != condTypeId.typePrecedence()) {
-                // Cast to dominant type.
-                ValueNode cast = new CastNode(
-                        expr, getTypeServices(), getContextManager());
-                cast = cast.bindExpression(fromList, subqueryList, aggregates);
-                thenElseList.setElementAt(cast, i);
-            }
-        }
-
-        cc.setReliability( previousReliability );
+  
         
 		return this;
 	}
@@ -551,8 +502,7 @@ class ConditionalNode extends ValueNode
             testConditions.elementAt(i).generateExpression(acb, mb);
             mb.cast(ClassName.BooleanDataValue);
             mb.push(true);
-            mb.callMethod(VMOpcode.INVOKEINTERFACE, (String) null,
-                          "equals", "boolean", 1);
+          
             mb.conditionalIf();
             thenElseList.elementAt(i).generateExpression(acb, mb);
             mb.startElseCode();

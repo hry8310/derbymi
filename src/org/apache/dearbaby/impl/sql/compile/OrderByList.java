@@ -24,14 +24,11 @@ package	org.apache.dearbaby.impl.sql.compile;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.Limits;
 import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.compile.CostEstimate;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.iapi.sql.compile.Optimizable;
 import org.apache.derby.iapi.sql.compile.OptimizableList;
 import org.apache.derby.iapi.sql.compile.RequiredRowOrdering;
-import org.apache.derby.iapi.sql.compile.RowOrdering;
-import org.apache.derby.iapi.store.access.ColumnOrdering;
-import org.apache.derby.iapi.store.access.SortCostController;
+import org.apache.derby.iapi.sql.compile.RowOrdering; 
 import org.apache.derby.iapi.types.DataValueDescriptor;
 import org.apache.derby.iapi.util.JBitSet;
 import org.apache.derby.shared.common.sanity.SanityManager;
@@ -48,8 +45,7 @@ public class OrderByList extends OrderedColumnList<OrderByColumn>
 
 	private boolean allAscending = true;
 	private boolean alwaysSort;
-	private ResultSetNode resultToSort;
-	private SortCostController scc;
+	private ResultSetNode resultToSort; 
 	private Object[] resultRow;
 	private ColumnOrdering[] columnOrdering;
 	private int estimatedRowSize;
@@ -548,48 +544,7 @@ public class OrderByList extends OrderedColumnList<OrderByColumn>
 		return RequiredRowOrdering.NOTHING_REQUIRED;
 	}
 
-	/**
-	 * @see RequiredRowOrdering#estimateCost
-	 *
-	 * @exception StandardException		Thrown on error
-	 */
-	public void estimateCost(double estimatedInputRows,
-								RowOrdering rowOrdering,
-								CostEstimate resultCost)
-					throws StandardException
-	{
-		/*
-		** Do a bunch of set-up the first time: get the SortCostController,
-		** the template row, the ColumnOrdering array, and the estimated
-		** row size.
-		*/
-		if (scc == null)
-		{
-			scc = getCompilerContext().getSortCostController();
-
-			resultRow =
-				resultToSort.getResultColumns().buildEmptyRow().getRowArray();
-			columnOrdering = getColumnOrdering();
-			estimatedRowSize =
-						resultToSort.getResultColumns().getTotalColumnSize();
-		}
-
-		long inputRows = (long) estimatedInputRows;
-		long exportRows = inputRows;
-		double sortCost;
-
-		sortCost = scc.getSortCost(
-									(DataValueDescriptor[]) resultRow,
-									columnOrdering,
-									false,
-									inputRows,
-									exportRows,
-									estimatedRowSize
-									);
-
-		resultCost.setCost(sortCost, estimatedInputRows, estimatedInputRows);
-	}
-
+	 
 	/** @see RequiredRowOrdering#sortNeeded */
 	public void sortNeeded()
 	{

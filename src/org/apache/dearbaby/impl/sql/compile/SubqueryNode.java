@@ -1646,15 +1646,7 @@ public class SubqueryNode extends ValueNode {
 		 * have an expression subquery and no correlated CRs we are going to
 		 * materialize it, so it is QUERY_INVARIANT. Otherwise, SCAN_INVARIANT.
 		 */
-		if (isInvariant()) {
-			if (!hasCorrelatedCRs() && (subqueryType == EXPRESSION_SUBQUERY)) {
-				return Qualifier.QUERY_INVARIANT;
-			} else {
-				return Qualifier.SCAN_INVARIANT;
-			}
-		} else {
-			return Qualifier.VARIANT;
-		}
+		return 0;
 	}
 
 	/**

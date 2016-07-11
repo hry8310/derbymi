@@ -29,8 +29,7 @@ import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.Optimizable;
 import org.apache.derby.iapi.sql.compile.OptimizablePredicate;
-import org.apache.derby.iapi.sql.compile.Visitor;
-import org.apache.derby.iapi.store.access.ScanController;
+import org.apache.derby.iapi.sql.compile.Visitor; 
 import org.apache.derby.iapi.types.DataValueDescriptor;
 import org.apache.derby.iapi.util.JBitSet;
 import org.apache.derby.iapi.util.ReuseFactory;
@@ -588,11 +587,7 @@ public final class Predicate extends QueryTreeNode implements OptimizablePredica
 			SanityManager.ASSERT(startKey, "Getting a start operator from a Predicate that's not a start key.");
 		}
 
-		/* if it's for "in" operator's dynamic start key, operator is GE,
-		 * beetle 3858
-		 */
-		if (andNode.getLeftOperand() instanceof InListOperatorNode)
-			return ScanController.GE;
+	 
 
 		return getRelop().getStartOperator(optTable);
 	}
@@ -604,11 +599,7 @@ public final class Predicate extends QueryTreeNode implements OptimizablePredica
 			SanityManager.ASSERT(stopKey, "Getting a stop operator from a Predicate that's not a stop key.");
 		}
 
-		 /* if it's for "in" operator's dynamic stop key, operator is GT,
-		  * beetle 3858
-		  */
-		if (andNode.getLeftOperand() instanceof InListOperatorNode)
-			return ScanController.GT;
+		 
 
 		return getRelop().getStopOperator(optTable);
 	}

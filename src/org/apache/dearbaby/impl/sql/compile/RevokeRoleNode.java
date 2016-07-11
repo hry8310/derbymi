@@ -25,8 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.shared.common.sanity.SanityManager;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
+import org.apache.derby.shared.common.sanity.SanityManager; 
 
 /**
  * This class represents a REVOKE role statement.
@@ -52,19 +51,7 @@ class RevokeRoleNode extends DDLStatementNode
         this.grantees = grantees;
 	}
 
-
-	/**
-	 * Create the Constant information that will drive the guts of Execution.
-	 *
-	 * @exception StandardException Standard error policy.
-	 */
-    @Override
-	public ConstantAction makeConstantAction() throws StandardException
-	{
-		return getGenericConstantActionFactory().
-			getRevokeRoleConstantAction( roles, grantees);
-	}
-
+ 
 	/**
 	 * Convert this object to a String.  See comments in QueryTreeNode.java
 	 * for how this should be done for tree printing.

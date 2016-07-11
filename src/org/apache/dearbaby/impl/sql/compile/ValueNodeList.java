@@ -24,11 +24,9 @@ package	org.apache.dearbaby.impl.sql.compile;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.loader.ClassFactory;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.shared.common.sanity.SanityManager;
-import org.apache.derby.iapi.sql.compile.TypeCompiler;
-import org.apache.derby.iapi.store.access.Qualifier;
+import org.apache.derby.iapi.sql.compile.TypeCompiler; 
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.iapi.types.DataValueDescriptor;
 import org.apache.derby.iapi.types.StringDataValue;
@@ -198,8 +196,7 @@ class ValueNodeList extends QueryTreeNodeVector<ValueNode>
 				dominantDTS = valueNodeDTS;
 			}
 			else
-			{
-				dominantDTS = dominantDTS.getDominantType(valueNodeDTS, getClassFactory());
+			{ 
 			}
 		}
 
@@ -338,15 +335,7 @@ class ValueNodeList extends QueryTreeNodeVector<ValueNode>
 			** Can the types be compared to each other?  If not, throw an
 			** exception.
 			*/
-			if (! leftOperand.getTypeServices().comparable(valueNode.getTypeServices(),
-									false,
-									getClassFactory()))
-			{
-				throw StandardException.newException(SQLState.LANG_NOT_COMPARABLE, 
-						leftOperand.getTypeServices().getSQLTypeNameWithCollation(),
-						valueNode.getTypeServices().getSQLTypeNameWithCollation()
-						);
-			}
+			 
 		}
 	}
 
@@ -712,20 +701,8 @@ class ValueNodeList extends QueryTreeNodeVector<ValueNode>
 	 */
 	protected int getOrderableVariantType() throws StandardException
 	{
-		int listType = Qualifier.CONSTANT;
-		int size = size();
+		 
 
-		/* If any element in the list is VARIANT then the 
-		 * entire expression is variant
-		 * else it is SCAN_INVARIANT if any element is SCAN_INVARIANT
-		 * else it is QUERY_INVARIANT.
-		 */
-		for (int index = 0; index < size; index++)
-		{
-            int curType = elementAt(index).getOrderableVariantType();
-			listType = Math.min(listType, curType);
-		}
-
-		return listType;
+		return 0;
 	}
 }

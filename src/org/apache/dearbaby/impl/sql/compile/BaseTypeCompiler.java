@@ -23,10 +23,8 @@ package org.apache.dearbaby.impl.sql.compile;
 
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.iapi.services.loader.ClassFactory;
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.TypeCompiler;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
@@ -102,11 +100,7 @@ abstract class BaseTypeCompiler implements TypeCompiler
         }
         else
             argCount = 1;
-        
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, (String) null,
-									nullMethodName(),
-									interfaceName(),
-                                    argCount);
+       
 	}
 
     
@@ -173,11 +167,7 @@ abstract class BaseTypeCompiler implements TypeCompiler
         else
             argCount = 2;
 
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, (String) null,
-							dataValueMethodName(),
-							interfaceName,
-                            argCount);
-
+		 
 		if (field != null)
 		{
 			/* Store the result of the method call in the field,
@@ -226,32 +216,7 @@ abstract class BaseTypeCompiler implements TypeCompiler
     }
 
 	
-	/**
-	 * Determine whether thisType is storable in otherType due to otherType
-	 * being a user type.
-	 *
-	 * @param thisType	The TypeId of the value to be stored
-	 * @param otherType	The TypeId of the value to be stored in
-	 *
-	 * @return	true if thisType is storable in otherType
-	 */
-	protected boolean userTypeStorable(TypeId thisType,
-							TypeId otherType,
-							ClassFactory cf)
-	{
-		/*
-		** If the other type is user-defined, use the java types to determine
-		** assignability.
-		*/
-		if (otherType.userType())
-		{
-			return cf.getClassInspector().assignableTo(
-					thisType.getCorrespondingJavaTypeName(),
-					otherType.getCorrespondingJavaTypeName());
-		}
-
-		return false;
-	}
+	 
 	
 	/**
 	 * Tell whether this numeric type can be converted to the given type.
@@ -290,33 +255,7 @@ abstract class BaseTypeCompiler implements TypeCompiler
 
 	}
 
-	/**
-	 * Tell whether this numeric type can be stored into from the given type.
-	 *
-	 * @param thisType	The TypeId of this type
-	 * @param otherType	The TypeId of the other type.
-	 * @param cf		A ClassFactory
-	 */
-
-    boolean numberStorable(TypeId thisType,
-									TypeId otherType,
-									ClassFactory cf)
-	{
-        if ( otherType.getBaseTypeId().isAnsiUDT() ) { return false; }
-
-		/*
-		** Numbers can be stored into from other number types.
-		** Also, user types with compatible classes can be stored into numbers.
-		*/
-		if (otherType.isNumericTypeId()) { return true; }
-
-		/*
-		** If the other type is user-defined, use the java types to determine
-		** assignability.
-		*/
-		return userTypeStorable(thisType, otherType, cf);
-	}
-
+ 
 
 	/**
 	 * Get the TypeId that corresponds to this TypeCompiler.

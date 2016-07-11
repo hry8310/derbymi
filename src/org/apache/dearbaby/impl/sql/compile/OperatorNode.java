@@ -80,9 +80,7 @@ abstract class OperatorNode extends ValueNode {
             // and leave the stack in its initial state.
             constructor.push(xmlQuery);
             constructor.push(xmlOpName);
-            constructor.callMethod(
-                    VMOpcode.INVOKEVIRTUAL, SqlXmlUtil.class.getName(),
-                    "compileXQExpr", "void", 2);
+            
         }
 
         // Read the cached value and push it onto the stack in the method

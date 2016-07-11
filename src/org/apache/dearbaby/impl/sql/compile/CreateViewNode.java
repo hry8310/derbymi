@@ -24,11 +24,8 @@ package	org.apache.dearbaby.impl.sql.compile;
 import org.apache.derby.catalog.UUID;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.compile.Visitor;
-import org.apache.derby.iapi.sql.depend.ProviderInfo;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
-import org.apache.derby.impl.sql.execute.ColumnInfo;
+import org.apache.derby.iapi.sql.compile.Visitor; 
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
@@ -42,9 +39,7 @@ class CreateViewNode extends DDLStatementNode
     private ResultColumnList resultColumns;
     private ResultSetNode    queryExpression;
     private String           qeText;
-    private int              checkOption;
-    private ProviderInfo[]   providerInfos;
-    private ColumnInfo[]     colInfos;
+    private int              checkOption; 
 	private OrderByList orderByList;
     private ValueNode   offset;
     private ValueNode   fetchFirst;
@@ -159,28 +154,7 @@ class CreateViewNode extends DDLStatementNode
 		return (queryExpression.referencesSessionSchema());
 	}
 
-	/**
-	 * Create the Constant information that will drive the guts of Execution.
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-    @Override
-    public ConstantAction makeConstantAction() throws StandardException
-	{
-		/* RESOLVE - need to build up dependendencies and store them away through
-		 * the constant action.
-		 */
-		return	getGenericConstantActionFactory().getCreateViewConstantAction(getSchemaDescriptor().getSchemaName(),
-											  getRelativeName(),
-											  TableDescriptor.VIEW_TYPE,
-											  qeText,
-											  checkOption,
-											  colInfos,
-											  providerInfos,
-											  (UUID)null); 	// compilation schema, filled
-															// in when we create the view
-	}
-
+	 
 	 
 
 	/*

@@ -29,13 +29,11 @@ import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.compile.CompilerContext;
-import org.apache.derby.iapi.sql.compile.CostEstimate;
+import org.apache.derby.iapi.sql.compile.CompilerContext; 
 import org.apache.derby.iapi.sql.compile.Optimizable;
 import org.apache.derby.iapi.sql.compile.OptimizablePredicate;
 import org.apache.derby.iapi.sql.compile.Visitor;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.store.access.TransactionController;
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.iapi.types.TypeId;
 import org.apache.derby.iapi.util.JBitSet;
@@ -177,15 +175,7 @@ class JoinNode extends TableOperatorNode {
 		return true;
 	}
  
-
-	/**
-	 * Some types of joins (e.g. outer joins) will return a different number of
-	 * rows than is predicted by optimizeIt() in JoinNode. So, adjust this value
-	 * now. This method does nothing for most join types.
-	 */
-	protected void adjustNumberOfRowsReturned(CostEstimate costEstimate) {
-	}
-
+ 
 	/**
 	 * Return a ResultColumnList with all of the columns in this table. (Used in
 	 * expanding '*'s.) NOTE: Since this method is for expanding a "*" in the
@@ -1363,7 +1353,7 @@ class JoinNode extends TableOperatorNode {
 		 * join node if there is a subquery that got flattened, hence there is a
 		 * restriction.
 		 */
-		return TransactionController.MODE_RECORD;
+		return 0;
 	}
 
 	/**

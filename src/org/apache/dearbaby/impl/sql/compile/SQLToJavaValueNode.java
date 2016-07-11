@@ -24,8 +24,7 @@ package	org.apache.dearbaby.impl.sql.compile;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.ClassName; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
@@ -392,15 +391,8 @@ class SQLToJavaValueNode extends JavaValueNode
 				mb.dup();
 				mb.upCast(ClassName.DataValueDescriptor);
 				mb.push(primitiveTN); 
-				mb.callMethod(VMOpcode.INVOKESTATIC, ClassName.BaseActivation, "nullToPrimitiveTest", "void", 2);
-			}
-
-			// stack is dvd
-
-			/* Generate the code to get the primitive value */
-			mb.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.DataValueDescriptor,
-								value.getTypeCompiler().getPrimitiveMethodName(), primitiveTN, 0);
-
+		 	}
+ 
 			mb.methodReturn();
 			mb.complete();
 
@@ -408,17 +400,14 @@ class SQLToJavaValueNode extends JavaValueNode
 
 			mbex.pushThis();
 			mbex.swap(); // caller pushed out parameter
-			mbex.callMethod(VMOpcode.INVOKEVIRTUAL, (String) null, mb.getName(), primitiveTN, 1);
-		}
+		 }
 		else
 		{
 			if (returnsNullOnNullState != null)
 				generateReturnsNullOnNullCheck(mbex);
 
 			/* Call getObject() to get the right type of Java value */
-			mbex.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.DataValueDescriptor, "getObject",
-										"java.lang.Object", 0);
-
+		 
 			mbex.cast(value.getTypeId().getCorrespondingJavaTypeName());
 		}
 	}
@@ -431,8 +420,7 @@ class SQLToJavaValueNode extends JavaValueNode
 	private void generateReturnsNullOnNullCheck(MethodBuilder mb)
 	{
 		mb.dup();
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.Storable,
-								"isNull", "boolean", 0);
+	 
 
 		mb.conditionalIf();
 		  mb.push(true);

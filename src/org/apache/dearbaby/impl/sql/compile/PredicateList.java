@@ -26,8 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.ClassName; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
@@ -40,9 +39,7 @@ import org.apache.derby.iapi.sql.compile.OptimizablePredicateList;
 import org.apache.derby.iapi.sql.compile.RequiredRowOrdering;
 import org.apache.derby.iapi.sql.compile.RowOrdering;
 import org.apache.derby.iapi.sql.dictionary.ConglomerateDescriptor;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.sql.execute.ExecutionFactory;
-import org.apache.derby.iapi.store.access.ScanController;
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
 import org.apache.derby.iapi.types.DataValueDescriptor;
 import org.apache.derby.iapi.util.JBitSet;
 import org.apache.derby.shared.common.sanity.SanityManager;
@@ -829,7 +826,7 @@ class PredicateList extends QueryTreeNodeVector<Predicate>
 						thisPred.markStartKey();
 						currentStartPosition = thisIndexPosition;
 						thisPredMarked = true;
-						seenGT = (thisPred.getStartOperator(optTable) == ScanController.GT);
+						 
 					}
 				}
 			}
@@ -851,7 +848,7 @@ class PredicateList extends QueryTreeNodeVector<Predicate>
 						thisPred.markStopKey();
 						currentStopPosition = thisIndexPosition;
 						thisPredMarked = true;
-						seenGE = (thisPred.getStopOperator(optTable) == ScanController.GE);
+						 
 					}
 				}
 			}
@@ -2662,7 +2659,7 @@ class PredicateList extends QueryTreeNodeVector<Predicate>
 		** matter what it is, as long as the operator is one of GT or GE
 		** (to match the openScan() interface).
 		*/
-		startOperator = ScanController.GT;
+		startOperator = 0;
 
 		int size = size();
 		/* beetle 4572. start operator should be the last start key column's
@@ -2692,7 +2689,7 @@ class PredicateList extends QueryTreeNodeVector<Predicate>
 		** matter what it is, as long as the operator is one of GT or GE
 		** (to match the openScan() interface).
 		*/
-		stopOperator = ScanController.GT;
+		stopOperator = 0;
 
 		int size = size();
 		/* beetle 4572. stop operator should be the last start key column's
@@ -2726,10 +2723,7 @@ class PredicateList extends QueryTreeNodeVector<Predicate>
 
         // get instance for getQualifier call
         consMB.pushThis();
-        consMB.callMethod(
-            VMOpcode.INVOKEVIRTUAL, 
-            acb.getBaseClassName(), 
-            "getExecutionFactory", ExecutionFactory.MODULE, 0);
+       
         
         // Column Id - first arg
         if (absolute)
@@ -2768,20 +2762,13 @@ class PredicateList extends QueryTreeNodeVector<Predicate>
         /* variantType for qualifier's orderable */
         consMB.push(or_node.getOrderableVariantType(optTable));
 
-        consMB.callMethod(
-            VMOpcode.INVOKEINTERFACE, 
-            ExecutionFactory.MODULE, 
-            "getQualifier", ClassName.Qualifier, 8);
+       
 
         // result of getQualifier() is second arg for setQualifier
 
         consMB.push(array_idx_1);       // third  arg for setQualifier
         consMB.push(array_idx_2);       // fourth arg for setQualifier
-
-        consMB.callMethod(
-            VMOpcode.INVOKESTATIC, 
-            acb.getBaseClassName(), 
-            "setQualifier", "void", 4);
+ 
     }
 
 	/**
@@ -2925,10 +2912,7 @@ class PredicateList extends QueryTreeNodeVector<Predicate>
 
         // generate code to reinitializeQualifiers(Qualifier[][] qualifiers)
 		executeMB.getField(qualField); // first arg to reinitializeQualifiers()
-		executeMB.callMethod(
-            VMOpcode.INVOKESTATIC, 
-            acb.getBaseClassName(), "reinitializeQualifiers", "void", 1);
-
+	 
         if (SanityManager.DEBUG)
         {
             if (numberOfQualifiers > size())
@@ -2962,11 +2946,7 @@ class PredicateList extends QueryTreeNodeVector<Predicate>
         consMB.getField(qualField);             // 1st arg allocateQualArray
         consMB.push(0);                   // 2nd arg allocateQualArray
         consMB.push(numberOfQualifiers - num_of_or_conjunctions);  // 3rd arg allocateQualArray
-
-        consMB.callMethod(
-            VMOpcode.INVOKESTATIC,
-            acb.getBaseClassName(),
-            "allocateQualArray", "void", 3);
+ 
 
 		/* Sort the qualifiers by "selectivity" before generating.
 		 * We want the qualifiers ordered by selectivity with the
@@ -3079,11 +3059,7 @@ class PredicateList extends QueryTreeNodeVector<Predicate>
                 consMB.getField(qualField);        // 1st arg allocateQualArray
                 consMB.push(and_idx);        // 2nd arg allocateQualArray
                 consMB.push(a_list.size());  // 3rd arg allocateQualArray
-
-                consMB.callMethod(
-                    VMOpcode.INVOKESTATIC, 
-                    acb.getBaseClassName(), 
-                    "allocateQualArray", "void", 3);
+ 
 
                 
                 // finally transfer the nodes to the 2-d qualifier
@@ -3263,8 +3239,7 @@ class PredicateList extends QueryTreeNodeVector<Predicate>
 		*/
 		acb.pushGetExecutionFactoryExpression(mb); // instance
 		mb.push(numberOfColumns);
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.ExecutionFactory, "getIndexableRow", ClassName.ExecIndexRow, 1);
-
+	 
 		/*
 		** Assign the indexable row to a field, and put this assignment into
 		** the constructor for the activation class.  This way, we only have

@@ -32,8 +32,6 @@ import org.apache.derby.iapi.sql.dictionary.ConglomerateDescriptor;
 import org.apache.derby.iapi.sql.dictionary.ConstraintDescriptor;
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
 import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.store.access.StaticCompiledOpenConglomInfo;
-import org.apache.derby.iapi.store.access.TransactionController;
 import org.apache.derby.iapi.util.PropertyUtil;
 
 abstract class BaseJoinStrategy implements JoinStrategy {
@@ -50,62 +48,7 @@ abstract class BaseJoinStrategy implements JoinStrategy {
 		return false;
 	}
 
-	/**
-	 * Push the first set of common arguments for obtaining a scan ResultSet from
-	 * ResultSetFactory.
-	 * The first 11 arguments are common for these ResultSet getters
-	 * <UL>
-	 * <LI> ResultSetFactory.getBulkTableScanResultSet
-	 * <LI> ResultSetFactory.getHashScanResultSet
-	 * <LI> ResultSetFactory.getTableScanResultSet
-	 * <LI> ResultSetFactory.getRaDependentTableScanResultSet
-	 * </UL>
-	 * @param tc
-	 * @param mb
-	 * @param innerTable
-	 * @param predList
-	 * @param acbi
-	 * @throws StandardException
-	 */
-	void fillInScanArgs1(
-								TransactionController tc,
-								MethodBuilder mb,
-								Optimizable innerTable,
-								OptimizablePredicateList predList,
-								ExpressionClassBuilderInterface acbi,
-								int resultRowTemplate
-								)
-					throws StandardException {
-		boolean				   sameStartStopPosition = predList.sameStartStopPosition();
-		ExpressionClassBuilder acb = (ExpressionClassBuilder) acbi;
-		long				   conglomNumber = 
-								innerTable.getTrulyTheBestAccessPath().
-									getConglomerateDescriptor().
-										getConglomerateNumber();
-		StaticCompiledOpenConglomInfo scoci = tc.getStaticCompiledConglomInfo(conglomNumber);
-		
-		acb.pushThisAsActivation(mb);
-		mb.push(conglomNumber);
-		mb.push(acb.addItem(scoci));
-
-        mb.push(resultRowTemplate);
-		mb.push(innerTable.getResultSetNumber());
-
-		predList.generateStartKey(acb, mb, innerTable);
-		mb.push(predList.startOperator(innerTable));
-
-		if (! sameStartStopPosition) {
-			predList.generateStopKey(acb, mb, innerTable);
-		} else {
-			mb.pushNull(ClassName.GeneratedMethod);
-		}
-
-		mb.push(predList.stopOperator(innerTable));
-		mb.push(sameStartStopPosition);
-
-		predList.generateQualifiers(acb, mb, innerTable, true);
-		mb.upCast(ClassName.Qualifier + "[][]");
-	}
+	 
 
 	final void fillInScanArgs2(MethodBuilder mb,
 								Optimizable innerTable,
@@ -178,13 +121,7 @@ abstract class BaseJoinStrategy implements JoinStrategy {
 			mb.push(innerTable.isOneRowScan());
 		}
 
-		mb.push(
-				innerTable.getTrulyTheBestAccessPath().
-												getCostEstimate().rowCount());
-
-		mb.push(
-						innerTable.getTrulyTheBestAccessPath().
-										getCostEstimate().getEstimatedCost());
+	 
 	}
 
 	/**

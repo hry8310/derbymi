@@ -22,8 +22,7 @@
 package org.apache.dearbaby.impl.sql.compile;
 
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.io.StoredFormatIds;
-import org.apache.derby.iapi.services.loader.ClassFactory;
+import org.apache.derby.iapi.services.io.StoredFormatIds; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.TypeCompiler;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
@@ -64,27 +63,7 @@ class XMLTypeCompiler extends BaseTypeCompiler
         // into any non-XML type.
         return otherType.isXMLTypeId();
     }
-
-    /**
-     * Tell whether this type (XML) can be stored into from the given type.
-     * Only XML values can be stored into an XML type, per SQL/XML spec:
-     *
-     * 4.2.2 XML comparison and assignment
-     * Values of XML type are assignable to sites of XML type.
-     *
-     * @param otherType The TypeId of the other type.
-     * @param cf A ClassFactory
-     */
-    public boolean storable(TypeId otherType, ClassFactory cf)
-    {
-        // The only type of value that can be stored as XML
-        // is an XML value.  Strings are not allowed.  If
-        // the user wants to store a string value as XML,
-        // s/he must use the provided XML parse operator
-        // (namely, XMLPARSE) to parse the string into
-        // XML.
-        return otherType.isXMLTypeId();
-    }
+ 
 
     /**
      * @see TypeCompiler#interfaceName

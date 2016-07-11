@@ -23,8 +23,7 @@ package org.apache.dearbaby.impl.sql.compile;
 
 import java.lang.reflect.Modifier;
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.ClassName; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.sql.compile.CodeGeneration;
@@ -108,7 +107,7 @@ class ActivationClassBuilder	extends	ExpressionClassBuilder
 
 		mb.addThrownException(ClassName.StandardException);
 		mb.pushThis();
-		mb.callMethod(VMOpcode.INVOKESPECIAL, ClassName.BaseActivation, "reset", "void", 0);
+	 
 
 
 		return mb;
@@ -268,8 +267,7 @@ class ActivationClassBuilder	extends	ExpressionClassBuilder
 
         MethodBuilder execute = getExecuteMethod();
         execute.getField(lf);
-        execute.callMethod(
-                VMOpcode.INVOKEVIRTUAL, (String) null, "forget", "void", 0);
+       
 
 		return lf;
 	}

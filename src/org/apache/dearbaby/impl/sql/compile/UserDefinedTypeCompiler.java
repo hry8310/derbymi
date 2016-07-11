@@ -24,8 +24,7 @@ package org.apache.dearbaby.impl.sql.compile;
 import org.apache.derby.catalog.types.UserDefinedTypeIdImpl;
 import org.apache.derby.iapi.reference.ClassName;
 import org.apache.derby.iapi.services.compiler.LocalField;
-import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.iapi.services.loader.ClassFactory;
+import org.apache.derby.iapi.services.compiler.MethodBuilder; 
 import org.apache.derby.iapi.sql.compile.TypeCompiler;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.iapi.types.TypeId;
@@ -69,38 +68,7 @@ class UserDefinedTypeCompiler extends BaseTypeCompiler
 	{
 		return convertible(otherType, false);
 	}
-
-	/**
-     * ANSI UDTs can only be stored into values of exactly their own
-     * type. This restriction can be lifted when we implement the
-     * ANSI subclassing clauses.
-     *
-	 * Old-style User types are storable into other user types that they
-	 * are assignable to. The other type must be a subclass of
-	 * this type, or implement this type as one of its interfaces.
-	 *
-	 * @param otherType the type of the instance to store into this type.
-	 * @param cf		A ClassFactory
-	 * @return true if otherType is storable into this type, else false.
-	 */
-	public boolean storable(TypeId otherType, ClassFactory cf)
-	{
-        if ( !otherType.isUserDefinedTypeId() ) { return false; }
-
-        UserDefinedTypeIdImpl thisTypeID = (UserDefinedTypeIdImpl) getTypeId().getBaseTypeId();
-        UserDefinedTypeIdImpl thatTypeID = (UserDefinedTypeIdImpl) otherType.getBaseTypeId();
-
-        if ( thisTypeID.isAnsiUDT() != thatTypeID.isAnsiUDT() ) { return false; }
-
-        if ( thisTypeID.isAnsiUDT() )
-        {
-            return thisTypeID.getSQLTypeName().equals( thatTypeID.getSQLTypeName() );
-        }
-        
-		return cf.getClassInspector().assignableTo(
-			   otherType.getCorrespondingJavaTypeName(),
-			   getTypeId().getCorrespondingJavaTypeName());
-	}
+ 
 
 	/** @see TypeCompiler#interfaceName */
 	public String interfaceName()

@@ -25,8 +25,7 @@ import java.util.List;
 
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.StatementType;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
+import org.apache.derby.iapi.sql.StatementType; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
@@ -78,19 +77,7 @@ class SetRoleNode extends MiscellaneousStatementNode
     {
         return "SET ROLE";
     }
-
-    /**
-     * Create the Constant information that will drive the guts of
-     * Execution.
-     *
-     * @exception StandardException         Thrown on failure
-     */
-    @Override
-    public ConstantAction   makeConstantAction() throws StandardException
-    {
-        return getGenericConstantActionFactory().
-			getSetRoleConstantAction(name, type);
-    }
+ 
     
     /**
      * Generate the code to create the ParameterValueSet, if necessary,

@@ -23,8 +23,7 @@ package org.apache.dearbaby.impl.sql.compile;
 
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.shared.common.sanity.SanityManager;
-import org.apache.derby.iapi.sql.compile.CostEstimate;
+import org.apache.derby.shared.common.sanity.SanityManager; 
 import org.apache.derby.iapi.sql.compile.ExpressionClassBuilderInterface;
 import org.apache.derby.iapi.sql.compile.JoinStrategy;
 import org.apache.derby.iapi.sql.compile.Optimizable;
@@ -32,9 +31,7 @@ import org.apache.derby.iapi.sql.compile.OptimizablePredicate;
 import org.apache.derby.iapi.sql.compile.OptimizablePredicateList;
 import org.apache.derby.iapi.sql.compile.Optimizer;
 import org.apache.derby.iapi.sql.dictionary.ConglomerateDescriptor;
-import org.apache.derby.iapi.sql.dictionary.DataDictionary;
-import org.apache.derby.iapi.store.access.StoreCostController;
-import org.apache.derby.iapi.store.access.TransactionController;
+import org.apache.derby.iapi.sql.dictionary.DataDictionary; 
 
 class NestedLoopJoinStrategy extends BaseJoinStrategy {
     NestedLoopJoinStrategy() {
@@ -134,18 +131,7 @@ class NestedLoopJoinStrategy extends BaseJoinStrategy {
 		}
 	}
 
-	/* @see JoinStrategy#estimateCost */
-	public void estimateCost(Optimizable innerTable,
-							 OptimizablePredicateList predList,
-							 ConglomerateDescriptor cd,
-							 CostEstimate outerCost,
-							 Optimizer optimizer,
-							 CostEstimate costEstimate) {
-		costEstimate.multiply(outerCost.rowCount(), costEstimate);
-
-        if ( innerTable.optimizerTracingIsOn() )
-        { innerTable.getOptimizerTracer().traceCostOfNScans( innerTable.getTableNumber(), outerCost.rowCount(), costEstimate ); }
-	}
+	 
 
 	/** @see JoinStrategy#maxCapacity */
 	public int maxCapacity( int userSpecifiedCapacity,
@@ -161,7 +147,7 @@ class NestedLoopJoinStrategy extends BaseJoinStrategy {
 
 	/** @see JoinStrategy#scanCostType */
 	public int scanCostType() {
-		return StoreCostController.STORECOST_SCAN_NORMAL;
+		return 0;
 	}
 
 	/** @see JoinStrategy#getOperatorSymbol */
@@ -194,107 +180,7 @@ class NestedLoopJoinStrategy extends BaseJoinStrategy {
 		return "getNestedLoopLeftOuterJoinResultSet";
 	}
 
-	/**
-	 * @see JoinStrategy#getScanArgs
-	 *
-	 * @exception StandardException		Thrown on error
-	 */
-	public int getScanArgs(
-							TransactionController tc,
-							MethodBuilder mb,
-							Optimizable innerTable,
-							OptimizablePredicateList storeRestrictionList,
-							OptimizablePredicateList nonStoreRestrictionList,
-							ExpressionClassBuilderInterface acbi,
-							int bulkFetch,
-							int resultRowTemplate,
-							int colRefItem,
-							int indexColItem,
-							int lockMode,
-							boolean tableLocked,
-							int isolationLevel,
-							int maxMemoryPerTable,
-							boolean genInListVals
-							)
-						throws StandardException {
-		ExpressionClassBuilder acb = (ExpressionClassBuilder) acbi;
-		int numArgs;
-
-		if (SanityManager.DEBUG) {
-			if (nonStoreRestrictionList.size() != 0) {
-				SanityManager.THROWASSERT(
-					"nonStoreRestrictionList should be empty for " +
-					"nested loop join strategy, but it contains " +
-					nonStoreRestrictionList.size() +
-					" elements");
-			}
-		}
-
-		/* If we're going to generate a list of IN-values for index probing
-		 * at execution time then we push TableScanResultSet arguments plus
-		 * two additional arguments: 1) the list of IN-list values, and 2)
-		 * a boolean indicating whether or not the IN-list values are already
-		 * sorted.
-		 */
-		if (genInListVals)
-		{
-			numArgs = 26;
-		}
-		else if (bulkFetch > 1)
-		{
-            // Bulk-fetch uses TableScanResultSet arguments plus two
-            // additional arguments: 1) bulk fetch size, and 2) whether the
-            // table contains LOB columns (used at runtime to decide if
-            // bulk fetch is safe DERBY-1511).
-            numArgs = 26;
-		}
-		else
-		{
-			numArgs = 24 ;
-		}
-
-		fillInScanArgs1(tc, mb,
-										innerTable,
-										storeRestrictionList,
-										acb,
-										resultRowTemplate);
-
-		if (genInListVals)
-			((PredicateList)storeRestrictionList).generateInListValues(acb, mb);
-
-		if (SanityManager.DEBUG)
-		{
-			/* If we're not generating IN-list values with which to probe
-			 * the table then storeRestrictionList should not have any
-			 * IN-list probing predicates.  Make sure that's the case.
-			 */
-			if (!genInListVals)
-			{
-				for (int i = storeRestrictionList.size() - 1; i >= 0; i--)
-				{
-                    Predicate pred =
-                            (Predicate)storeRestrictionList.getOptPredicate(i);
-					if (pred.isInListProbePredicate())
-					{
-						SanityManager.THROWASSERT("Found IN-list probing " +
-							"predicate (" + pred.binaryRelOpColRefsToString() +
-							") when no such predicates were expected.");
-					}
-				}
-			}
-		}
-
-		fillInScanArgs2(mb,
-						innerTable,
-						bulkFetch,
-						colRefItem,
-						indexColItem,
-						lockMode,
-						tableLocked,
-						isolationLevel);
-
-		return numArgs;
-	}
+	 
 
 	/**
 	 * @see JoinStrategy#divideUpPredicateLists

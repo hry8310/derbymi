@@ -22,8 +22,7 @@
 package org.apache.dearbaby.impl.sql.compile;
 
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.io.StoredFormatIds;
-import org.apache.derby.iapi.services.loader.ClassFactory;
+import org.apache.derby.iapi.services.io.StoredFormatIds; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.TypeCompiler;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
@@ -80,27 +79,7 @@ public final class CharTypeCompiler extends BaseTypeCompiler
 		
 	}
 
-    /**
-     * Tell whether this type (char) can be stored into from the given type.
-     *
-     * @param otherType     The TypeId of the other type.
-     * @param cf            A ClassFactory
-     */
-
-    public boolean storable(TypeId otherType, ClassFactory cf)
-    {
-        // Same rules as cast except we can't assign from numbers
-        if (convertible(otherType,false) &&
-                !otherType.isBlobTypeId() &&
-                !otherType.isNumericTypeId())
-            return true;
-
-        /*
-         ** If the other type is user-defined, use the java types to determine
-         ** assignability.
-         */
-        return userTypeStorable(getTypeId(), otherType, cf);
-    }
+    
 
     /** @see TypeCompiler#interfaceName */
     public String interfaceName()

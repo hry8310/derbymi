@@ -22,8 +22,7 @@
 package org.apache.dearbaby.impl.sql.compile;
 
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.io.StoredFormatIds;
-import org.apache.derby.iapi.services.loader.ClassFactory;
+import org.apache.derby.iapi.services.io.StoredFormatIds; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.TypeCompiler;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
@@ -60,20 +59,7 @@ class CLOBTypeCompiler extends BaseTypeCompiler
 				return convertible(otherType,false);
 		}
 
-	    /**
-         * Tell whether this type (LOB) can be stored into from the given type.
-         *
-         * @param otherType     The TypeId of the other type.
-         * @param cf            A ClassFactory
-         */
-
-        public boolean storable(TypeId otherType, ClassFactory cf)
-        {
-            // no automatic conversions at store time--but booleans and string
-			// literals (or values of type CHAR/VARCHAR) are STORABLE
-            // as clobs, even if the two types can't be COMPARED.
-            return (otherType.isStringTypeId() || otherType.isBooleanTypeId()) ;
-        }
+	    
 
         /** @see TypeCompiler#interfaceName */
         public String interfaceName()

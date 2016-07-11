@@ -345,52 +345,7 @@ abstract class FromTable extends ResultSetNode {
 		 * invalid value for hashMaxCapacity
 		 */
 		Enumeration<?> e = tableProperties.keys();
-
-		while (e.hasMoreElements()) {
-			String key = (String) e.nextElement();
-			String value = (String) tableProperties.get(key);
-
-			if (key.equals("joinStrategy")) {
-				userSpecifiedJoinStrategy = StringUtil.SQLToUpperCase(value);
-			} else if (key.equals("hashInitialCapacity")) {
-				initialCapacity = getIntProperty(value, key);
-
-				// verify that the specified value is valid
-				if (initialCapacity <= 0) {
-					throw StandardException.newException(
-							SQLState.LANG_INVALID_HASH_INITIAL_CAPACITY,
-							String.valueOf(initialCapacity));
-				}
-			} else if (key.equals("hashLoadFactor")) {
-				try {
-					loadFactor = Float.parseFloat(value);
-				} catch (NumberFormatException nfe) {
-					throw StandardException.newException(
-							SQLState.LANG_INVALID_NUMBER_FORMAT_FOR_OVERRIDE,
-							value, key);
-				}
-
-				// verify that the specified value is valid
-				if (loadFactor <= 0.0 || loadFactor > 1.0) {
-					throw StandardException.newException(
-							SQLState.LANG_INVALID_HASH_LOAD_FACTOR, value);
-				}
-			} else if (key.equals("hashMaxCapacity")) {
-				maxCapacity = getIntProperty(value, key);
-
-				// verify that the specified value is valid
-				if (maxCapacity <= 0) {
-					throw StandardException.newException(
-							SQLState.LANG_INVALID_HASH_MAX_CAPACITY,
-							String.valueOf(maxCapacity));
-				}
-			} else {
-				// No other "legal" values at this time
-				throw StandardException.newException(
-						SQLState.LANG_INVALID_FROM_TABLE_PROPERTY, key,
-						"joinStrategy");
-			}
-		}
+ 
 	}
 
 	/**
@@ -470,8 +425,7 @@ abstract class FromTable extends ResultSetNode {
 
 		// It might be the case that there is no plan stored for
 		// the key, in which case there's nothing to load.
-		if ((ap == null) || (ap.getCostEstimate() == null))
-			return;
+		 
 
 		// We found a best plan in our map, so load it into this Optimizable's
 		// trulyTheBestAccessPath field.
@@ -576,8 +530,7 @@ abstract class FromTable extends ResultSetNode {
 	/** @see Optimizable#maxCapacity */
 	public int maxCapacity(JoinStrategy joinStrategy, int maxMemoryPerTable)
 			throws StandardException {
-		return joinStrategy.maxCapacity(maxCapacity, maxMemoryPerTable,
-				getPerRowUsage());
+		return 0;
 	}
 
 	private double getPerRowUsage() throws StandardException {

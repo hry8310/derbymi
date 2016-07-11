@@ -44,10 +44,7 @@ import org.apache.derby.iapi.sql.dictionary.ConstraintDescriptorList;
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
 import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
 import org.apache.derby.iapi.sql.dictionary.TriggerDescriptor;
-import org.apache.derby.iapi.sql.dictionary.TriggerDescriptorList;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
-import org.apache.derby.iapi.store.access.StaticCompiledOpenConglomInfo;
-import org.apache.derby.iapi.store.access.TransactionController;
+import org.apache.derby.iapi.sql.dictionary.TriggerDescriptorList; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.vti.DeferModification;
 
@@ -339,98 +336,7 @@ public final class UpdateNode extends DMLModStatementNode
 
 	}
 
-	/**
-	 * Compile constants that Execution will use
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-    @Override
-    public ConstantAction makeConstantAction() throws StandardException
-	{
-		/*
-		** Updates are also deferred if they update a column in the index
-		** used to scan the table being updated.
-		*/
-		if ( !deferred && !inMatchingClause() )
-		{
-			ConglomerateDescriptor updateCD =
-										targetTable.
-											getTrulyTheBestAccessPath().
-												getConglomerateDescriptor();
-
-			if (updateCD != null && updateCD.isIndex())
-			{
-				int [] baseColumns =
-						updateCD.getIndexDescriptor().baseColumnPositions();
-
-				if (resultSet.
-						getResultColumns().
-										updateOverlaps(baseColumns))
-				{
-					deferred = true;
-				}
-			}
-		}
-
-        if( null == targetTableDescriptor)
-		{
-			/* Return constant action for VTI
-			 * NOTE: ConstantAction responsible for preserving instantiated
-			 * VTIs for in-memory queries and for only preserving VTIs
-			 * that implement Serializable for SPSs.
-			 */
-			return	getGenericConstantActionFactory().getUpdatableVTIConstantAction( DeferModification.UPDATE_STATEMENT,
-						deferred, changedColumnIds);
-		}
-
-        int lckMode = inMatchingClause() ?
-            TransactionController.MODE_RECORD : resultSet.updateTargetLockMode();
-		long heapConglomId = targetTableDescriptor.getHeapConglomerateId();
-		TransactionController tc = 
-			getLanguageConnectionContext().getTransactionCompile();
-		StaticCompiledOpenConglomInfo[] indexSCOCIs = 
-			new StaticCompiledOpenConglomInfo[indexConglomerateNumbers.length];
-
-		for (int index = 0; index < indexSCOCIs.length; index++)
-		{
-			indexSCOCIs[index] = tc.getStaticCompiledConglomInfo(indexConglomerateNumbers[index]);
-		}
-
-		/*
-		** Do table locking if the table's lock granularity is
-		** set to table.
-		*/
-		if (targetTableDescriptor.getLockGranularity() == TableDescriptor.TABLE_LOCK_GRANULARITY)
-		{
-            lckMode = TransactionController.MODE_TABLE;
-		}
-
-
-		return	getGenericConstantActionFactory().getUpdateConstantAction
-            ( targetTableDescriptor,
-			  tc.getStaticCompiledConglomInfo(heapConglomId),
-			  indicesToMaintain,
-			  indexConglomerateNumbers,
-			  indexSCOCIs,
-			  indexNames,
-			  deferred,
-			  targetTableDescriptor.getUUID(),
-              lckMode,
-			  false,
-			  changedColumnIds, null, null, 
-			  getFKInfo(),
-			  getTriggerInfo(),
-			  (readColsBitSet == null) ? (FormatableBitSet)null : new FormatableBitSet(readColsBitSet),
-			  getReadColMap(targetTableDescriptor.getNumberOfColumns(),readColsBitSet),
-			  resultColumnList.getStreamStorableColIds(targetTableDescriptor.getNumberOfColumns()),
-			  (readColsBitSet == null) ? 
-				  targetTableDescriptor.getNumberOfColumns() :
-				  readColsBitSet.getNumBitsSet(),			
-			  positionedUpdate,
-			  resultSet.isOneRowResultSet(),
-			  inMatchingClause()
-			  );
-	}
+	 
 
 	/**
 	 * Updates are deferred if they update a column in the index

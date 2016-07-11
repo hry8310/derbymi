@@ -24,8 +24,7 @@ package	org.apache.dearbaby.impl.sql.compile;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.ClassName; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
@@ -129,8 +128,7 @@ class CurrentRowLocationNode extends ValueNode
 		 */
 
 		mb.pushThis();
-		mb.getField((String)null, acb.getRowLocationScanResultSetName(), ClassName.CursorResultSet);
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, (String) null, "getRowLocation", ClassName.RowLocation, 0);
+		mb.getField((String)null, acb.getRowLocationScanResultSetName(), ClassName.CursorResultSet); 
 
 
 		acb.generateDataValue(mb, getTypeCompiler(), 
@@ -152,7 +150,7 @@ class CurrentRowLocationNode extends ValueNode
 
 		/* Generate the call to the new method */
 		mbex.pushThis();
-		mbex.callMethod(VMOpcode.INVOKEVIRTUAL, (String) null, mb.getName(), ClassName.DataValueDescriptor, 0);
+	 
 	}
 	
     boolean isEquivalent(ValueNode o)

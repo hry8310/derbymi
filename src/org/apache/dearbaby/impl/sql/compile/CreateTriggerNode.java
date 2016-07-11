@@ -28,11 +28,9 @@ import java.util.List;
 import org.apache.derby.catalog.UUID;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.compile.Visitor;
-import org.apache.derby.iapi.sql.depend.ProviderInfo;
+import org.apache.derby.iapi.sql.compile.Visitor; 
 import org.apache.derby.iapi.sql.dictionary.SchemaDescriptor;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
@@ -57,8 +55,7 @@ class CreateTriggerNode extends DDLStatementNode
 	private	StatementNode		actionNode;
 	private	String				actionText;
     private String              originalWhenText;
-    private String              originalActionText;
-    private ProviderInfo[]      providerInfo;
+    private String              originalActionText; 
 
 	private SchemaDescriptor	triggerSchemaDescriptor;
 	private SchemaDescriptor	compSchemaDescriptor;
@@ -368,42 +365,7 @@ class CreateTriggerNode extends DDLStatementNode
         
 	  
 
-	/**
-	 * Create the Constant information that will drive the guts of Execution.
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-    @Override
-	public ConstantAction makeConstantAction() throws StandardException
-	{
-		String oldReferencingName = (oldTableInReferencingClause) ? oldTableName : null;
-		String newReferencingName = (newTableInReferencingClause) ? newTableName : null;
-
-		return	getGenericConstantActionFactory().getCreateTriggerConstantAction(
-											triggerSchemaDescriptor.getSchemaName(),
-											getRelativeName(),
-											triggerEventMask,
-											isBefore,
-											isRow,
-											isEnabled,
-											triggerTableDescriptor,	
-											(UUID)null,			// when SPSID
-											whenText,
-											(UUID)null,			// action SPSid 
-											actionText,
-                                            compSchemaDescriptor.getUUID(),
-											referencedColInts,
-											referencedColsInTriggerAction,
-                                            originalWhenText,
-											originalActionText,
-											oldTableInReferencingClause,
-											newTableInReferencingClause,
-											oldReferencingName,
-                                            newReferencingName,
-                                            providerInfo
-											);
-	}
-
+	 
 
 	/**
 	 * Convert this object to a String.  See comments in QueryTreeNode.java

@@ -26,17 +26,13 @@ import java.util.Properties;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.Activation;
-import org.apache.derby.iapi.sql.compile.CostEstimate;
+import org.apache.derby.iapi.sql.Activation; 
 import org.apache.derby.iapi.sql.compile.Visitor;
 import org.apache.derby.iapi.sql.dictionary.ColumnDescriptor;
 import org.apache.derby.iapi.sql.dictionary.ColumnDescriptorList;
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
 import org.apache.derby.iapi.sql.dictionary.SchemaDescriptor;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.sql.execute.ExecCursorTableReference;
-import org.apache.derby.iapi.sql.execute.ExecPreparedStatement;
-import org.apache.derby.iapi.store.access.TransactionController;
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
 import org.apache.derby.iapi.util.JBitSet;
 import org.apache.derby.shared.common.sanity.SanityManager;
 
@@ -56,11 +52,9 @@ import org.apache.derby.shared.common.sanity.SanityManager;
  */
 public final class CurrentOfNode extends FromTable {
 
-	private String	 				cursorName;
-	private ExecPreparedStatement	 preStmt;
+	private String	 				cursorName; 
 	private TableName 				exposedTableName;
-	private TableName 				baseTableName;
-	private CostEstimate 			singleScanCostEstimate;
+	private TableName 				baseTableName; 
 
     // dummy variables for compiling a CurrentOfNode in the DELETE action of a MERGE statement
     private FromBaseTable       dummyTargetTable;
@@ -121,90 +115,7 @@ public final class CurrentOfNode extends FromTable {
 						   FromList fromListParam) 
 		throws StandardException {
 
-		// verify that the cursor exists
-
-		preStmt = getCursorStatement();
-
-		if (preStmt == null) {
-			throw StandardException.newException(SQLState.LANG_CURSOR_NOT_FOUND, 
-						cursorName);
-		}
-		
-        preStmt.rePrepare(getLanguageConnectionContext());
-
-		// verify that the cursor is updatable (UPDATE is responsible
-		// for checking that the right columns are updatable)
-		if (preStmt.getUpdateMode() != CursorNode.UPDATE)
-		{
-			String printableString = (cursorName == null) ? "" : cursorName;
-			throw StandardException.newException(SQLState.LANG_CURSOR_NOT_UPDATABLE, printableString);
-		}
-
-		ExecCursorTableReference refTab = preStmt.getTargetTable();
-		String schemaName = refTab.getSchemaName();
-		exposedTableName = makeTableName(null, refTab.getExposedName());
-		baseTableName = makeTableName(schemaName,
-									  refTab.getBaseName());
-        SchemaDescriptor tableSchema =
-                getSchemaDescriptor(refTab.getSchemaName());
-
-		/*
-		** This will only happen when we are binding against a publication
-		** dictionary w/o the schema we are interested in.
-		*/
-		if (tableSchema == null)
-		{
-			throw StandardException.newException(SQLState.LANG_SCHEMA_DOES_NOT_EXIST, refTab.getSchemaName());
-		}
-
-		/* Create dependency on target table, in case table not named in 
-		 * positioned update/delete.  Make sure we find the table descriptor,
-		 * we may fail to find it if we are binding a publication.
-		 */
-		TableDescriptor td = getTableDescriptor(refTab.getBaseName(), tableSchema);
-
-		if (td == null)
-		{
-			throw StandardException.newException(SQLState.LANG_TABLE_NOT_FOUND, refTab.getBaseName());
-		}
-
-
-		/*
-		** Add all the result columns from the target table.
-		** For now, all updatable cursors have all columns
-		** from the target table.  In the future, we should
-		** relax this so that the cursor may do a partial
-		** read and then the current of should make sure that
-		** it can go to the base table to get all of the 
-		** columns needed by the referencing positioned
-		** DML.  In the future, we'll probably need to get
-		** the result columns from preparedStatement and
-		** turn them into an RCL that we can run with.
-		*/
-        setResultColumns( new ResultColumnList(getContextManager()) );
-		ColumnDescriptorList cdl = td.getColumnDescriptorList();
-		int					 cdlSize = cdl.size();
-
-		for (int index = 0; index < cdlSize; index++)
-		{
-			/* Build a ResultColumn/BaseColumnNode pair for the column */
-            ColumnDescriptor colDesc = cdl.elementAt(index);
-
-            BaseColumnNode bcn = new BaseColumnNode(
-                                            colDesc.getColumnName(),
-									  		exposedTableName,
-											colDesc.getType(),
-											getContextManager());
-            ResultColumn rc = new ResultColumn(
-                colDesc, bcn, getContextManager());
-
-			/* Build the ResultColumnList to return */
-			getResultColumns().addResultColumn(rc);
-		}
-
-		/* Assign the tableNumber */
-		if (tableNumber == -1)  // allow re-bind, in which case use old number
-			tableNumber = getCompilerContext().getNextTableNumber();
+	 
 
 		return this;
 	}
@@ -242,10 +153,7 @@ public final class CurrentOfNode extends FromTable {
             columnsTableName.bind();
         }
 
-		if (SanityManager.DEBUG)
-		{
-			SanityManager.ASSERT(preStmt!=null, "must have prepared statement");
-		}
+		 
 
 		/*
 		 * We use the base table name of the target table.
@@ -297,23 +205,14 @@ public final class CurrentOfNode extends FromTable {
                 columnReference.setColumnNumber(
                    resultColumn.getColumnPosition());
 
-				// If there is a result column, are we really updating it?
-				// If so, verify that the column is updatable as well
-				notfound = 
-					(resultColumn.updatableByCursor() &&
-                     !preStmt.isUpdateColumn(columnReference.getColumnName()));
+			 
 			}
 			else 
 			{
 				notfound = true;
 			}
 
-			if (notfound)
-			{
-				String printableString = (cursorName == null) ? "" : cursorName;
-				throw StandardException.newException(SQLState.LANG_COLUMN_NOT_UPDATABLE_IN_CURSOR, 
-						 columnReference.getColumnName(), printableString);
-			}
+			 
 		}
 
 		return resultColumn;
@@ -368,13 +267,7 @@ public final class CurrentOfNode extends FromTable {
 	 */
     @Override
 	public String toString() {
-		if (SanityManager.DEBUG) {
-			return "preparedStatement: " +
-		    	(preStmt == null? "no prepared statement yet\n" :
-			 	preStmt.toString() + "\n")+
-				cursorName + "\n" +
-				super.toString();
-		} else {
+		 {
 			return "";
 		}
 	}
@@ -402,7 +295,7 @@ public final class CurrentOfNode extends FromTable {
     public int updateTargetLockMode()
     {
         /* Do row locking for positioned update/delete */
-        return TransactionController.MODE_RECORD;
+        return 0;
     }
 
     //
@@ -423,21 +316,7 @@ public final class CurrentOfNode extends FromTable {
 		return cursorName;
 	}
 
-	/**
-	 * Return the CursorNode associated with a positioned update/delete.
-	 * 
-	 * @return CursorNode	The associated CursorNode.
-	 *
-	 */
-	ExecPreparedStatement getCursorStatement()
-	{
-		Activation activation = getLanguageConnectionContext().lookupCursorActivation(cursorName);
-
-		if (activation == null)
-			return null;
-
-		return activation.getPreparedStatement();
-	}
+	 
 
     @Override
     void acceptChildren(Visitor v) throws StandardException {

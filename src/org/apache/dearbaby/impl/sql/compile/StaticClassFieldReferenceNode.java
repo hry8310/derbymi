@@ -27,11 +27,9 @@ import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.loader.ClassInspector;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.shared.common.sanity.SanityManager;
-import org.apache.derby.iapi.sql.compile.CompilerContext;
-import org.apache.derby.iapi.store.access.Qualifier;
+import org.apache.derby.iapi.sql.compile.CompilerContext; 
 import org.apache.derby.iapi.util.JBitSet;
 
 /**
@@ -94,7 +92,7 @@ public final class StaticClassFieldReferenceNode extends JavaValueNode
                                  List<AggregateNode> aggregates)
 			throws StandardException
 	{
-		ClassInspector classInspector = getClassFactory().getClassInspector();
+		 
 
 
 		if (((getCompilerContext().getReliability() & CompilerContext.INTERNAL_SQL_ILLEGAL) != 0)
@@ -105,14 +103,7 @@ public final class StaticClassFieldReferenceNode extends JavaValueNode
 
 		verifyClassExist(javaClassName);
 
-		/*
-		** Find the field that is public.
-		*/
-		field = classInspector.findPublicField(javaClassName,
-										fieldName,
-										true);
-		/* Get the field type */
-	 	setJavaTypeName( classInspector.getType(field) );
+	 
 
 		return this;
 
@@ -205,14 +196,7 @@ public final class StaticClassFieldReferenceNode extends JavaValueNode
 		/* Static field references are invariant for the life 
 		 * of the query, non-static are variant.
 		 */
-		if (Modifier.isFinal(field.getModifiers()))
-		{
-			return Qualifier.CONSTANT;
-		}
-		else
-		{
-			return Qualifier.VARIANT;
-		}
+		return 0;
 	}
 
 	/**

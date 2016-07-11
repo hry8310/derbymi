@@ -35,8 +35,7 @@ import org.apache.derby.iapi.sql.dictionary.DefaultDescriptor;
 import org.apache.derby.iapi.sql.dictionary.KeyConstraintDescriptor;
 import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
-import org.apache.derby.iapi.types.TypeId;
-import org.apache.derby.impl.sql.execute.ColumnInfo;
+import org.apache.derby.iapi.types.TypeId; 
 
 /**
  * A ModifyColumnNode represents a modify column in an ALTER TABLE statement.
@@ -248,8 +247,7 @@ class ModifyColumnNode extends ColumnDefinitionNode
                          name, refcdl.elementAt(0).getConstraintName());
 				}
 				
-				// Make the statement dependent on the primary key constraint.
-				getCompilerContext().createDependency(existingConstraint);
+	 
 			}
 		}
     }
@@ -292,37 +290,7 @@ class ModifyColumnNode extends ColumnDefinitionNode
     @Override
 	int getAction()
 	{
-        switch (kind) {
-            case K_MODIFY_COLUMN_DEFAULT:
-                if (autoinc_create_or_modify_Start_Increment ==
-                        ColumnDefinitionNode.MODIFY_AUTOINCREMENT_RESTART_VALUE) {
-                    return ColumnInfo.MODIFY_COLUMN_DEFAULT_RESTART;
-
-                } else if (autoinc_create_or_modify_Start_Increment ==
-                        ColumnDefinitionNode.MODIFY_AUTOINCREMENT_INC_VALUE) {
-                    return ColumnInfo.MODIFY_COLUMN_DEFAULT_INCREMENT;
-
-                } else {
-                    return ColumnInfo.MODIFY_COLUMN_DEFAULT_VALUE;
-                }
-            case K_MODIFY_COLUMN_TYPE:
-                return ColumnInfo.MODIFY_COLUMN_TYPE;
-
-            case K_MODIFY_COLUMN_CONSTRAINT:
-                return ColumnInfo.MODIFY_COLUMN_CONSTRAINT;
-
-            case K_MODIFY_COLUMN_CONSTRAINT_NOT_NULL:
-                return ColumnInfo.MODIFY_COLUMN_CONSTRAINT_NOT_NULL;
-
-            case K_DROP_COLUMN:
-                return ColumnInfo.DROP;
-
-            default:
-                if (SanityManager.DEBUG) {
-                    SanityManager.THROWASSERT("Unexpected type = " + kind);
-                }
-                return 0;
-        }
+        return 0;
 	}
 
 	/**

@@ -28,11 +28,7 @@ import org.apache.derby.iapi.sql.compile.Visitor;
 import org.apache.derby.iapi.sql.dictionary.ConstraintDescriptorList;
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
 import org.apache.derby.iapi.sql.dictionary.SchemaDescriptor;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
-import org.apache.derby.impl.sql.execute.ColumnInfo;
-import org.apache.derby.impl.sql.execute.ConstraintConstantAction;
-import org.apache.derby.impl.sql.execute.CreateConstraintConstantAction;
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
@@ -96,9 +92,7 @@ class AlterTableNode extends DDLStatementNode
 
 	// constant action arguments
 
-	protected	SchemaDescriptor			schemaDescriptor = null;
-	protected	ColumnInfo[] 				colInfos = null;
-	protected	ConstraintConstantAction[]	conActions = null;
+	protected	SchemaDescriptor			schemaDescriptor = null; 
 
 
 	/**
@@ -315,37 +309,7 @@ public String statementToString()
 		return isSessionSchema(baseTable.getSchemaName());
 	}
 
-	/**
-	 * Create the Constant information that will drive the guts of Execution.
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-    @Override
-    public ConstantAction makeConstantAction() throws StandardException
-	{
-		prepConstantAction();
-
-		return	getGenericConstantActionFactory().getAlterTableConstantAction(schemaDescriptor,
-											 getRelativeName(),
-											 baseTable.getUUID(),
-											 baseTable.getHeapConglomerateId(),
-											 TableDescriptor.BASE_TABLE_TYPE,
-											 colInfos,
-											 conActions,
-											 lockGranularity,
-											 compressTable,
-											 behavior,
-        								     sequential,
- 										     truncateTable,
- 										     purge,
- 										     defragment,
- 										     truncateEndOfTable,
- 										     updateStatistics,
- 										     updateStatisticsAll,
- 										     dropStatistics,
- 										     dropStatisticsAll,
- 										     indexNameForStatistics);
-	}
+	 
 
 	/**
 	  *	Generate arguments to constant action. Called by makeConstantAction() in this class and in
@@ -360,41 +324,7 @@ public String statementToString()
 		{
 			genColumnInfo();
 		}
-
-		/* If we've seen a constraint, then build a constraint list */
-
-		if (numConstraints > 0)
-		{
-			conActions = new ConstraintConstantAction[numConstraints];
-
-			tableElementList.genConstraintActions(false, conActions, getRelativeName(), schemaDescriptor,
-												  getDataDictionary());
-
-			for (int conIndex = 0; conIndex < conActions.length; conIndex++)
-			{
-				ConstraintConstantAction cca = conActions[conIndex];
-
-				if (cca instanceof CreateConstraintConstantAction)
-				{
-					int constraintType = cca.getConstraintType();
-					if (constraintType == DataDictionary.PRIMARYKEY_CONSTRAINT)
-					{
-						DataDictionary dd = getDataDictionary();
-						// Check to see if a constraint of the same type 
-						// already exists
-						ConstraintDescriptorList cdl = 
-                                dd.getConstraintDescriptors(baseTable);
-
-						if (cdl.getPrimaryKey() != null)
-						{
-							throw StandardException.newException(
-                                    SQLState.LANG_ADD_PRIMARY_KEY_FAILED1, 
-                                    baseTable.getQualifiedName());
-						}
-					}
-				}
-			}
-		}
+ 
 	}
 	  
 	/**
@@ -403,10 +333,7 @@ public String statementToString()
 	public	void	genColumnInfo()
         throws StandardException
 	{
-		// for each column, stuff system.column
-		colInfos = new ColumnInfo[tableElementList.countNumberOfColumns()]; 
-
-	    numConstraints = tableElementList.genColumnInfos(colInfos);
+		 
 	}
 
 

@@ -25,8 +25,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.i18n.MessageService;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.sql.dictionary.OptionalTool;
 
 /**
@@ -85,30 +84,7 @@ public	class   OptTraceViewer  implements OptionalTool
      */
     public  void    loadTool( String... configurationParameters )
         throws SQLException
-    {
-        if ( (configurationParameters == null) || (configurationParameters.length != 1) )
-        { throw wrap( MessageService.getTextMessage( SQLState.LANG_BAD_OPTIONAL_TOOL_ARGS ) ); }
-
-        String  fileURL = configurationParameters[ 0 ];
-        String  createView = XMLOptTrace.PLAN_COST_VIEW.replace( "FILE_URL", fileURL );
-        
-        Connection          conn = getDerbyConnection();
-
-        executeDDL
-            (
-             conn,
-             "create type ArrayList external name 'java.util.ArrayList' language java"
-             );
-        executeDDL
-            (
-             conn,
-             "create function asList( cell varchar( 32672 ) ... ) returns ArrayList\n" +
-             "language java parameter style derby no sql\n" +
-             "external name 'org.apache.derby.vti.XmlVTI.asList'\n"
-             );
-        executeDDL( conn, XMLOptTrace.PLAN_COST_VTI );
-        executeDDL( conn, createView );
-    }
+    { }
 
     /**
      * <p>

@@ -23,14 +23,11 @@ package org.apache.dearbaby.impl.sql.compile;
 
 import java.util.ArrayList;
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.cache.ClassSize;
-import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.iapi.services.io.ArrayUtil;
+import org.apache.derby.iapi.reference.SQLState; 
+import org.apache.derby.iapi.services.compiler.MethodBuilder; 
 import org.apache.derby.iapi.services.io.FormatableArrayHolder;
 import org.apache.derby.iapi.services.io.FormatableIntHolder;
-import org.apache.derby.shared.common.sanity.SanityManager;
-import org.apache.derby.iapi.sql.compile.CostEstimate;
+import org.apache.derby.shared.common.sanity.SanityManager; 
 import org.apache.derby.iapi.sql.compile.ExpressionClassBuilderInterface;
 import org.apache.derby.iapi.sql.compile.JoinStrategy;
 import org.apache.derby.iapi.sql.compile.Optimizable;
@@ -38,9 +35,7 @@ import org.apache.derby.iapi.sql.compile.OptimizablePredicate;
 import org.apache.derby.iapi.sql.compile.OptimizablePredicateList;
 import org.apache.derby.iapi.sql.compile.Optimizer;
 import org.apache.derby.iapi.sql.dictionary.ConglomerateDescriptor;
-import org.apache.derby.iapi.sql.dictionary.DataDictionary;
-import org.apache.derby.iapi.store.access.StoreCostController;
-import org.apache.derby.iapi.store.access.TransactionController;
+import org.apache.derby.iapi.sql.dictionary.DataDictionary; 
 import org.apache.derby.iapi.util.JBitSet;
 import org.apache.derby.iapi.util.ReuseFactory;
 
@@ -148,20 +143,7 @@ class HashJoinStrategy extends BaseJoinStrategy {
                 cd,
                 predList);
 
-		if (SanityManager.DEBUG)
-		{
-            if ( innerTable.optimizerTracingIsOn() )
-            {
-                if (hashKeyColumns == null)
-                {
-                    innerTable.getOptimizerTracer().traceSkipHashJoinNoHashKeys();
-                }
-                else
-                {
-                    innerTable.getOptimizerTracer().traceHashKeyColumns( ArrayUtil.copy( hashKeyColumns ) );
-                }
-            }
-		}
+		 
 
 		if (hashKeyColumns == null)
 		{
@@ -251,29 +233,13 @@ class HashJoinStrategy extends BaseJoinStrategy {
 			basePredicates.removeOptPredicate(i);
 		}
 	}
-
-	/** @see JoinStrategy#estimateCost */
-	public void estimateCost(Optimizable innerTable,
-							 OptimizablePredicateList predList,
-							 ConglomerateDescriptor cd,
-							 CostEstimate outerCost,
-							 Optimizer optimizer,
-							 CostEstimate costEstimate) {
-		/*
-		** The cost of a hash join is the cost of building the hash table.
-		** There is no extra cost per outer row, so don't do anything here.
-		*/
-	}
+ 
 
 	/** @see JoinStrategy#maxCapacity */
 	public int maxCapacity( int userSpecifiedCapacity,
                             int maxMemoryPerTable,
                             double perRowUsage) {
-        if( userSpecifiedCapacity >= 0)
-            return userSpecifiedCapacity;
-        perRowUsage += ClassSize.estimateHashEntrySize();
-        if( perRowUsage <= 1)
-            return maxMemoryPerTable;
+        
         return (int)(maxMemoryPerTable/perRowUsage);
 	}
 
@@ -284,7 +250,7 @@ class HashJoinStrategy extends BaseJoinStrategy {
 
 	/** @see JoinStrategy#scanCostType */
 	public int scanCostType() {
-		return StoreCostController.STORECOST_SCAN_SET;
+		return 0;
 	}
 
 	/** @see JoinStrategy#getOperatorSymbol */
@@ -309,92 +275,7 @@ class HashJoinStrategy extends BaseJoinStrategy {
 		return "getHashLeftOuterJoinResultSet";
 	}
 
-	/**
-	 * @see JoinStrategy#getScanArgs
-	 *
-	 * @exception StandardException		Thrown on error
-	 */
-	public int getScanArgs(
-							TransactionController tc,
-							MethodBuilder mb,
-							Optimizable innerTable,
-							OptimizablePredicateList storeRestrictionList,
-							OptimizablePredicateList nonStoreRestrictionList,
-							ExpressionClassBuilderInterface acbi,
-							int bulkFetch,
-							int resultRowTemplate,
-							int colRefItem,
-							int indexColItem,
-							int lockMode,
-							boolean tableLocked,
-							int isolationLevel,
-							int maxMemoryPerTable,
-							boolean genInListVals
-							)
-						throws StandardException
-	{
-		/* We do not currently support IN-list "multi-probing" for hash scans
-		 * (though we could do so in the future).  So if we're doing a hash
-		 * join then we shouldn't have any IN-list probe predicates in the
-		 * store restriction list at this point.  The reason is that, in the
-		 * absence of proper multi-probing logic, such predicates would act
-		 * as restrictions on the rows read from disk.  That would be wrong
-		 * because a probe predicate is of the form "col = <val>" where <val>
-		 * is the first value in the IN-list.  Enforcement of that restriction
-		 * would lead to incorrect results--we need to return all rows having
-		 * any value that appears in the IN-list, not just those rows matching
-		 * the first value.  Checks elsewhere in the code should ensure that
-		 * no probe predicates have made it this far, but if we're running in
-		 * SANE mode it doesn't hurt to verify.
-		 */
-		if (SanityManager.DEBUG)
-		{
-			for (int i = storeRestrictionList.size() - 1; i >= 0; i--)
-			{
-                Predicate pred =
-                        (Predicate)storeRestrictionList.getOptPredicate(i);
-				if (pred.isInListProbePredicate())
-				{
-					SanityManager.THROWASSERT("Found IN-list probing " +
-						"(" + pred.binaryRelOpColRefsToString() +
-						") while generating HASH join, which should " +
-						"not happen.");
-				}
-			}
-		}
-
-		ExpressionClassBuilder acb = (ExpressionClassBuilder) acbi;
-
-		fillInScanArgs1(tc,
-										mb,
-										innerTable,
-										storeRestrictionList,
-										acb,
-										resultRowTemplate);
-
-		nonStoreRestrictionList.generateQualifiers(acb,	mb, innerTable, true);
-		mb.push(innerTable.initialCapacity());
-		mb.push(innerTable.loadFactor());
-		mb.push(innerTable.maxCapacity( (JoinStrategy) this, maxMemoryPerTable));
-		/* Get the hash key columns and wrap them in a formattable */
-		int[] hashKeyColumns = innerTable.hashKeyColumns();
-		FormatableIntHolder[] fihArray = 
-				FormatableIntHolder.getFormatableIntHolders(hashKeyColumns); 
-		FormatableArrayHolder hashKeyHolder = new FormatableArrayHolder(fihArray);
-		int hashKeyItem = acb.addItem(hashKeyHolder);
-		mb.push(hashKeyItem);
-
-		fillInScanArgs2(mb,
-						innerTable,
-						bulkFetch,
-						colRefItem,
-						indexColItem,
-						lockMode,
-						tableLocked,
-						isolationLevel);
-
-		return 28;
-	}
+	 
 
 	/**
 	 * @see JoinStrategy#divideUpPredicateLists

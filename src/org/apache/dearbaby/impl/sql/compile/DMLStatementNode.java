@@ -205,8 +205,7 @@ abstract class DMLStatementNode extends StatementNode {
 		ResultColumnDescriptor[] colDescs = resultSet.makeResultDescriptors();
 		String statementType = statementToString();
 
-		return getExecutionFactory().getResultDescription(colDescs,
-				statementType);
+		return null;
 	}
 
 	/**

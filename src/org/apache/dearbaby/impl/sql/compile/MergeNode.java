@@ -36,8 +36,7 @@ import org.apache.derby.iapi.sql.compile.Visitor;
 import org.apache.derby.iapi.sql.conn.Authorizer;
 import org.apache.derby.iapi.sql.dictionary.ColumnDescriptor;
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
 import org.apache.derby.iapi.util.IdUtil;
 import org.apache.derby.shared.common.sanity.SanityManager;
 
@@ -189,10 +188,7 @@ public final class MergeNode extends DMLModStatementNode
     private FromList                _leftJoinFromList;
     private HalfOuterJoinNode   _hojn;
 
-    //
-    // Filled in at generate() time.
-    //
-    private ConstantAction      _constantAction;
+  
     private CursorNode          _leftJoinCursor;
 
     ///////////////////////////////////////////////////////////////////////////////////
@@ -814,12 +810,7 @@ public final class MergeNode extends DMLModStatementNode
     ///////////////////////////////////////////////////////////////////////////////////
 
     
-    
-    @Override
-    public ConstantAction makeConstantAction() throws StandardException
-	{
-		return _constantAction;
-	}
+     
 
     ///////////////////////////////////////////////////////////////////////////////////
     //

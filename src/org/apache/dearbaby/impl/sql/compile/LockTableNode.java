@@ -24,8 +24,7 @@ package	org.apache.dearbaby.impl.sql.compile;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.sql.compile.Visitor;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
@@ -98,19 +97,7 @@ class LockTableNode extends MiscellaneousStatementNode
 		return isSessionSchema(lockTableDescriptor.getSchemaName());
 	}
 
-	/**
-	 * Create the Constant information that will drive the guts of Execution.
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-    @Override
-    public ConstantAction makeConstantAction() throws StandardException
-	{
-		return getGenericConstantActionFactory().getLockTableConstantAction(
-						tableName.getFullTableName(),
-						conglomerateNumber,
-						exclusiveMode);
-	}
+	 
 
     @Override
     void acceptChildren(Visitor v) throws StandardException {

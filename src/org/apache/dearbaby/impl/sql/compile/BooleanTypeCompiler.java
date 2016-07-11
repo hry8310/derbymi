@@ -21,8 +21,7 @@
 
 package org.apache.dearbaby.impl.sql.compile;
 
-import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.loader.ClassFactory;
+import org.apache.derby.iapi.reference.ClassName; 
 import org.apache.derby.iapi.sql.compile.TypeCompiler;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.iapi.types.TypeId;
@@ -53,22 +52,7 @@ class BooleanTypeCompiler extends BaseTypeCompiler
 	{
 		return convertible(otherType,false);
 	}
-
-	/** @see TypeCompiler#storable */
-	public boolean storable(TypeId otherType, ClassFactory cf)
-	{
-		/* Are the types the same or is other type a string */
-		if ( otherType.isBooleanTypeId() || otherType.isStringTypeId() )
-		{
-			return true;
-		}
-
-		/*
-		** If the other type is user-defined, use the java types to determine
-		** assignability.
-		*/
-		return userTypeStorable(getTypeId(), otherType, cf);
-	}
+ 
 
 	/** @see TypeCompiler#interfaceName */
 	public String interfaceName()

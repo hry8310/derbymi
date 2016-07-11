@@ -23,8 +23,7 @@ package org.apache.dearbaby.impl.sql.compile;
 
 import java.io.PrintWriter;
 import org.apache.derby.shared.common.sanity.SanityManager;
-import org.apache.derby.iapi.sql.compile.AccessPath;
-import org.apache.derby.iapi.sql.compile.CostEstimate;
+import org.apache.derby.iapi.sql.compile.AccessPath; 
 import org.apache.derby.iapi.sql.compile.JoinStrategy;
 import org.apache.derby.iapi.sql.compile.OptTrace;
 import org.apache.derby.iapi.sql.compile.Optimizable;
@@ -90,14 +89,7 @@ public  class   DefaultOptTrace implements  OptTrace
 
     public  void    traceEndQueryBlock() {}
 
-    public  void    traceTimeout( long currentTime, CostEstimate bestCost )
-    {
-        appendTraceString
-            (
-             "Optimization time exceeded at time " +
-             currentTime + "\n" + bestCost
-             );
-    }
+    
    
     public  void    traceVacuous()
     {
@@ -109,11 +101,7 @@ public  class   DefaultOptTrace implements  OptTrace
         appendTraceString( "We have a complete join order." );
     }
 
-    public  void    traceSortCost( CostEstimate sortCost, CostEstimate currentCost )
-    {
-        appendTraceString( "Cost of sorting is " + sortCost );
-        appendTraceString( "Total cost of non-sort-avoidance plan with sort cost added is " + currentCost );
-    }
+   
 
     public  void    traceNoBestPlan()
     {
@@ -127,10 +115,7 @@ public  class   DefaultOptTrace implements  OptTrace
 
     public  void    traceShortCircuiting( boolean timeExceeded, Optimizable thisOpt, int joinPosition )
     {
-        String basis = (timeExceeded) ? "time exceeded" : "cost";
-        if ( thisOpt.getBestAccessPath().getCostEstimate() == null ) { basis = "no best plan found"; }
-        
-        appendTraceString( "Short circuiting based on " + basis + " at join position " + joinPosition );
+       
     }
     
     public  void    traceSkippingJoinOrder
@@ -160,37 +145,7 @@ public  class   DefaultOptTrace implements  OptTrace
              );
     }
 
-    public  void    traceCostWithoutSortAvoidance( CostEstimate currentCost )
-    {
-        appendTraceString( "Total cost of non-sort-avoidance plan is " + currentCost );
-    }
-
-    public  void    traceCostWithSortAvoidance( CostEstimate currentSortAvoidanceCost )
-    {
-        appendTraceString( "Total cost of sort avoidance plan is " + currentSortAvoidanceCost );
-    }
-
-    public  void    traceCurrentPlanAvoidsSort( CostEstimate bestCost, CostEstimate currentSortAvoidanceCost )
-    {
-        appendTraceString
-            (
-             "Current plan is a sort avoidance plan." + 
-             "\n\tBest cost is : " + bestCost +
-             "\n\tThis cost is : " + currentSortAvoidanceCost
-             );
-    }
-
-    public  void    traceCheapestPlanSoFar( int planType, CostEstimate currentCost )
-    {
-        appendTraceString( "This is the cheapest plan so far." );
-        appendTraceString
-            (
-             "Plan is a " +
-             (planType == Optimizer.NORMAL_PLAN ? "normal" : "sort avoidance") +
-             " plan."
-             );
-        appendTraceString( "Cost of cheapest plan is " + currentCost );
-    }
+   
 
     public  void    traceSortNeededForOrdering( int planType, RequiredRowOrdering requiredRowOrdering )
     {
@@ -201,28 +156,14 @@ public  class   DefaultOptTrace implements  OptTrace
              );
     }
 
-    public  void    traceRememberingBestJoinOrder
-        ( int joinPosition, int[] bestJoinOrder, int planType, CostEstimate planCost, JBitSet assignedTableMap )
-    {
-        appendTraceString
-            (
-             reportJoinOrder( "\n\nRemembering join order as best: ", false, 0, joinPosition, bestJoinOrder, assignedTableMap )
-             );
-    }
+    
 
     public  void    traceSkippingBecauseTooMuchMemory( int maxMemoryPerTable )
     {
         appendTraceString( "Skipping access path due to excess memory usage, maximum is " + maxMemoryPerTable );
     }
 
-    public  void    traceCostOfNScans( int tableNumber, double rowCount, CostEstimate cost )
-    {
-        appendTraceString
-            (
-             "Cost of " + rowCount + " scans is: " + cost +
-             " for table " + tableNumber
-             );
-    }
+    
 
     public  void    traceSkipUnmaterializableHashJoin()
     {
@@ -349,14 +290,7 @@ public  class   DefaultOptTrace implements  OptTrace
              );
     }
 
-    public  void    traceCostIncludingExtra1stColumnSelectivity( CostEstimate cost, int tableNumber )
-    {
-        appendTraceString
-            (
-             "Cost including extra first column selectivity is : " + cost +
-             " for table " + tableNumber
-             );
-    }
+     
 
     public  void    traceNextAccessPath( String baseTable, int predicateCount )
     {
@@ -367,29 +301,7 @@ public  class   DefaultOptTrace implements  OptTrace
              );
     }
 
-    public  void    traceCostIncludingExtraStartStop( CostEstimate cost, int tableNumber )
-    {
-        appendTraceString( reportCostIncluding( "start/stop", cost, tableNumber ) );
-    }
-
-    public  void    traceCostIncludingExtraQualifierSelectivity( CostEstimate cost, int tableNumber )
-    {
-        appendTraceString( reportCostIncluding( "qualifier", cost, tableNumber ) );
-    }
-
-    public  void    traceCostIncludingExtraNonQualifierSelectivity( CostEstimate cost, int tableNumber )
-    {
-        appendTraceString( reportCostIncluding( "non-qualifier", cost, tableNumber ) );
-    }
-
-    public  void    traceCostOfNoncoveringIndex( CostEstimate cost, int tableNumber )
-    {
-        appendTraceString
-            (
-             "Index does not cover query: cost including row fetch is: " +
-             reportCostForTable( cost, tableNumber )
-             );
-    }
+     
 
     public  void    traceRememberingJoinStrategy( JoinStrategy joinStrategy, int tableNumber )
     {
@@ -415,71 +327,13 @@ public  class   DefaultOptTrace implements  OptTrace
         appendTraceString( "in best unknown access path" );
     }
 
-    public  void    traceCostOfConglomerateScan
-        (
-         int    tableNumber,
-         ConglomerateDescriptor cd,
-         CostEstimate   costEstimate,
-         int    numExtraFirstColumnPreds,
-         double    extraFirstColumnSelectivity,
-         int    numExtraStartStopPreds,
-         double    extraStartStopSelectivity,
-         int    startStopPredCount,
-         double    statStartStopSelectivity,
-         int    numExtraQualifiers,
-         double    extraQualifierSelectivity,
-         int    numExtraNonQualifiers,
-         double    extraNonQualifierSelectivity
-         )
-    {
-        appendTraceString
-            (
-             "Cost of conglomerate " + reportConglomerateDescriptor( cd ) +
-             " scan for table number " + tableNumber + " is : "
-             );
-        appendTraceString( costEstimate.toString() );
-        appendTraceString
-            (
-             "\tNumber of extra first column predicates is : " + numExtraFirstColumnPreds +
-             ", extra first column selectivity is : " + extraFirstColumnSelectivity
-             );
-        appendTraceString
-            (
-             "\tNumber of extra start/stop predicates is : " + numExtraStartStopPreds +
-             ", extra start/stop selectivity is : " + extraStartStopSelectivity
-             );
-        appendTraceString
-            (
-             "\tNumber of start/stop statistics predicates is : " + startStopPredCount +
-             ", statistics start/stop selectivity is : " + statStartStopSelectivity
-             );
-        appendTraceString
-            (
-             "\tNumber of extra qualifiers is : " + numExtraQualifiers +
-             ", extra qualifier selectivity is : " + extraQualifierSelectivity
-             );
-        appendTraceString
-            (
-             "\tNumber of extra non-qualifiers is : " + numExtraNonQualifiers +
-             ", extra non-qualifier selectivity is : " + extraNonQualifierSelectivity
-             );
-    }
-
-    public  void    traceCostIncludingCompositeSelectivityFromStats( CostEstimate cost, int tableNumber )
-    {
-        appendTraceString( reportCostIncluding( "selectivity from statistics", cost, tableNumber ) );
-    }
-
+    
     public  void    traceCompositeSelectivityFromStatistics( double statCompositeSelectivity )
     {
         appendTraceString( "Selectivity from statistics found. It is " + statCompositeSelectivity );
     }
 
-    public  void    traceCostIncludingStatsForIndex( CostEstimate cost, int tableNumber )
-    {
-        appendTraceString( reportCostIncluding( "statistics for index being considered", cost, tableNumber ) );
-    }
-
+     
     public  void    printToWriter( PrintWriter out )
     {
         out.println( _buffer.toString() );
@@ -553,13 +407,7 @@ public  class   DefaultOptTrace implements  OptTrace
 		return cost + " for table " + tableNumber;
 	}
 
-	private String reportCostIncluding( String selectivityType, CostEstimate cost, int tableNumber )
-	{
-		return
-			"Cost including extra " + selectivityType +
-			" start/stop selectivity is : " +
-			reportCostForTable( cost, tableNumber );
-	}
+	 
 
     /** Append a string to the optimizer trace */
     private void    appendTraceString( String traceString )

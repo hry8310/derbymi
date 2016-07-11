@@ -28,8 +28,7 @@ import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.ExpressionClassBuilderInterface;
 import org.apache.derby.iapi.sql.compile.Optimizable;
-import org.apache.derby.iapi.sql.dictionary.ConglomerateDescriptor;
-import org.apache.derby.iapi.store.access.ScanController;
+import org.apache.derby.iapi.sql.dictionary.ConglomerateDescriptor; 
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.iapi.types.TypeId;
 import org.apache.derby.iapi.util.JBitSet;
@@ -297,7 +296,7 @@ public abstract class UnaryComparisonOperatorNode extends UnaryOperatorNode
 							this.getClass().getName());
 		}
 
-		return ScanController.GE;
+		return 0;
 	}
 
 	/** @see RelationalOperator#getStopOperator */
@@ -310,7 +309,7 @@ public abstract class UnaryComparisonOperatorNode extends UnaryOperatorNode
 							this.getClass().getName());
 		}
 
-		return ScanController.GT;
+		return 0;
 	}
 
 	/** @see RelationalOperator#generateOrderedNulls */

@@ -251,7 +251,7 @@ abstract class ConstantNode extends ValueNode
 	protected int getOrderableVariantType()
 	{
 		// Constants are constant for the life of the query
-		return Qualifier.CONSTANT;
+		return 0;
 	}
         
     boolean isEquivalent(ValueNode o) throws StandardException

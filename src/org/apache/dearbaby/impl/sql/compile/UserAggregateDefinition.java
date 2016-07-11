@@ -26,8 +26,7 @@ import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.context.ContextService;
-import org.apache.derby.iapi.services.loader.ClassFactory;
+import org.apache.derby.iapi.services.context.ContextService; 
 import org.apache.derby.iapi.sql.compile.CompilerContext;
 import org.apache.derby.iapi.sql.compile.TypeCompilerFactory;
 import org.apache.derby.iapi.sql.dictionary.AliasDescriptor;
@@ -97,90 +96,7 @@ class UserAggregateDefinition implements AggregateDefinition
         ( DataTypeDescriptor inputType, StringBuffer aggregatorClass )
         throws StandardException
 	{
-		try
-		{
-			CompilerContext cc = (CompilerContext)
-				ContextService.getContext(CompilerContext.CONTEXT_ID);
-            ClassFactory    classFactory = cc.getClassFactory();
-            TypeCompilerFactory tcf = cc.getTypeCompilerFactory();
-
-            Class<?>   derbyAggregatorInterface = classFactory.loadApplicationClass( "org.apache.derby.agg.Aggregator" );
-            Class<?>   userAggregatorClass = classFactory.loadApplicationClass( _alias.getJavaClassName() );
-
-            Class[][]   typeBounds = classFactory.getClassInspector().getTypeBounds
-                ( derbyAggregatorInterface, userAggregatorClass );
-
-            if (
-                (typeBounds == null) ||
-                (typeBounds.length != AGGREGATOR_PARAM_COUNT) ||
-                (typeBounds[ INPUT_TYPE ] == null) ||
-                (typeBounds[ RETURN_TYPE ] == null)
-                )
-            {
-                throw StandardException.newException
-                    (
-                     SQLState.LANG_ILLEGAL_UDA_CLASS,
-                     _alias.getSchemaName(),
-                     _alias.getName(),
-                     userAggregatorClass.getName()
-                     );
-            }
-
-            Class<?>[] genericParameterTypes =
-                classFactory.getClassInspector().getGenericParameterTypes(
-                    derbyAggregatorInterface, userAggregatorClass);
-
-            if ( genericParameterTypes == null ) {
-                genericParameterTypes = new Class<?>[ AGGREGATOR_PARAM_COUNT ];
-            }
-
-            AggregateAliasInfo  aai = (AggregateAliasInfo) _alias.getAliasInfo();
-            DataTypeDescriptor  expectedInputType = DataTypeDescriptor.getType( aai.getForType() );
-            DataTypeDescriptor  expectedReturnType = DataTypeDescriptor.getType( aai.getReturnType() );
-            Class<?>       expectedInputClass = getJavaClass( classFactory, expectedInputType );
-            Class<?>       expectedReturnClass = getJavaClass( classFactory, expectedReturnType );
-
-            // the input operand must be coercible to the expected input type of the aggregate
-            if ( !tcf.getTypeCompiler( expectedInputType.getTypeId() ).storable( inputType.getTypeId(), classFactory ) )
-            { return null; }
-            
-            //
-            // Make sure that the declared input type of the UDA actually falls within
-            // the type bounds of the Aggregator implementation.
-            //
-            Class[] inputBounds = typeBounds[ INPUT_TYPE ];
-            for ( int i = 0; i < inputBounds.length; i++ )
-            {
-                vetCompatibility
-                    ( (Class<?>) inputBounds[ i ], expectedInputClass, SQLState.LANG_UDA_WRONG_INPUT_TYPE );
-            }
-            if ( genericParameterTypes[ INPUT_TYPE ] != null )
-            {
-                vetCompatibility
-                    ( genericParameterTypes[ INPUT_TYPE ], expectedInputClass, SQLState.LANG_UDA_WRONG_INPUT_TYPE );
-            }
-
-            //
-            // Make sure that the declared return type of the UDA actually falls within
-            // the type bounds of the Aggregator implementation.
-            //
-            Class[] returnBounds = typeBounds[ RETURN_TYPE ];
-            for ( int i = 0; i < returnBounds.length; i++ )
-            {
-                vetCompatibility
-                    ( returnBounds[ i ], expectedReturnClass, SQLState.LANG_UDA_WRONG_RETURN_TYPE );
-            }
-            if ( genericParameterTypes[ RETURN_TYPE ] != null )
-            {
-                vetCompatibility
-                    ( genericParameterTypes[ RETURN_TYPE ], expectedReturnClass, SQLState.LANG_UDA_WRONG_RETURN_TYPE );
-            }
-
-            aggregatorClass.append( ClassName.UserDefinedAggregator );
-
-            return expectedReturnType;
-		}
-		catch (ClassNotFoundException cnfe) { throw aggregatorInstantiation( cnfe ); }
+		return null;
 	}
 
     /**
@@ -223,24 +139,7 @@ class UserAggregateDefinition implements AggregateDefinition
         }
     }
     
-    /**
-     * Get the Java class corresponding to a Derby datatype.
-     */
-    private Class<?> getJavaClass( ClassFactory classFactory, DataTypeDescriptor dtd )
-        throws StandardException, ClassNotFoundException
-    {
-        JSQLType    jsqlType = new JSQLType( dtd );
-        String  javaClassName = MethodCallNode.getObjectTypeName( jsqlType, null );
-
-        //
-        // The real class name of byte[] is [B. Class.forName( "byte[]" ) will throw a
-        // ClassNotFoundException.
-        //
-        if ( DERBY_BYTE_ARRAY_NAME.equals( javaClassName ) )
-        { javaClassName = byte[].class.getName(); }
-        
-        return classFactory.loadApplicationClass( javaClassName );
-    }
+   
 
     /**
      * Make a "Could not instantiate aggregator" exception.

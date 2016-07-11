@@ -25,8 +25,7 @@ import java.sql.Types;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
@@ -121,6 +120,6 @@ class TimestampOperatorNode extends BinaryOperatorNode
         mb.cast( ClassName.DataValueDescriptor);
 		rightOperand.generateExpression(acb, mb);
         mb.cast( ClassName.DataValueDescriptor);
-        mb.callMethod( VMOpcode.INVOKEINTERFACE, null, methodName, ClassName.DateTimeDataValue, 2);
+      
     } // end of generateExpression
 }

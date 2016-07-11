@@ -1024,7 +1024,7 @@ public class ColumnReference extends ValueNode {
 	@Override
 	protected int getOrderableVariantType() {
 		// ColumnReferences are invariant for the life of the scan
-		return Qualifier.SCAN_INVARIANT;
+		return 0;
 	}
 
 	/**

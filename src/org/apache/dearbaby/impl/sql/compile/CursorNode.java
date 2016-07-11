@@ -434,9 +434,7 @@ public class CursorNode extends DMLStatementNode {
 		if (!needTarget)
 			return null;
 
-		return new CursorInfo(updateMode, new CursorTableReference(
-				getUpdateExposedTableName(), getUpdateBaseTableName(),
-				getUpdateSchemaName()), updatableColumns);
+		return null;
 	}
  
 

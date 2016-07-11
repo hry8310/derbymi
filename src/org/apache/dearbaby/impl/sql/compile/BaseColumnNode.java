@@ -27,7 +27,6 @@ import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.sql.compile.Visitor;
 import org.apache.derby.shared.common.sanity.SanityManager;
-import org.apache.derby.iapi.store.access.Qualifier;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 
 /**
@@ -150,23 +149,6 @@ class BaseColumnNode extends ValueNode
 			this.nodeHeader());
 	}
 
-	/**
-	 * Return the variant type for the underlying expression.
-	 * The variant type can be:
-	 *		VARIANT				- variant within a scan
-	 *							  (method calls and non-static field access)
-	 *		SCAN_INVARIANT		- invariant within a scan
-	 *							  (column references from outer tables)
-	 *		QUERY_INVARIANT		- invariant within the life of a query
-	 *							  (constant expressions)
-	 *
-	 * @return	The variant type for the underlying expression.
-	 */
-    @Override
-	protected int getOrderableVariantType()
-	{
-		return Qualifier.SCAN_INVARIANT;
-	}
         
     /**
      * {@inheritDoc}

@@ -25,7 +25,6 @@ import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
 import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.shared.common.sanity.SanityManager;
@@ -138,7 +137,7 @@ abstract class BinaryLogicalOperatorNode extends BinaryOperatorNode
 		// stack - left, left
 		mb.push(shortCircuitValue);
 		// stack - left, left, shortcircuit
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, (String) null, "equals", "boolean", 1);
+	 
 		// stack left, result
 
 		/*
@@ -165,9 +164,7 @@ abstract class BinaryLogicalOperatorNode extends BinaryOperatorNode
 
 		mb.conditionalIf();
 		
-		// stack: left
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, (String) null, "getImmutable",
-				ClassName.BooleanDataValue, 0);
+		 
 		
 		// stack: result (matching left)
 
@@ -189,7 +186,7 @@ abstract class BinaryLogicalOperatorNode extends BinaryOperatorNode
 		// stack: left, right
 		mb.upCast(ClassName.BooleanDataValue);
 
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, (String) null, methodName, ClassName.BooleanDataValue, 1);
+		 
 		// stack: result(left op right)
 
 		mb.completeConditional();

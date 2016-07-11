@@ -1294,13 +1294,11 @@ public class ResultColumnList extends QueryTreeNodeVector<ResultColumn>
 				    		virtualColumnIdLeftTable);
 				    userExprFun.cast(rc.getTypeCompiler().interfaceName());
 				    userExprFun.cast(receiverType);
-				    userExprFun.callMethod(VMOpcode.INVOKEINTERFACE, (String) null,
-							"isNullOp",resultTypeName, 0);
+				 
 					//Then call generateExpression on left Table's column
 				    userExprFun.cast(ClassName.BooleanDataValue);
 				    userExprFun.push(true);
-				    userExprFun.callMethod(
-				    		VMOpcode.INVOKEINTERFACE, (String) null, "equals", "boolean", 1);
+				 
 					//Following will generate 
 					//  then
 					//    use rightTablJoinColumnValue 
@@ -1317,8 +1315,7 @@ public class ResultColumnList extends QueryTreeNodeVector<ResultColumn>
 				    userExprFun.cast(rc.getTypeCompiler().interfaceName());
 				    userExprFun.completeConditional();
 					userExprFun.cast(ClassName.DataValueDescriptor);
-					userExprFun.callMethod(
-							VMOpcode.INVOKEINTERFACE, ClassName.Row, "setColumn", "void", 2);
+			 
 					continue;
 				}
 
@@ -1391,8 +1388,7 @@ public class ResultColumnList extends QueryTreeNodeVector<ResultColumn>
 				cb.push(index + 1); // first arg;
 
 				rc.generateExpression(acb, cb);
-				cb.cast(ClassName.DataValueDescriptor); // second arg
-				cb.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.Row, "setColumn", "void", 2);
+				cb.cast(ClassName.DataValueDescriptor); // second arg 
 				continue;
 			}
 
@@ -1415,8 +1411,7 @@ public class ResultColumnList extends QueryTreeNodeVector<ResultColumn>
 				userExprFun.push(rc.getColumnPosition());
 				userExprFun.push(rc.getTableColumnDescriptor().getAutoincInc());
 
-				userExprFun.callMethod(VMOpcode.INVOKEVIRTUAL, ClassName.BaseActivation,
-						"getSetAutoincrementValue", ClassName.DataValueDescriptor, 2);
+			 
 				needDVDCast = false;
 				
 			}
@@ -1426,8 +1421,7 @@ public class ResultColumnList extends QueryTreeNodeVector<ResultColumn>
 			{
 				userExprFun.getField(field);
 				userExprFun.push(index + 1);
-				userExprFun.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.Row, "getColumn",
-					ClassName.DataValueDescriptor, 1); // the express
+				 
 
 				acb.generateNullWithExpress(userExprFun, rc.getTypeCompiler(),
 						rc.getTypeServices().getCollationType());
@@ -1439,7 +1433,7 @@ public class ResultColumnList extends QueryTreeNodeVector<ResultColumn>
 			if (needDVDCast)
 				userExprFun.cast(ClassName.DataValueDescriptor);
 
-			userExprFun.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.Row, "setColumn", "void", 2);
+			
 		}
 
 		userExprFun.getField(field);
@@ -1448,132 +1442,7 @@ public class ResultColumnList extends QueryTreeNodeVector<ResultColumn>
 		// we are now done modifying userExprFun
 		userExprFun.complete();
 	}
-
-	/**
-	  *	Build an empty row with the size and shape of the ResultColumnList.
-	  *
-	  *	@return	an empty row of the correct size and shape.
-	  * @exception StandardException		Thrown on error
-	 */
-	public	ExecRow	buildEmptyRow()
-		throws StandardException
-	{
-		int					columnCount = size();
-		ExecRow				row = getExecutionFactory().getValueRow( columnCount );
-		int					position = 1;
-
-        for (ResultColumn rc : this)
-		{
-			DataTypeDescriptor dataType = rc.getTypeServices();
-			DataValueDescriptor dataValue = dataType.getNull();
-
-			row.setColumn( position++, dataValue );
-		}
-
-		return	row;
-	}
-
-	/**
-	  *	Build an empty index row for the given conglomerate.
-	  *
-	  *	@return	an empty row of the correct size and shape.
-	  * @exception StandardException		Thrown on error
-	 */
-	public	ExecRow	buildEmptyIndexRow(TableDescriptor td,
-										ConglomerateDescriptor cd,
-										StoreCostController scc,
-										DataDictionary dd)
-		throws StandardException
-	{
-		ResultColumn		rc;
-
-		if (SanityManager.DEBUG)
-		{
-			if (! cd.isIndex())
-			{
-				SanityManager.THROWASSERT("ConglomerateDescriptor expected to be for index: " + cd);
-			}
-		}
-
-		int[] baseCols = cd.getIndexDescriptor().baseColumnPositions();
-		ExecRow row = getExecutionFactory().getValueRow(baseCols.length + 1);
-
-		for (int i = 0; i < baseCols.length; i++)
-		{
-			ColumnDescriptor coldes = td.getColumnDescriptor(baseCols[i]);
-			DataTypeDescriptor dataType = coldes.getType();
-
-			// rc = getResultColumn(baseCols[i]);
-		    // rc = (ResultColumn) at(baseCols[i] - 1);
-			// dataType = rc.getTypeServices();
-			DataValueDescriptor dataValue = dataType.getNull();
-
-			row.setColumn(i + 1, dataValue );
-		}
-
-		RowLocation rlTemplate = scc.newRowLocationTemplate();
-
-		row.setColumn(baseCols.length + 1, rlTemplate);
-
-		return	row;
-	}
-
-    /**
-     * Build an {@code ExecRowBuilder} instance that produces a row of the
-     * same shape as this result column list.
-     *
-     * @param referencedCols a bit map that tells which columns in the
-     * source result set that are used, or {@code null} if all are used
-     * @param skipPropagatedCols whether to skip virtual columns whose
-     * source is the immediate child result set
-     * @return an instance that produces rows of the same shape as this
-     * result column list
-     */
-    ExecRowBuilder buildRowTemplate(FormatableBitSet referencedCols,
-                                    boolean skipPropagatedCols)
-            throws StandardException
-    {
-        int columns = (referencedCols == null) ?
-                size() : referencedCols.getNumBitsSet();
-
-        ExecRowBuilder builder = new ExecRowBuilder(columns, indexRow);
-
-        // Get the index of the first column to set in the row template.
-        int colNum = (referencedCols == null) ? 0 : referencedCols.anySetBit();
-
-        for (ResultColumn rc : this) {
-            ValueNode sourceExpr = rc.getExpression();
-
-            if (sourceExpr instanceof CurrentRowLocationNode) {
-                builder.setColumn(colNum + 1, newRowLocationTemplate());
-            } else if (skipPropagatedCols &&
-                    sourceExpr instanceof VirtualColumnNode) {
-                // Skip over those columns whose source is the immediate
-                // child result set. (No need to generate a wrapper
-                // for a SQL NULL when we are smart enough not to pass
-                // that wrapper to the store.)
-                continue;
-            } else {
-                builder.setColumn(colNum + 1, rc.getType());
-            }
-
-            // Get the index of the next column to set in the row template.
-            if (referencedCols == null) {
-                colNum++;
-            } else {
-                colNum = referencedCols.anySetBit(colNum);
-            }
-        }
-
-        return builder;
-    }
-
-    /**
-     * Shorthand for {@code buildRowTemplate(null, false)}.
-     */
-    ExecRowBuilder buildRowTemplate() throws StandardException {
-        return buildRowTemplate(null, false);
-    }
+   
 
 	/**
 	 * Generate the code to create an empty row in the constructor.
@@ -1600,8 +1469,7 @@ public class ResultColumnList extends QueryTreeNodeVector<ResultColumn>
 
 		acb.pushGetExecutionFactoryExpression(cb); // instance
 		cb.push(numCols);
-		cb.callMethod(VMOpcode.INVOKEINTERFACE, (String) null,
-							rowAllocatorMethod, rowAllocatorType, 1);
+		 
 		cb.setField(field);
 		/* Increase the statement counter in constructor.  Code size in
 		 * constructor can become too big (more than 64K) for Java compiler
@@ -1618,24 +1486,9 @@ public class ResultColumnList extends QueryTreeNodeVector<ResultColumn>
     private RowLocation newRowLocationTemplate() throws StandardException {
         LanguageConnectionContext lcc = getLanguageConnectionContext();
         DataDictionary dd = lcc.getDataDictionary();
+        return null;
+       
 
-        int isolationLevel = (dd.getCacheMode() == DataDictionary.DDL_MODE) ?
-                TransactionController.ISOLATION_READ_COMMITTED :
-                TransactionController.ISOLATION_NOLOCK;
-
-        ConglomerateController cc =
-            lcc.getTransactionCompile().openConglomerate(
-                conglomerateId,
-                false,
-                0,
-                TransactionController.MODE_RECORD,
-                isolationLevel);
-
-        try {
-            return cc.newRowLocationTemplate();
-        } finally {
-            cc.close();
-        }
     }
 
 	/**
@@ -1650,11 +1503,7 @@ public class ResultColumnList extends QueryTreeNodeVector<ResultColumn>
 	    ResultColumnDescriptor colDescs[] = new ResultColumnDescriptor[size()];
 		int size = size();
 
-		for (int index = 0; index < size; index++)
-		{
-		    // the ResultColumn nodes are descriptors, so take 'em...
-            colDescs[index] = getExecutionFactory().getResultColumnDescriptor(((ResultColumnDescriptor) elementAt(index)));
-		}
+		 
 
 		return colDescs;
 	}
@@ -2237,31 +2086,7 @@ public class ResultColumnList extends QueryTreeNodeVector<ResultColumn>
 		}
 	}
 
-	/**
-	 * Verify that all of the columns in the SET clause of a positioned update
-	 * appear in the cursor's FOR UPDATE OF list.
-	 *
-     * @param cursorStmt the statement that owns the cursor
-	 * @param cursorName	The cursor's name.
-	 *
-	 * @exception StandardException			Thrown on error
-	 */
-    void checkColumnUpdateability(
-            ExecPreparedStatement cursorStmt, String cursorName)
-			throws StandardException
-	{
-        for (ResultColumn resultColumn : this)
-		{
-			if (resultColumn.updated() &&
-                    !cursorStmt.isUpdateColumn(resultColumn.getName()))
-			{
-				throw StandardException.newException(SQLState.LANG_COLUMN_NOT_UPDATABLE_IN_CURSOR, 
-							resultColumn.getName(),
-							cursorName);
-			}
-		}
-	}
-
+	 
 	/**
 	 * Set up the result expressions for a UNION, INTERSECT, or EXCEPT:
 	 *	o Verify union type compatiblity
@@ -2309,98 +2134,7 @@ public class ResultColumnList extends QueryTreeNodeVector<ResultColumn>
 
 		/* Make a dummy TableName to be shared by all new CRs */
         dummyTN = new TableName(null, null, getContextManager());
-
-		int size = visibleSize();
-		for (int index = 0; index < size; index++)
-		{
-			ColumnReference newCR;
-            ResultColumn thisRC = elementAt(index);
-            ResultColumn otherRC = otherRCL.elementAt(index);
-			ValueNode	 thisExpr = thisRC.getExpression();
-			ValueNode	 otherExpr = otherRC.getExpression();
-
-			// If there is one row that is not 'autoincrement', the Union should
-			// not be 'autoincrement'.
-			if (!otherRC.isAutoincrementGenerated() && thisRC.isAutoincrementGenerated())
-			{
-				thisRC.resetAutoincrementGenerated();
-			}
-			/*
-			** If there are ? parameters in the ResultColumnList of a row
-			** in a table constructor, their types will not be set.  Just skip
-			** these - their types will be set later.  Each ? parameter will
-			** get the type of the first non-? in its column, so it can't
-			** affect the final dominant type.  It's possible that all the
-			** rows for a particular column will have ? parameters - this is
-			** an error condition that will be caught later.
-			*/
-			TypeId thisTypeId = thisExpr.getTypeId();
-			if (thisTypeId == null)
-				continue;
-
-			TypeId otherTypeId = otherExpr.getTypeId();
-			if (otherTypeId == null)
-				continue;
-
-			/* 
-			** Check type compatability.
-			*/
-			ClassFactory cf = getClassFactory();
-			if ( !unionCompatible( thisExpr, otherExpr ) )
-			{
-				throw StandardException.newException(SQLState.LANG_NOT_UNION_COMPATIBLE, 
-                                                     thisTypeId.getSQLTypeName(),
-                                                     otherTypeId.getSQLTypeName(),
-                                                     operatorName);
-			}
-
-			DataTypeDescriptor resultType = thisExpr.getTypeServices().getDominantType(
-												otherExpr.getTypeServices(),
-												cf);
-
-            newCR = new ColumnReference(
-                    thisRC.getName(), dummyTN, getContextManager());
-			newCR.setType(resultType);
-			/* Set the tableNumber and nesting levels in newCR.
-			 * If thisExpr is not a CR, then newCR cannot be
-			 * correlated, hence source and nesting levels are
-			 * the same.
-			 */
-			if (thisExpr instanceof ColumnReference)
-			{
-				newCR.copyFields((ColumnReference) thisExpr);
-			}
-			else
-			{
-				newCR.setNestingLevel(level);
-				newCR.setSourceLevel(level);
-			}
-			newCR.setTableNumber(tableNumber);
-			thisRC.setExpression(newCR);
-			thisRC.setType(
-				thisRC.getTypeServices().getDominantType(
-					otherRC.getTypeServices(), cf));
-
-			/* DB2 requires both sides of union to have same name for the result to
-			 * have that name. Otherwise, leave it or set it to a generated name */
-			if (thisRC.getName() != null && !thisRC.isNameGenerated() &&
-				otherRC.getName() != null)
-			{
-				/* Result name needs to be changed */
-				if (otherRC.isNameGenerated())
-				{
-					thisRC.setName(otherRC.getName());
-					thisRC.setNameGenerated(true);
-				}
- 				else if (!thisRC.getName().equals(otherRC.getName()))
-				{
-					/* Both sides have user specified names that don't match */
-					thisRC.setName(null);
-					thisRC.guaranteeColumnName();
-					thisRC.setNameGenerated(true);
-				}
-			}
-		}
+ 
 	}
 
     /**
@@ -2417,18 +2151,7 @@ public class ResultColumnList extends QueryTreeNodeVector<ResultColumn>
     private boolean unionCompatible( ValueNode left, ValueNode right )
         throws StandardException
     {
-        TypeId leftTypeId = left.getTypeId();
-        TypeId rightTypeId = right.getTypeId();
-        ClassFactory cf = getClassFactory();
-
-        if (
-            !left.getTypeCompiler().storable(rightTypeId, cf) &&
-            !right.getTypeCompiler().storable(leftTypeId, cf)
-            )
-        { return false; }
-
-        if ( leftTypeId.isBooleanTypeId() != rightTypeId.isBooleanTypeId() ) { return false; }
-
+        
         return true;
     }
 
@@ -3971,7 +3694,7 @@ public class ResultColumnList extends QueryTreeNodeVector<ResultColumn>
     {
         /* Query is dependent on the DefaultDescriptor */
         DefaultDescriptor defaultDescriptor = cd.getDefaultDescriptor(getDataDictionary());
-        getCompilerContext().createDependency(defaultDescriptor);
+     
 
         rc.setExpression
             (

@@ -41,9 +41,7 @@ import org.apache.derby.iapi.sql.compile.Visitor;
 import org.apache.derby.iapi.sql.dictionary.ColumnDescriptor;
 import org.apache.derby.iapi.sql.dictionary.ColumnDescriptorList;
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
-import org.apache.derby.iapi.sql.execute.NoPutResultSet;
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.iapi.types.DataValueDescriptor;
 import org.apache.derby.shared.common.sanity.SanityManager;
@@ -1007,53 +1005,10 @@ public class MatchingClauseNode extends QueryTreeNode
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////
-    //
-    // optimize() BEHAVIOR
-    //
-    ///////////////////////////////////////////////////////////////////////////////////
- 
-
-    ///////////////////////////////////////////////////////////////////////////////////
-    //
-    // generate() BEHAVIOR
-    //
-    ///////////////////////////////////////////////////////////////////////////////////
-
-    ConstantAction makeConstantAction( ActivationClassBuilder acb )
-        throws StandardException
-	{
-        // generate the clause-specific refinement
-        String  refinementName = null;
-        if ( _matchingRefinement != null )
-        {
-            MethodBuilder userExprFun = acb.newUserExprFun();
-
-            _matchingRefinement.generateExpression( acb, userExprFun );
-            userExprFun.methodReturn();
-		
-            // we are done modifying userExprFun, complete it.
-            userExprFun.complete();
-
-            refinementName = userExprFun.getName();
-        }
-        
-        return	getGenericConstantActionFactory().getMatchingClauseConstantAction
-            (
-             getClauseType(),
-             refinementName,
-             buildThenColumnSignature(),
-             _rowMakingMethodName,
-             _resultSetFieldName,
-             _actionMethodName,
-             _dml.makeConstantAction()
-             );
-	}
+     
     private int getClauseType()
     {
-        if ( isUpdateClause() ) { return ConstantAction.WHEN_MATCHED_THEN_UPDATE; }
-        else if ( isInsertClause() ) { return ConstantAction.WHEN_NOT_MATCHED_THEN_INSERT; }
-        else { return ConstantAction.WHEN_MATCHED_THEN_DELETE; }
+       return 0;
     }
 
     /**
@@ -1088,14 +1043,7 @@ public class MatchingClauseNode extends QueryTreeNode
                 ((InsertNode) _dml).checkConstraints :
                 ((UpdateNode) _dml).checkConstraints;
 
-            if ( checkConstraints != null )
-            {
-                List<ColumnReference> colRefs = getColumnReferences( checkConstraints );
-                for ( ColumnReference cr : colRefs )
-                {
-                    cr.getSource().setResultSetNumber( NoPutResultSet.TEMPORARY_RESULT_SET_NUMBER );
-                }
-            }            
+                       
         }
     }
 

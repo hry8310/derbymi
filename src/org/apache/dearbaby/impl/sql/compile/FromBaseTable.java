@@ -410,138 +410,7 @@ class FromBaseTable extends FromTable {
 		boolean constraintSpecified = false;
 		ConstraintDescriptor consDesc = null;
 		Enumeration<?> e = tableProperties.keys();
-
-		StringUtil.SQLEqualsIgnoreCase(tableDescriptor.getSchemaName(), "SYS");
-		while (e.hasMoreElements()) {
-			String key = (String) e.nextElement();
-			String value = (String) tableProperties.get(key);
-
-			if (key.equals("index")) {
-				// User only allowed to specify 1 of index and constraint, not
-				// both
-				if (constraintSpecified) {
-					throw StandardException
-							.newException(
-									SQLState.LANG_BOTH_FORCE_INDEX_AND_CONSTRAINT_SPECIFIED,
-									getBaseTableName());
-				}
-				indexSpecified = true;
-
-				/* Validate index name - NULL means table scan */
-				if (!StringUtil.SQLToUpperCase(value).equals("NULL")) {
-					ConglomerateDescriptor cd = null;
-					ConglomerateDescriptor[] cds = tableDescriptor
-							.getConglomerateDescriptors();
-
-					for (int index = 0; index < cds.length; index++) {
-						cd = cds[index];
-						String conglomerateName = cd.getConglomerateName();
-						if (conglomerateName != null) {
-							if (conglomerateName.equals(value)) {
-								break;
-							}
-						}
-						// Not a match, clear cd
-						cd = null;
-					}
-
-					// Throw exception if user specified index not found
-					if (cd == null) {
-						throw StandardException.newException(
-								SQLState.LANG_INVALID_FORCED_INDEX1, value,
-								getBaseTableName());
-					}
-					/* Query is dependent on the ConglomerateDescriptor */
-					getCompilerContext().createDependency(cd);
-				}
-			} else if (key.equals("constraint")) {
-				// User only allowed to specify 1 of index and constraint, not
-				// both
-				if (indexSpecified) {
-					throw StandardException
-							.newException(
-									SQLState.LANG_BOTH_FORCE_INDEX_AND_CONSTRAINT_SPECIFIED,
-									getBaseTableName());
-				}
-				constraintSpecified = true;
-
-				if (!StringUtil.SQLToUpperCase(value).equals("NULL")) {
-					consDesc = dDictionary.getConstraintDescriptorByName(
-							tableDescriptor, (SchemaDescriptor) null, value,
-							false);
-
-					/*
-					 * Throw exception if user specified constraint not found or
-					 * if it does not have a backing index.
-					 */
-					if ((consDesc == null) || !consDesc.hasBackingIndex()) {
-						throw StandardException.newException(
-								SQLState.LANG_INVALID_FORCED_INDEX2, value,
-								getBaseTableName());
-					}
-
-					/* Query is dependent on the ConstraintDescriptor */
-					getCompilerContext().createDependency(consDesc);
-				}
-			} else if (key.equals("joinStrategy")) {
-				userSpecifiedJoinStrategy = StringUtil.SQLToUpperCase(value);
-			} else if (key.equals("hashInitialCapacity")) {
-				initialCapacity = getIntProperty(value, key);
-
-				// verify that the specified value is valid
-				if (initialCapacity <= 0) {
-					throw StandardException.newException(
-							SQLState.LANG_INVALID_HASH_INITIAL_CAPACITY,
-							String.valueOf(initialCapacity));
-				}
-			} else if (key.equals("hashLoadFactor")) {
-				try {
-					loadFactor = Float.parseFloat(value);
-				} catch (NumberFormatException nfe) {
-					throw StandardException.newException(
-							SQLState.LANG_INVALID_NUMBER_FORMAT_FOR_OVERRIDE,
-							value, key);
-				}
-
-				// verify that the specified value is valid
-				if (loadFactor <= 0.0 || loadFactor > 1.0) {
-					throw StandardException.newException(
-							SQLState.LANG_INVALID_HASH_LOAD_FACTOR, value);
-				}
-			} else if (key.equals("hashMaxCapacity")) {
-				maxCapacity = getIntProperty(value, key);
-
-				// verify that the specified value is valid
-				if (maxCapacity <= 0) {
-					throw StandardException.newException(
-							SQLState.LANG_INVALID_HASH_MAX_CAPACITY,
-							String.valueOf(maxCapacity));
-				}
-			} else if (key.equals("bulkFetch")) {
-				bulkFetch = getIntProperty(value, key);
-
-				// verify that the specified value is valid
-				if (bulkFetch <= 0) {
-					throw StandardException.newException(
-							SQLState.LANG_INVALID_BULK_FETCH_VALUE,
-							String.valueOf(bulkFetch));
-				}
-
-				// no bulk fetch on updatable scans
-				if (forUpdate()) {
-					throw StandardException
-							.newException(SQLState.LANG_INVALID_BULK_FETCH_UPDATEABLE);
-				}
-			} else if (key.equals("validateCheckConstraint")) {
-				// the property "validateCheckConstraint" is read earlier
-				// cf. isValidatingCheckConstraint
-			} else {
-				// No other "legal" values at this time
-				throw StandardException.newException(
-						SQLState.LANG_INVALID_FROM_TABLE_PROPERTY, key,
-						"index, constraint, joinStrategy");
-			}
-		}
+ 
 
 		/*
 		 * If user specified a non-null constraint name(DERBY-1707), then
@@ -640,7 +509,7 @@ class FromBaseTable extends FromTable {
 		 * for the default read committed isolation level and update lock. For
 		 * more detail, see Beetle 4133.
 		 */
-		getCurrentAccessPath().setLockMode(TransactionController.MODE_RECORD);
+	 
 	}
 
 	/** @see org.apache.derby.iapi.sql.compile.Optimizable#isBaseTable */
@@ -662,13 +531,13 @@ class FromBaseTable extends FromTable {
 	/** @see org.apache.derby.iapi.sql.compile.Optimizable#initialCapacity */
 	@Override
 	public int initialCapacity() {
-		return initialCapacity;
+		return 0;
 	}
 
 	/** @see org.apache.derby.iapi.sql.compile.Optimizable#loadFactor */
 	@Override
 	public float loadFactor() {
-		return loadFactor;
+		return 0f;
 	}
 
 	/**
@@ -711,9 +580,7 @@ class FromBaseTable extends FromTable {
 		pl.checkTopPredicatesForEqualsConditions(tableNo, null, tableNumbers,
 				tableColMap, false);
 
-		if (supersetOfUniqueIndex(tableColMap)) {
-			retval = getBestAccessPath().getCostEstimate().singleScanRowCount();
-		}
+		 
 
 		return retval;
 	}
@@ -898,18 +765,12 @@ class FromBaseTable extends FromTable {
 			 * this view was originally compiled against.* That way we pick up
 			 * the same tables no matter what* schema we are running against.
 			 */
-			compSchema = dataDictionary.getSchemaDescriptor(
-					vd.getCompSchemaId(), null);
+		 
 
-			compilerContext.pushCompilationSchema(compSchema);
-
+			 
 			try {
 
-				/*
-				 * This represents a view - query is dependent on the
-				 * ViewDescriptor
-				 */
-				compilerContext.createDependency(vd);
+			 
 
 				cvn = (CreateViewNode) parseStatement(vd.getViewText(), false);
 
@@ -973,9 +834,7 @@ class FromBaseTable extends FromTable {
 
 				fsq.setOrigTableName(this.getOrigTableName());
 
-				// since we reset the compilation schema when we return, we
-				// need to save it for use when we bind expressions:
-				fsq.setOrigCompilationSchema(compSchema);
+				 
 				ResultSetNode fsqBound = fsq.bindNonVTITables(dataDictionary,
 						fromListParam);
 
@@ -997,7 +856,7 @@ class FromBaseTable extends FromTable {
 			 * This represents a table - query is dependent on the
 			 * TableDescriptor
 			 */
-			compilerContext.createDependency(tabDescr);
+		 
 
 			UUID uuid = new BasicUUID();
 			;
@@ -1033,13 +892,7 @@ class FromBaseTable extends FromTable {
 				tableNumber = compilerContext.getNextTableNumber();
 		}
 
-		//
-		// Only the DBO can select from SYS.SYSUSERS.
-		//
-		authorizeSYSUSERS = dataDictionary.usesSqlAuthorization()
-				&& tabDescr.getUUID().toString()
-						.equals(SYSUSERSRowFactory.SYSUSERS_UUID);
-
+		 
 		if (authorizeSYSUSERS) {
 			String databaseOwner = dataDictionary
 					.getAuthorizationDatabaseOwner();
@@ -1384,19 +1237,7 @@ class FromBaseTable extends FromTable {
 		// the base
 		// table.
 		//
-		if (authorizeSYSUSERS) {
-			int passwordColNum = SYSUSERSRowFactory.PASSWORD_COL_NUM;
-
-			FormatableBitSet refCols = getResultColumns()
-					.getReferencedFormatableBitSet(false, true, false);
-
-			if ((refCols.getLength() >= passwordColNum)
-					&& refCols.isSet(passwordColNum - 1)) {
-				throw StandardException.newException(SQLState.HIDDEN_COLUMN,
-						SYSUSERSRowFactory.TABLE_NAME,
-						SYSUSERSRowFactory.PASSWORD_COL_NAME);
-			}
-		}
+		 
 
 		/* Generate the referenced table map */
 		setReferencedTableMap(new JBitSet(numTables));
@@ -1618,9 +1459,7 @@ class FromBaseTable extends FromTable {
 				getLanguageConnectionContext(), tableDescriptor)));
 
 		int argCount = nargs + 4;
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, (String) null,
-				"getRaDependentTableScanResultSet", ClassName.NoPutResultSet,
-				argCount);
+	 
 
 		if ((updateOrDelete == UPDATE) || (updateOrDelete == DELETE)) {
 			mb.cast(ClassName.CursorResultSet);
@@ -2122,8 +1961,7 @@ class FromBaseTable extends FromTable {
 		 * because index will have previous key locking if it uses row locking
 		 * as well.
 		 */
-		if (getTrulyTheBestAccessPath().getConglomerateDescriptor().isIndex())
-			return TransactionController.MODE_RECORD;
+	 
 
 		/*
 		 * we override optimizer's decision of the lock mode on heap, and always
@@ -2141,18 +1979,7 @@ class FromBaseTable extends FromTable {
 		 */
 		int isolationLevel = getLanguageConnectionContext()
 				.getCurrentIsolationLevel();
-
-		if ((isolationLevel != TransactionControl.SERIALIZABLE_ISOLATION_LEVEL)
-				&& (tableDescriptor.getLockGranularity() != TableDescriptor.TABLE_LOCK_GRANULARITY)) {
-			int lockMode = getTrulyTheBestAccessPath().getLockMode();
-			if (lockMode != TransactionController.MODE_RECORD)
-				lockMode = (lockMode & 0xff) << 16;
-			else
-				lockMode = 0;
-			lockMode += TransactionController.MODE_RECORD;
-
-			return lockMode;
-		}
+ 
 
 		/*
 		 * if above don't apply, use optimizer's decision on heap's lock
@@ -2511,20 +2338,8 @@ class FromBaseTable extends FromTable {
 	}
 
 	private int getDefaultBulkFetch() throws StandardException {
-		int valInt;
-		String valStr = PropertyUtil.getServiceProperty(
-				getLanguageConnectionContext().getTransactionCompile(),
-				LanguageProperties.BULK_FETCH_PROP,
-				LanguageProperties.BULK_FETCH_DEFAULT);
-
-		valInt = getIntProperty(valStr, LanguageProperties.BULK_FETCH_PROP);
-
-		// verify that the specified value is valid
-		if (valInt <= 0) {
-			throw StandardException.newException(
-					SQLState.LANG_INVALID_BULK_FETCH_VALUE,
-					String.valueOf(valInt));
-		}
+		int valInt=0;
+		 
 
 		/*
 		 * * If the value is <= 1, then reset it* to UNSET -- this is how
@@ -2543,48 +2358,17 @@ class FromBaseTable extends FromTable {
 		return retval;
 	}
 
-	/*
-	 * * RESOLVE: This whole thing should probably be moved somewhere else,*
-	 * like the optimizer or the data dictionary.
-	 */
-	private StoreCostController getStoreCostController(ConglomerateDescriptor cd)
-			throws StandardException {
-		return getCompilerContext().getStoreCostController(
-				cd.getConglomerateNumber());
-	}
-
-	private StoreCostController getBaseCostController()
-			throws StandardException {
-		return getStoreCostController(baseConglomerateDescriptor);
-	}
-
+	 
 	private boolean gotRowCount = false;
 	private long rowCount = 0;
 
 	private long baseRowCount() throws StandardException {
-		if (!gotRowCount) {
-			StoreCostController scc = getBaseCostController();
-			rowCount = scc.getEstimatedRowCount();
-			gotRowCount = true;
-		}
+		 
 
 		return rowCount;
 	}
 
-	private DataValueDescriptor[] getRowTemplate(ConglomerateDescriptor cd,
-			StoreCostController scc) throws StandardException {
-		/*
-		 * * If it's for a heap scan, just get all the columns in the* table.
-		 */
-		if (!cd.isIndex())
-			return templateColumns.buildEmptyRow().getRowArray();
-
-		/* It's an index scan, so get all the columns in the index */
-		ExecRow emptyIndexRow = templateColumns.buildEmptyIndexRow(
-				tableDescriptor, cd, scc, getDataDictionary());
-
-		return emptyIndexRow.getRowArray();
-	}
+	 
 
 	private ConglomerateDescriptor getFirstConglom() throws StandardException {
 		getConglomDescs();
@@ -2674,22 +2458,7 @@ class FromBaseTable extends FromTable {
 	private boolean qualifiesForStatisticsUpdateCheck(TableDescriptor td)
 			throws StandardException {
 		int qualifiedIndexes = 0;
-		// Only base tables qualifies.
-		if (td.getTableType() == TableDescriptor.BASE_TABLE_TYPE) {
-			IndexStatisticsDaemonImpl istatDaemon = (IndexStatisticsDaemonImpl) getDataDictionary()
-					.getIndexStatsRefresher(false);
-			// Usually only tables with at least one non-unique index or
-			// multi-column unique indexes qualify, but soft-upgrade mode is a
-			// special case (as is the temporary user override available).
-			// TODO: Rewrite if-logic when the temporary override is removed.
-			if (istatDaemon == null) { // Read-only database
-				qualifiedIndexes = 0;
-			} else if (istatDaemon.skipDisposableStats) {
-				qualifiedIndexes = td.getQualifiedNumberOfIndexes(2, true);
-			} else {
-				qualifiedIndexes = td.getTotalNumberOfIndexes();
-			}
-		}
+		 
 		return (qualifiedIndexes > 0);
 	}
 }

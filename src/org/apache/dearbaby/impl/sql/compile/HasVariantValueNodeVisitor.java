@@ -24,8 +24,7 @@ package	org.apache.dearbaby.impl.sql.compile;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.Visitable; 
-import org.apache.derby.iapi.sql.compile.Visitor;
-import org.apache.derby.iapi.store.access.Qualifier;
+import org.apache.derby.iapi.sql.compile.Visitor; 
 
 /**
  * Find out if we have a value node with variant type less than what the
@@ -56,14 +55,7 @@ class HasVariantValueNodeVisitor implements Visitor
 	 * Construct a visitor
 	 */
     HasVariantValueNodeVisitor()
-	{
-		this.variantType = Qualifier.VARIANT;
-		this.ignoreParameters = false;
-		if (SanityManager.DEBUG)
-		{
-			SanityManager.ASSERT(Qualifier.VARIANT < Qualifier.SCAN_INVARIANT, "qualifier constants not ordered as expected");
-			SanityManager.ASSERT(Qualifier.SCAN_INVARIANT < Qualifier.QUERY_INVARIANT, "qualifier constants not ordered as expected");
-		}		
+	{ 
 	}
 
 	
@@ -85,13 +77,7 @@ class HasVariantValueNodeVisitor implements Visitor
 		this.variantType = variantType;
 		this.ignoreParameters = ignoreParameters;
 
-		if (SanityManager.DEBUG)
-		{
-			SanityManager.ASSERT(variantType >= Qualifier.VARIANT, "bad variantType");
-			// note: there is no point in (variantType == Qualifier.CONSTANT) so throw an
-			// exception for that case too
-			SanityManager.ASSERT(variantType <= Qualifier.QUERY_INVARIANT, "bad variantType");
-		}		
+		 
 	}
 	
 	////////////////////////////////////////////////

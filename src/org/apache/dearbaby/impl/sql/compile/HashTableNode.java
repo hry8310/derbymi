@@ -25,8 +25,7 @@ import java.util.Properties;
 
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.compile.CostEstimate;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.iapi.sql.compile.Visitor;
 import org.apache.derby.shared.common.sanity.SanityManager;
 
@@ -63,8 +62,7 @@ class HashTableNode extends SingleChildResultSetNode
                   ResultColumnList resultColumns,
                   PredicateList  searchPredicateList,
                   PredicateList  joinPredicateList,
-                  AccessPathImpl accessPath,
-                  CostEstimate   costEstimate,
+                  AccessPathImpl accessPath, 
                   SubqueryList   pSubqueryList,
                   SubqueryList   rSubqueryList,
                   int[]          hashKeyColumns,

@@ -616,8 +616,7 @@ class BinaryOperatorNode extends OperatorNode
 			}
         }
 
-        mb.callMethod(VMOpcode.INVOKEINTERFACE, receiverType,
-                      methodName, resultTypeName, numArgs);
+      
 
         // Store the result of the method call, if there is a result field.
         if (resultField != null) {
@@ -632,7 +631,7 @@ class BinaryOperatorNode extends OperatorNode
 					mb.push(getTypeServices().getPrecision());
 					mb.push(getTypeServices().getScale());
 					mb.push(true);
-					mb.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.VariableSizeDataValue, "setWidth", "void", 3);
+					 
 				}
 			}
 

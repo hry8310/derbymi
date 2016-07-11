@@ -26,8 +26,7 @@ import java.sql.Types;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
@@ -119,8 +118,7 @@ public final class DB2LengthOperatorNode extends UnaryOperatorNode
 
         /* Allocate an object for re-use to hold the result of the operator */
         LocalField field = acb.newFieldDeclaration(Modifier.PRIVATE, resultTypeName);
-        mb.getField(field);
-        mb.callMethod(VMOpcode.INVOKEVIRTUAL, ClassName.BaseActivation, methodName, resultTypeName, 3);
+        mb.getField(field); 
 
         /*
         ** Store the result of the method call in the field, so we can re-use

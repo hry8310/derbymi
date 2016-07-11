@@ -24,14 +24,11 @@ package	org.apache.dearbaby.impl.sql.compile;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.loader.ClassInspector;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.shared.common.sanity.SanityManager;
-import org.apache.derby.iapi.sql.compile.Visitor;
-import org.apache.derby.iapi.store.access.Qualifier;
+import org.apache.derby.iapi.sql.compile.Visitor; 
 import org.apache.derby.iapi.util.JBitSet;
 
 /**
@@ -146,11 +143,7 @@ class NonStaticMethodCallNode extends MethodCallNode
 
 		javaClassName = receiver.getJavaTypeName();
 
-		/* Not allowed to use a primitive type as a method receiver */
-		if (ClassInspector.primitiveType(javaClassName))
-		{
-			throw StandardException.newException(SQLState.LANG_PRIMITIVE_RECEIVER, methodName, javaClassName);
-		}
+	 
 
 		/* Resolve the method call */
 		resolveMethodCall(javaClassName, false);
@@ -228,15 +221,7 @@ class NonStaticMethodCallNode extends MethodCallNode
 	{
 		int receiverVariant = receiver.getOrderableVariantType();
 
-		if (receiverVariant > Qualifier.SCAN_INVARIANT) {
-			
-			// If the method call is related to a trigger then the return
-			// values are SCAN_INVARIANT even though their calls look QUERY_INVARIANT
-			// because they take no parameters.
-			if (receiver.getJavaTypeName().equals("org.apache.derby.iapi.db.TriggerExecutionContext"))
-				receiverVariant = Qualifier.SCAN_INVARIANT;
-		}
-
+		 
 
 		int thisVariant = super.getOrderableVariantType();
 		if (receiverVariant < thisVariant)	//return the more variant one
@@ -380,20 +365,14 @@ class NonStaticMethodCallNode extends MethodCallNode
 
 		short methodType;
 
-		if (declaringClass.isInterface())
-			methodType = VMOpcode.INVOKEINTERFACE;
-		else if (isStatic)
-			methodType = VMOpcode.INVOKESTATIC;
-		else
-			methodType = VMOpcode.INVOKEVIRTUAL;
-
+	 
 		getReceiverExpression(acb, mb, receiver);
 		if (isStatic)
 			mb.endStatement(); // PUSHCOMPILER ???
 
 		int nargs = generateParameters(acb, mb);
 
-		mb.callMethod(methodType, declaringClass.getName(), methodName, getJavaTypeName(), nargs);
+	 
 
 		if (inConditional)
 			mb.completeConditional();

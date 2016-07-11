@@ -23,12 +23,10 @@ package	org.apache.dearbaby.impl.sql.compile;
 
 import java.lang.reflect.Modifier;
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.ClassName; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.loader.ClassFactory;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.Optimizable;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
@@ -365,17 +363,7 @@ public final class InListOperatorNode extends BinaryListOperatorNode
         DataTypeDescriptor targetType = leftOperand.getTypeServices();
         TypeId judgeTypeId = targetType.getTypeId();
 
-        if (!rightOperandList.allSamePrecendence(
-                judgeTypeId.typePrecedence())) {
-            // Iterate through the entire list of values to find out
-            // what the dominant type is.
-            ClassFactory cf = getClassFactory();
-
-            for (ValueNode vn : rightOperandList) {
-                targetType = targetType.getDominantType(
-                        vn.getTypeServices(), cf);
-            }
-        }
+         
 
         return targetType;
     }
@@ -568,7 +556,7 @@ public final class InListOperatorNode extends BinaryListOperatorNode
 		/*mb.getField(receiverField);*/ mb.upCast(leftInterfaceType); // first arg
 		mb.getField(arrayField); // second arg
 		mb.push(isOrdered); // third arg
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, receiverType, methodName, resultTypeName, 3);
+		 
 	}
 
 	/**
@@ -617,10 +605,7 @@ public final class InListOperatorNode extends BinaryListOperatorNode
 				{
 					MethodBuilder genConstantMethod = acb.newGeneratedFun("void", Modifier.PRIVATE);
 					currentConstMethod.pushThis();
-					currentConstMethod.callMethod(VMOpcode.INVOKEVIRTUAL,
-												  (String) null, 
-												  genConstantMethod.getName(),
-												  "void", 0);
+					 
 					//if it is a generate function, close the metod.
 					if(currentConstMethod != cb){
 						currentConstMethod.methodReturn();
@@ -652,7 +637,7 @@ public final class InListOperatorNode extends BinaryListOperatorNode
 			nonConstantMethod.methodReturn();
 			nonConstantMethod.complete();
 			mb.pushThis();
-			mb.callMethod(VMOpcode.INVOKEVIRTUAL, (String) null, nonConstantMethod.getName(), "void", 0);
+			
 		}
 
 		return arrayField;
@@ -755,12 +740,7 @@ public final class InListOperatorNode extends BinaryListOperatorNode
 			else
                 methodNam = "maxValue";
 		
-            mb.callMethod(
-                VMOpcode.INVOKESTATIC,
-                ClassName.BaseExpressionActivation,
-                methodNam,
-                ClassName.DataValueDescriptor,
-                12);
+             
 		}
 	}
 

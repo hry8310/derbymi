@@ -34,13 +34,9 @@ import org.apache.derby.iapi.sql.conn.Authorizer;
 import org.apache.derby.iapi.sql.dictionary.ConglomerateDescriptor;
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
 import org.apache.derby.iapi.sql.dictionary.IndexLister;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
-import org.apache.derby.iapi.store.access.StaticCompiledOpenConglomInfo;
-import org.apache.derby.iapi.store.access.TransactionController;
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
 import org.apache.derby.iapi.types.RowLocation;
-import org.apache.derby.iapi.util.StringUtil;
-import org.apache.derby.impl.sql.execute.FKInfo;
+import org.apache.derby.iapi.util.StringUtil; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.vti.DeferModification;
 
@@ -72,8 +68,7 @@ public final class InsertNode extends DMLModStatementNode
     private     boolean             deferred;
 	public		ValueNode			checkConstraints;
     public      boolean             hasDeferrableCheckConstraints;
-	public		Properties			targetProperties;
-	public		FKInfo				fkInfo;
+	public		Properties			targetProperties; 
 	protected	boolean				bulkInsert;
 	private 	boolean				bulkInsertReplace;
 	private     OrderByList         orderByList;
@@ -405,86 +400,7 @@ public final class InsertNode extends DMLModStatementNode
 		return true;
 	}
 
-	/**
-	 * Compile constants that Execution will use
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-    @Override
-    public ConstantAction makeConstantAction() throws StandardException
-	{
-
-		/* Different constant actions for base tables and updatable VTIs */
-		if (targetTableDescriptor != null)
-		{
-			// Base table
-
-			long heapConglomId = targetTableDescriptor.getHeapConglomerateId();
-			TransactionController tc = 
-				getLanguageConnectionContext().getTransactionCompile();
-			int numIndexes = (targetTableDescriptor != null) ?
-								indexConglomerateNumbers.length : 0;
-			StaticCompiledOpenConglomInfo[] indexSCOCIs = 
-				new StaticCompiledOpenConglomInfo[numIndexes];
-
-			for (int index = 0; index < numIndexes; index++)
-			{
-				indexSCOCIs[index] = tc.getStaticCompiledConglomInfo(indexConglomerateNumbers[index]);
-			}
-
-			/*
-			** If we're doing bulk insert, do table locking regardless of
-			** what the optimizer decided.  This is because bulk insert is
-			** generally done with a large number of rows into an empty table.
-			** We also do table locking if the table's lock granularity is
-			** set to table.
-			*/
-			if (bulkInsert ||
-				targetTableDescriptor.getLockGranularity() == TableDescriptor.TABLE_LOCK_GRANULARITY)
-			{
-				lockMode = TransactionController.MODE_TABLE;
-			}
-
-			return	getGenericConstantActionFactory().getInsertConstantAction
-				( targetTableDescriptor,
-				  heapConglomId,
-				  tc.getStaticCompiledConglomInfo(heapConglomId),
-				  indicesToMaintain,
-				  indexConglomerateNumbers,
-				  indexSCOCIs,
-				  indexNames,
-				  deferred,
-				  false,
-                  hasDeferrableCheckConstraints,
-				  targetTableDescriptor.getUUID(),
-				  lockMode,
-				  null, null, 
-				  targetProperties,
-				  getFKInfo(),
-				  getTriggerInfo(),
-				  resultColumnList.getStreamStorableColIds(targetTableDescriptor.getNumberOfColumns()),
-				  getIndexedCols(),
-				  (UUID) null,
-				  null,
-				  null,
-				  resultSet.isOneRowResultSet(), 
-				  autoincRowLocation,
-				  inMatchingClause(),
-				  identitySequenceUUIDString
-				  );
-		}
-		else
-		{
-			/* Return constant action for VTI
-			 * NOTE: ConstantAction responsible for preserving instantiated
-			 * VTIs for in-memory queries and for only preserving VTIs
-			 * that implement Serializable for SPSs.
-			 */
-			return	getGenericConstantActionFactory().getUpdatableVTIConstantAction( DeferModification.INSERT_STATEMENT,
-						deferred);
-		}
-	}
-
+	 
 	/**
 	 * Create a boolean[] to track the (0-based) columns which are indexed.
 	 *
@@ -575,10 +491,7 @@ public final class InsertNode extends DMLModStatementNode
 		ConglomerateDescriptor[]	cds = td.getConglomerateDescriptors();
 		CompilerContext cc = getCompilerContext();
 
- 		for (int index = 0; index < cds.length; index++)
-		{
-			cc.createDependency(cds[index]);
-		}
+ 		 
 	}
 	
 	/**

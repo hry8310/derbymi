@@ -25,12 +25,10 @@ import java.util.Properties;
 import org.apache.derby.catalog.UUID;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.monitor.Monitor;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.services.uuid.UUIDFactory;
-import org.apache.derby.iapi.sql.compile.Visitor;
-import org.apache.derby.iapi.sql.depend.ProviderList;
+import org.apache.derby.iapi.sql.compile.Visitor; 
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
 
 /**
@@ -44,8 +42,7 @@ public class ConstraintDefinitionNode extends TableElementNode
 	
 	private TableName constraintName;
 	protected int constraintType;
-	protected Properties properties;
-	ProviderList apl;
+	protected Properties properties; 
 
 	UUIDFactory		uuidFactory;
 
@@ -236,25 +233,7 @@ public class ConstraintDefinitionNode extends TableElementNode
 		return	backingIndexName;
 	}
 
-	/**
-	 * Set the auxiliary provider list.
-	 *
-	 * @param apl	The new auxiliary provider list.
-	 */
-	void setAuxiliaryProviderList(ProviderList apl)
-	{
-		this.apl = apl;
-	}
-
-	/**
-	 * Return the auxiliary provider list.
-	 *
-	 * @return	The auxiliary provider list.
-	 */
-    ProviderList getAuxiliaryProviderList()
-	{
-		return apl;
-	}
+	 
 
 	/**
 	 * Is this a primary key constraint.
@@ -495,10 +474,7 @@ public class ConstraintDefinitionNode extends TableElementNode
 	  */
 	private	UUIDFactory	getUUIDFactory()
 	{
-		if ( uuidFactory == null )
-		{
-			uuidFactory = Monitor.getMonitor().getUUIDFactory();
-		}
+		 
 		return	uuidFactory;
 	}
 

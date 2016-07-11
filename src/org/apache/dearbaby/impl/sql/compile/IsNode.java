@@ -23,8 +23,7 @@ package	org.apache.dearbaby.impl.sql.compile;
 
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.ClassName; 
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
 
@@ -208,7 +207,6 @@ class IsNode extends BinaryLogicalOperatorNode
 
 		leftOperand.generateExpression(acb, mb);
 		rightOperand.generateExpression(acb, mb);
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.BooleanDataValue, evaluatorMethodName,
-							ClassName.BooleanDataValue, 1);
+	 
 	}
 }

@@ -32,8 +32,7 @@ import org.apache.derby.iapi.sql.dictionary.ConstraintDescriptor;
 import org.apache.derby.iapi.sql.dictionary.ConstraintDescriptorList;
 import org.apache.derby.iapi.sql.dictionary.DataDictionary;
 import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.sql.dictionary.TupleDescriptor;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
+import org.apache.derby.iapi.sql.dictionary.TupleDescriptor; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 
 /**
@@ -322,25 +321,7 @@ class RenameNode extends DDLStatementNode
 			}
 		}
 	}
-                           
-	/**
-	 * Create the Constant information that will drive the guts of Execution
-	 *
-	 * @exception StandardException		Thrown on failure
-	 */
-    @Override
-    public ConstantAction   makeConstantAction()
-		throws StandardException
-	{
-		return	getGenericConstantActionFactory().getRenameConstantAction(getFullName(),
-			getRelativeName(),
-			oldObjectName,
-			newObjectName,
-			getSchemaDescriptor(),
-			td.getUUID(),
-			usedAlterTable,
-			renamingWhat);
-	}
+    
 
 	private StandardException descriptorExistsException(TupleDescriptor tuple,
 														TupleDescriptor parent)

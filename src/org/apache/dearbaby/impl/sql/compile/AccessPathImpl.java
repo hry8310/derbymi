@@ -25,7 +25,6 @@ import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.AccessPath;
-import org.apache.derby.iapi.sql.compile.CostEstimate;
 import org.apache.derby.iapi.sql.compile.JoinStrategy;
 import org.apache.derby.iapi.sql.compile.Optimizer;
 import org.apache.derby.iapi.sql.dictionary.ConglomerateDescriptor;
@@ -35,8 +34,7 @@ import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
 
 class AccessPathImpl implements AccessPath
 {
-	ConglomerateDescriptor	cd = null;
-	private CostEstimate	costEstimate = null;
+	ConglomerateDescriptor	cd = null; 
 	boolean					coveringIndexScan = false;
 	boolean					nonMatchingIndexScan = false;
 	JoinStrategy			joinStrategy = null;
@@ -61,34 +59,7 @@ class AccessPathImpl implements AccessPath
 		return cd;
 	}
 
-	/** @see AccessPath#setCostEstimate */
-	public void setCostEstimate(CostEstimate costEstimate)
-	{
-		/*
-		** CostEstimates are mutable, so keep the best cost estimate in
-		** a copy.
-		*/
-		if (this.costEstimate == null)
-		{
-			if (costEstimate != null)
-			{
-				this.costEstimate = costEstimate.cloneMe();
-			}
-		}
-		else
-		{
-			if (costEstimate == null)
-				this.costEstimate = null;
-			else
-				this.costEstimate.setCost(costEstimate);
-		}
-	}
-
-	/** @see AccessPath#getCostEstimate */
-	public CostEstimate getCostEstimate()
-	{
-		return costEstimate;
-	}
+ 
 
 	/** @see AccessPath#setCoveringIndexScan */
 	public void setCoveringIndexScan(boolean coveringIndexScan)
@@ -141,8 +112,7 @@ class AccessPathImpl implements AccessPath
 	/** @see AccessPath#copy */
 	public void copy(AccessPath copyFrom)
 	{
-		setConglomerateDescriptor(copyFrom.getConglomerateDescriptor());
-		setCostEstimate(copyFrom.getCostEstimate());
+		setConglomerateDescriptor(copyFrom.getConglomerateDescriptor()); 
 		setCoveringIndexScan(copyFrom.getCoveringIndexScan());
 		setNonMatchingIndexScan(copyFrom.getNonMatchingIndexScan());
 		setJoinStrategy(copyFrom.getJoinStrategy());
@@ -158,17 +128,7 @@ class AccessPathImpl implements AccessPath
     @Override
 	public String toString()
 	{
-		if (SanityManager.DEBUG)
-		{
-			return "cd == " + cd +
-				", costEstimate == " + costEstimate +
-				", coveringIndexScan == " + coveringIndexScan +
-				", nonMatchingIndexScan == " + nonMatchingIndexScan +
-				", joinStrategy == " + joinStrategy +
-				", lockMode == " + lockMode +
-				", optimizer level == " + optimizer.getLevel();
-		}
-		else
+		 
 		{
 			return "";
 		}

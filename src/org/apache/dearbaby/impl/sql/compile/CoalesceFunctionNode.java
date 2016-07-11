@@ -25,8 +25,7 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
@@ -198,119 +197,9 @@ class CoalesceFunctionNode extends ValueNode
     void generateExpression(ExpressionClassBuilder acb, MethodBuilder mb)
 									throws StandardException
 	{
-		int			argumentsListSize = argumentsList.size();
-		String		receiverType = ClassName.DataValueDescriptor;
-		String		argumentsListInterfaceType = ClassName.DataValueDescriptor + "[]";
+		  
 
-		// Generate the code to build the array
-		LocalField arrayField =
-			acb.newFieldDeclaration(Modifier.PRIVATE, argumentsListInterfaceType);
-
-		/* The array gets created in the constructor.
-		 * All constant elements in the array are initialized
-		 * in the constructor.  
-		 */
-		/* Assign the initializer to the DataValueDescriptor[] field */
-		MethodBuilder cb = acb.getConstructor();
-		cb.pushNewArray(ClassName.DataValueDescriptor, argumentsListSize);
-		cb.setField(arrayField);
-
-		/* Set the array elements that are constant */
-		int numConstants = 0;
-		MethodBuilder nonConstantMethod = null;
-		MethodBuilder currentConstMethod = cb;
-		for (int index = 0; index < argumentsListSize; index++)
-		{
-			MethodBuilder setArrayMethod;
-	
-			if (argumentsList.elementAt(index) instanceof ConstantNode)
-			{
-				numConstants++;
-		
-				/*if too many statements are added  to a  method, 
-				*size of method can hit  65k limit, which will
-				*lead to the class format errors at load time.
-				*To avoid this problem, when number of statements added 
-				*to a method is > 2048, remaing statements are added to  a new function
-				*and called from the function which created the function.
-				*See Beetle 5135 or 4293 for further details on this type of problem.
-				*/
-				if(currentConstMethod.statementNumHitLimit(1))
-				{
-					MethodBuilder genConstantMethod = acb.newGeneratedFun("void", Modifier.PRIVATE);
-					currentConstMethod.pushThis();
-					currentConstMethod.callMethod(VMOpcode.INVOKEVIRTUAL,
-												  (String) null, 
-												  genConstantMethod.getName(),
-												  "void", 0);
-					//if it is a generate function, close the metod.
-					if(currentConstMethod != cb){
-						currentConstMethod.methodReturn();
-						currentConstMethod.complete();
-					}
-					currentConstMethod = genConstantMethod;
-				}
-				setArrayMethod = currentConstMethod;
-			} else {
-				if (nonConstantMethod == null)
-					nonConstantMethod = acb.newGeneratedFun("void", Modifier.PROTECTED);
-				setArrayMethod = nonConstantMethod;
-
-			}
-
-			setArrayMethod.getField(arrayField); 
-            argumentsList.elementAt(index).generateExpression(acb, setArrayMethod);
-			setArrayMethod.upCast(receiverType);
-			setArrayMethod.setArrayElement(index);
-		}
-
-		//if a generated function was created to reduce the size of the methods close the functions.
-		if(currentConstMethod != cb){
-			currentConstMethod.methodReturn();
-			currentConstMethod.complete();
-		}
-
-		if (nonConstantMethod != null) {
-			nonConstantMethod.methodReturn();
-			nonConstantMethod.complete();
-			mb.pushThis();
-			mb.callMethod(VMOpcode.INVOKEVIRTUAL, (String) null, nonConstantMethod.getName(), "void", 0);
-		}
-
-		/*
-		**  Call the method for coalesce/value function.
-		**	First generate following
-		**	<first non-param argument in the list>.method(<all the arguments>, <resultType>)
-		**	Next, if we are dealing with result type that is variable length, then generate a call to setWidth.
-		*/
-
-		// coalesce will be called on this non-parameter argument
-        argumentsList.elementAt(firstNonParameterNodeIdx).
-			generateExpression(acb, mb);
-
-		mb.upCast(ClassName.DataValueDescriptor);
-
-		mb.getField(arrayField); // first arg to the coalesce function
-
-		//Following is for the second arg. This arg will be used to pass the return value.
-		//COALESCE method expects this to be initialized to NULL SQLxxx type object.
-		LocalField field = acb.newFieldDeclaration(Modifier.PRIVATE, receiverType);
-		acb.generateNull(mb, getTypeCompiler(), getTypeServices().getCollationType());
-		mb.upCast(ClassName.DataValueDescriptor);
-		mb.putField(field);
-
-		mb.callMethod(VMOpcode.INVOKEINTERFACE, receiverType, "coalesce", receiverType, 2);
-		if (getTypeId().variableLength())//since result type is variable length, generate setWidth code.
-		{
-			boolean isNumber = getTypeId().isNumericTypeId();
-			// to leave the DataValueDescriptor value on the stack, since setWidth is void
-			mb.dup();
-
-			mb.push(isNumber ? getTypeServices().getPrecision() : getTypeServices().getMaximumWidth());
-			mb.push(getTypeServices().getScale());
-			mb.push(true);
-			mb.callMethod(VMOpcode.INVOKEINTERFACE, ClassName.VariableSizeDataValue, "setWidth", "void", 3);
-		}
+		 
 	}
 
 	/*

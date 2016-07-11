@@ -798,7 +798,7 @@ public abstract class ValueNode extends QueryTreeNode
 	protected int getOrderableVariantType() throws StandardException
 	{
 		// The default is VARIANT
-		return Qualifier.VARIANT;
+		return 0;
 	}
 
 

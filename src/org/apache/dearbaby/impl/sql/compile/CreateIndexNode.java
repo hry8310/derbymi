@@ -26,13 +26,11 @@ import java.util.Properties;
 
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.Property;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.property.PropertyUtil;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.iapi.sql.compile.Visitor;
 import org.apache.derby.iapi.sql.dictionary.ColumnDescriptor;
 import org.apache.derby.iapi.sql.dictionary.SchemaDescriptor;
-import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
+import org.apache.derby.iapi.sql.dictionary.TableDescriptor; 
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.shared.common.sanity.SanityManager;
 
@@ -135,71 +133,7 @@ class CreateIndexNode extends DDLStatementNode
 	 *
 	 * @exception StandardException		Thrown on failure
 	 */
-    @Override
-    public ConstantAction makeConstantAction() throws StandardException
-	{
-		SchemaDescriptor		sd = getSchemaDescriptor();
-
-		int columnCount = columnNames.length;
-		int approxLength = 0;
-
-		// bump the page size for the index,
-		// if the approximate sizes of the columns in the key are
-		// greater than the bump threshold.
-		// Ideally, we would want to have atleast 2 or 3 keys fit in one page
-		// With fix for beetle 5728, indexes on long types is not allowed
-		// so we do not have to consider key columns of long types
-		for (int i = 0; i < columnCount; i++)
-		{
-			ColumnDescriptor columnDescriptor = td.getColumnDescriptor(columnNames[i]);
-			DataTypeDescriptor dts = columnDescriptor.getType();
-			approxLength += dts.getTypeId().getApproximateLengthInBytes(dts);
-		}
-
-
-        if (approxLength > Property.IDX_PAGE_SIZE_BUMP_THRESHOLD)
-        {
-
-            if (((properties == null) ||
-                 (properties.get(Property.PAGE_SIZE_PARAMETER) == null)) &&
-                (PropertyUtil.getServiceProperty(
-                     getLanguageConnectionContext().getTransactionCompile(),
-                     Property.PAGE_SIZE_PARAMETER) == null))
-            {
-                // do not override the user's choice of page size, whether it
-                // is set for the whole database or just set on this statement.
-
-                if (properties == null)
-                    properties = new Properties();
-
-                properties.put(
-                    Property.PAGE_SIZE_PARAMETER,
-                    Property.PAGE_SIZE_DEFAULT_LONG);
-
-            }
-        }
-
-
-		return getGenericConstantActionFactory().getCreateIndexConstantAction(
-                    false, // not for CREATE TABLE
-                    unique,
-                    false, // it's not a UniqueWithDuplicateNulls Index
-                    false, // it's not a constraint, so its checking
-                           // is not deferrable
-                    false, // initiallyDeferred: N/A
-                    -1,    // constraintType: N/A
-                    indexType,
-                    sd.getSchemaName(),
-                    indexName.getTableName(),
-                    tableName.getTableName(),
-                    td.getUUID(),
-                    columnNames,
-                    isAscending,
-                    false,
-                    null,
-                    properties);
-	}
-
+    
 	 
 
     @Override

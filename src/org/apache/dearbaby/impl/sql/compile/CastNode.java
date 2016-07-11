@@ -28,8 +28,7 @@ import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
 import org.apache.derby.iapi.reference.Limits;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
@@ -850,74 +849,7 @@ class CastNode extends ValueNode {
 		 * // optional for variable length types targetDVD.setWidth();
 		 */
 
-		if (!sourceCTI.userType() && !getTypeId().userType()) {
-			mb.getField(field); // targetDVD reference for the setValue method
-								// call
-			mb.swap();
-			mb.upCast(ClassName.DataValueDescriptor);
-			mb.callMethod(VMOpcode.INVOKEINTERFACE,
-					ClassName.DataValueDescriptor, "setValue", "void", 1);
-		} else {
-			/*
-			 * * generate: expr.getObject()
-			 */
-			mb.callMethod(VMOpcode.INVOKEINTERFACE,
-					ClassName.DataValueDescriptor, "getObject",
-					"java.lang.Object", 0);
-
-			// castExpr
-
-			mb.getField(field); // instance for the setValue/setObjectForCast
-								// method call
-			mb.swap(); // push it before the value
-
-			/*
-			 * * We are casting a java type, generate:**
-			 * DataValueDescriptor.setObjectForCast(java.lang.Object castExpr,
-			 * boolean instanceOfExpr, destinationClassName)* where
-			 * instanceOfExpr is "source instanceof destinationClass".*
-			 */
-			String destinationType = getTypeId().getCorrespondingJavaTypeName();
-
-			// at this point method instance and cast result are on the stack
-			// we duplicate the cast value in order to perform the instanceof
-			// check
-			mb.dup();
-			mb.isInstanceOf(destinationType);
-			mb.push(destinationType);
-			mb.callMethod(VMOpcode.INVOKEINTERFACE,
-					ClassName.DataValueDescriptor, "setObjectForCast", "void",
-					3);
-
-		}
-
-		mb.getField(field);
-
-		/*
-		 * * If we are casting to a variable length datatype, we* have to make
-		 * sure we have set it to the correct* length.
-		 */
-		if (getTypeId().variableLength()) {
-			boolean isNumber = getTypeId().isNumericTypeId();
-
-			// to leave the DataValueDescriptor value on the stack, since
-			// setWidth is void
-			mb.dup();
-
-			/*
-			 * setWidth() is on VSDV - upcast since decimal implements
-			 * subinterface of VSDV.
-			 */
-
-			mb.push(isNumber ? getTypeServices().getPrecision()
-					: getTypeServices().getMaximumWidth());
-			mb.push(getTypeServices().getScale());
-			mb.push(!sourceCTI.variableLength() || isNumber
-					|| assignmentSemantics);
-			mb.callMethod(VMOpcode.INVOKEINTERFACE,
-					ClassName.VariableSizeDataValue, "setWidth", "void", 3);
-
-		}
+		 
 	}
 
 	/**

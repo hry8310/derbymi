@@ -24,8 +24,7 @@ import java.sql.Types;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.shared.common.sanity.SanityManager;
@@ -121,9 +120,7 @@ class NextSequenceNode extends ValueNode {
 
         ValueNode returnNode = this;
 
-        // set up dependency on sequence and compile a check for USAGE
-        // priv if needed
-        getCompilerContext().createDependency( sequenceDescriptor );
+       
 
         if ( isPrivilegeCollectionRequired() )
         {
@@ -146,14 +143,7 @@ class NextSequenceNode extends ValueNode {
 		mb.pushThis();
 		mb.push( sequenceUUIDstring );
 		mb.push( dataTypeFormatID );
-		mb.callMethod
-            (
-             VMOpcode.INVOKEVIRTUAL,
-             ClassName.BaseActivation,
-             "getCurrentValueAndAdvance",
-             ClassName.NumberDataValue,
-             2
-             );
+		 
     }
 
     /**

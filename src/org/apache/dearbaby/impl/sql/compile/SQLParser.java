@@ -10887,21 +10887,7 @@ class SQLParser implements SQLParserConstants {
 			jj_la1[228] = jj_gen;
 			;
 		}
-		if (leftParenToken != null) {
-			{
-				if (true)
-					return new OptimizerPlan.TableFunctionRS(
-							sourceName.getSchemaName(),
-							sourceName.getTableName());
-			}
-		} else {
-			{
-				if (true)
-					return new OptimizerPlan.ConglomerateRS(
-							sourceName.getSchemaName(),
-							sourceName.getTableName());
-			}
-		}
+		 
 		throw new Error("Missing return statement in function");
 	}
 
@@ -11349,7 +11335,7 @@ class SQLParser implements SQLParserConstants {
 	 */
 	final public Properties propertyList(boolean propertiesUseAllowed)
 			throws ParseException, StandardException {
-		Properties properties = new FormatableProperties();
+		 
 		StringTokenizer commaSeparatedProperties;
 		jj_consume_token(DERBYDASHPROPERTIES);
 		// First use StringTokenizer to get tokens which are delimited by
@@ -11411,15 +11397,7 @@ class SQLParser implements SQLParserConstants {
 					value = value.toUpperCase();
 				}
 
-				// Do not allow user to specify multiple values for the same
-				// key.
-				if (properties.put(key, value) != null) {
-					{
-						if (true)
-							throw StandardException.newException(
-									SQLState.LANG_DUPLICATE_PROPERTY, key);
-					}
-				}
+				 
 			}
 		}
 
@@ -11431,7 +11409,7 @@ class SQLParser implements SQLParserConstants {
 
 		{
 			if (true)
-				return properties;
+				return null;
 		}
 		throw new Error("Missing return statement in function");
 	}
@@ -13764,7 +13742,7 @@ class SQLParser implements SQLParserConstants {
 			jj_consume_token(RESET);
 			{
 				if (true)
-					return TransactionControl.UNSPECIFIED_ISOLATION_LEVEL;
+					return 0;
 			}
 			break;
 		default:
@@ -13813,7 +13791,7 @@ class SQLParser implements SQLParserConstants {
 			}
 			{
 				if (true)
-					return TransactionControl.SERIALIZABLE_ISOLATION_LEVEL;
+					return 0;
 			}
 			break;
 		case CURSOR:
@@ -13821,7 +13799,7 @@ class SQLParser implements SQLParserConstants {
 			jj_consume_token(STABILITY);
 			{
 				if (true)
-					return TransactionControl.READ_COMMITTED_ISOLATION_LEVEL;
+					return 0;
 			}
 			break;
 		case DIRTY:
@@ -13829,7 +13807,7 @@ class SQLParser implements SQLParserConstants {
 			jj_consume_token(READ);
 			{
 				if (true)
-					return TransactionControl.READ_UNCOMMITTED_ISOLATION_LEVEL;
+					return 0;
 			}
 			break;
 		default:
@@ -13839,7 +13817,7 @@ class SQLParser implements SQLParserConstants {
 				jj_consume_token(COMMITTED);
 				{
 					if (true)
-						return TransactionControl.READ_COMMITTED_ISOLATION_LEVEL;
+						return 0;
 				}
 			} else if (getToken(1).kind == READ
 					&& getToken(2).kind == UNCOMMITTED) {
@@ -13847,7 +13825,7 @@ class SQLParser implements SQLParserConstants {
 				jj_consume_token(UNCOMMITTED);
 				{
 					if (true)
-						return TransactionControl.READ_UNCOMMITTED_ISOLATION_LEVEL;
+						return 0;
 				}
 			} else {
 				jj_consume_token(-1);
@@ -13863,28 +13841,28 @@ class SQLParser implements SQLParserConstants {
 			jj_consume_token(RR);
 			{
 				if (true)
-					return TransactionControl.SERIALIZABLE_ISOLATION_LEVEL;
+					return 0;
 			}
 			break;
 		case RS:
 			jj_consume_token(RS);
 			{
 				if (true)
-					return TransactionControl.REPEATABLE_READ_ISOLATION_LEVEL;
+					return 0;
 			}
 			break;
 		case CS:
 			jj_consume_token(CS);
 			{
 				if (true)
-					return TransactionControl.READ_COMMITTED_ISOLATION_LEVEL;
+					return 0;
 			}
 			break;
 		case UR:
 			jj_consume_token(UR);
 			{
 				if (true)
-					return TransactionControl.READ_UNCOMMITTED_ISOLATION_LEVEL;
+					return 0;
 			}
 			break;
 		default:
@@ -13921,14 +13899,14 @@ class SQLParser implements SQLParserConstants {
 			jj_consume_token(READ);
 			{
 				if (true)
-					return TransactionControl.REPEATABLE_READ_ISOLATION_LEVEL;
+					return 0;
 			}
 			break;
 		case SERIALIZABLE:
 			jj_consume_token(SERIALIZABLE);
 			{
 				if (true)
-					return TransactionControl.SERIALIZABLE_ISOLATION_LEVEL;
+					return 0;
 			}
 			break;
 		default:
@@ -13945,14 +13923,14 @@ class SQLParser implements SQLParserConstants {
 			jj_consume_token(UNCOMMITTED);
 			{
 				if (true)
-					return TransactionControl.READ_UNCOMMITTED_ISOLATION_LEVEL;
+					return 0;
 			}
 			break;
 		case COMMITTED:
 			jj_consume_token(COMMITTED);
 			{
 				if (true)
-					return TransactionControl.READ_COMMITTED_ISOLATION_LEVEL;
+					return 0;
 			}
 			break;
 		default:
@@ -16332,18 +16310,15 @@ class SQLParser implements SQLParserConstants {
 				jj_la1[364] = jj_gen;
 				;
 			}
-			tablePrivilegesNode.addAction(TablePrivilegeInfo.SELECT_ACTION,
-					columnList);
+		 
 			break;
 		case DELETE:
 			jj_consume_token(DELETE);
-			tablePrivilegesNode.addAction(TablePrivilegeInfo.DELETE_ACTION,
-					(ResultColumnList) null);
+		 
 			break;
 		case INSERT:
 			jj_consume_token(INSERT);
-			tablePrivilegesNode.addAction(TablePrivilegeInfo.INSERT_ACTION,
-					(ResultColumnList) null);
+		 
 			break;
 		case UPDATE:
 			jj_consume_token(UPDATE);
@@ -16355,7 +16330,7 @@ class SQLParser implements SQLParserConstants {
 				jj_la1[365] = jj_gen;
 				;
 			}
-			tablePrivilegesNode.addAction(TablePrivilegeInfo.UPDATE_ACTION,
+			tablePrivilegesNode.addAction(0,
 					columnList);
 			break;
 		case REFERENCES:
@@ -16368,13 +16343,11 @@ class SQLParser implements SQLParserConstants {
 				jj_la1[366] = jj_gen;
 				;
 			}
-			tablePrivilegesNode.addAction(TablePrivilegeInfo.REFERENCES_ACTION,
-					columnList);
+		 
 			break;
 		case TRIGGER:
 			jj_consume_token(TRIGGER);
-			tablePrivilegesNode.addAction(TablePrivilegeInfo.TRIGGER_ACTION,
-					(ResultColumnList) null);
+			 
 			break;
 		default:
 			jj_la1[367] = jj_gen;

@@ -26,8 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.Limits;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
@@ -818,12 +817,7 @@ public final class LikeEscapeOperatorNode extends TernaryOperatorNode
         /* Figure out the result type name */
         // resultTypeName = getTypeCompiler().interfaceName();
 
-        mb.callMethod(
-            VMOpcode.INVOKEINTERFACE, 
-            null, 
-            methodName, 
-            resultInterfaceType, 
-            rightOperand == null ? 1 : 2);
+      
     }
 
     private ValueNode setupOptimizeStringFromParameter(

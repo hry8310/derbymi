@@ -29,9 +29,7 @@ import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.i18n.MessageService;
-import org.apache.derby.iapi.services.loader.ClassInspector;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.dictionary.TableDescriptor;
 import org.apache.derby.iapi.util.JBitSet;
@@ -222,86 +220,8 @@ class NewInvocationNode extends MethodCallNode
 		*/
 		String[]	parmTypeNames = getObjectSignature();
 		boolean[]	isParam = getIsParam();
-		ClassInspector classInspector = getClassFactory().getClassInspector();
-
-		/*
-		** Find the matching constructor.
-		*/
-		try
-		{
-			/* First try with built-in types and mappings */
-			method = classInspector.findPublicConstructor(javaClassName,
-											parmTypeNames, null, isParam);
-
-			/* If no match, then retry to match any possible combinations of
-			 * object and primitive types.
-			 */
-			if (method == null)
-			{
-				String[] primParmTypeNames = getPrimitiveSignature(false);
-				method = classInspector.findPublicConstructor(javaClassName,
-								parmTypeNames, primParmTypeNames, isParam);
-			}
-		}
-		catch (ClassNotFoundException e)
-		{
-			/*
-			** If one of the classes couldn't be found, just act like the
-			** method couldn't be found.  The error lists all the class names,
-			** which should give the user enough info to diagnose the problem.
-			*/
-			method = null;
-		}
-
-		if (method == null)
-		{
-			/* Put the parameter type names into a single string */
-			String	parmTypes = "";
-			for (int i = 0; i < parmTypeNames.length; i++)
-			{
-				if (i != 0)
-					parmTypes += ", ";
-				parmTypes += (parmTypeNames[i].length() != 0 ?
-								parmTypeNames[i] :
-								MessageService.getTextMessage(
-									SQLState.LANG_UNTYPED)
-									);
-			}
-
-			throw StandardException.newException(SQLState.LANG_NO_CONSTRUCTOR_FOUND, 
-													javaClassName,
-												 	parmTypes);
-		}
-
-		methodParameterTypes = classInspector.getParameterTypes(method);
-
-		for (int i = 0; i < methodParameterTypes.length; i++)
-		{
-			if (ClassInspector.primitiveType(methodParameterTypes[i]))
-				methodParms[i].castToPrimitive(true);
-		}
-
-		/* Set type info for any null parameters */
-		if ( someParametersAreNull() )
-		{
-			setNullParameterInfo(methodParameterTypes);
-		}
-
-		/* Constructor always returns an object of type javaClassName */
-		if (SanityManager.DEBUG) {
-			SanityManager.ASSERT(javaClassName.equals(classInspector.getType(method)),
-				"Constructor is wrong type, expected " + javaClassName + 
-				" actual is " + classInspector.getType(method));
-		}
-	 	setJavaTypeName( javaClassName );
-	 	if (routineInfo != null)
-                {
-                    TypeDescriptor returnType = routineInfo.getReturnType();
-                    if (returnType != null)
-                    {
-                        setCollationType(returnType.getCollationType());
-                    }
-                }
+	 
+		  
 	 	return this;
 	}
 
@@ -364,8 +284,7 @@ class NewInvocationNode extends MethodCallNode
 	 */
 	protected boolean assignableTo(String toClassName) throws StandardException
 	{
-		ClassInspector classInspector = getClassFactory().getClassInspector();
-		return classInspector.assignableTo(javaClassName, toClassName);
+		return false;
 	}
 
 
@@ -395,45 +314,9 @@ class NewInvocationNode extends MethodCallNode
 		String[]	parmTypeNames = getObjectSignature();
 		boolean[]	isParam = getIsParam();
 
-		ClassInspector classInspector = getClassFactory().getClassInspector();
+	 
 
-		try
-		{
-			publicMethod = classInspector.findPublicMethod
-                (
-                 javaClassName, methodName,
-                 parmTypeNames, null, isParam, staticMethod, false, hasVarargs()
-                 );
-
-			/* If no match, then retry to match any possible combinations of
-			 * object and primitive types.
-			 */
-			if (publicMethod == null)
-			{
-				String[] primParmTypeNames = getPrimitiveSignature(false);
-				publicMethod = classInspector.findPublicMethod
-                    (
-                     javaClassName, methodName, parmTypeNames,
-                     primParmTypeNames, isParam, staticMethod, false, hasVarargs()
-                     );
-			}
-		}
-		catch (ClassNotFoundException e)
-		{
-			/* We should always be able to find the class at this point
-			 * since the protocol is to check to see if it exists
-			 * before checking for a method off of it.  Anyway, just return
-			 * null if the class doesn't exist, since the method doesn't
-			 * exist in that case.
-			 */
-			if (SanityManager.DEBUG)
-			{
-				SanityManager.THROWASSERT("Unexpected exception", e);
-			}
-			return null;
-		}
-
-		return	publicMethod;
+		return	null;
 	}
 
 	/**

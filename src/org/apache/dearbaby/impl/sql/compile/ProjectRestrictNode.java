@@ -33,8 +33,7 @@ import org.apache.derby.iapi.sql.compile.Optimizable;
 import org.apache.derby.iapi.sql.compile.OptimizablePredicate;
 import org.apache.derby.iapi.sql.compile.OptimizablePredicateList;
 import org.apache.derby.iapi.sql.compile.Visitor;
-import org.apache.derby.iapi.sql.dictionary.DataDictionary;
-import org.apache.derby.iapi.store.access.TransactionController;
+import org.apache.derby.iapi.sql.dictionary.DataDictionary; 
 import org.apache.derby.iapi.util.JBitSet;
 import org.apache.derby.shared.common.sanity.SanityManager;
  
@@ -784,11 +783,7 @@ class ProjectRestrictNode extends SingleChildResultSetNode
     @Override
     int updateTargetLockMode()
 	{
-		if (restriction != null || constantRestriction != null)
-		{
-			return TransactionController.MODE_RECORD;
-		}
-		else
+	 
 		{
 			return childResult.updateTargetLockMode();
 		}

@@ -134,29 +134,7 @@ public interface JoinStrategy {
 	void putBasePredicates(OptimizablePredicateList predList,
 							OptimizablePredicateList basePredicates)
 					throws StandardException;
-	/**
-	 * Get the estimated cost for the join.
-	 *
-	 * @param predList		The predicate list for the join
-	 * @param innerTable	The inner table to join with
-	 * @param cd			The conglomerate descriptor (if appropriate) to get
-	 *						the cost of
-	 * @param outerCost		The estimated cost of the part of the plan outer
-	 *						to the inner table
-	 * @param optimizer		The optimizer to use to help estimate the cost
-	 * @param costEstimate	The estimated cost of doing a single scan of the
-	 *						inner table, to be filled in with the cost of
-	 *						doing the join.
-	 *
-	 * @exception StandardException		Thrown on error
-	 */
-	void estimateCost(Optimizable innerTable,
-						OptimizablePredicateList predList,
-						ConglomerateDescriptor cd,
-						 
-						Optimizer optimizer
-						 )
-		throws StandardException;
+	 
 
     /**
      * @param userSpecifiedCapacity
@@ -202,52 +180,7 @@ public interface JoinStrategy {
 	 */
 	String halfOuterJoinResultSetMethodName();
 
-	/**
-	 * Get the appropriate arguments to the scan for this type of join.
-	 *
-	 * @param tc	The TransactionController
-	 * @param mb	The method to generate the arguments in
-	 * @param innerTable	The inner table of the join
-	 * @param storeRestrictionList	The predicate list to be evaluated in the
-	 *								store
-	 * @param nonStoreRestrictionList	The predicate list to be evaluated
-	 *									outside of the store
-	 * @param acb	The expression class builder for the activation class
-	 *				we're building
-	 * @param bulkFetch	The amount of bulk fetch to do
-     * @param resultRowTemplate The saved object index of a result row template
-	 * @param colRefItem	The item number of the column reference bit map
-	 * @param lockMode		The lock mode to use when scanning the table
-	 *						(see TransactionController).
-	 * @param tableLocked	Whether or not the table is marked (in sys.systables)
-	 *						as always using table locking
-	 * @param isolationLevel		Isolation level specified (or not) for scans
-	 * @param maxMemoryPerTable	Max memory per table
-	 * @param genInListVals Whether or not we are going to generate IN-list
-	 *  values with which to probe the inner table.
-	 *
-	 * @return	Count of the expressions pushed to use as the parameters to the
-	 *			result set for the inner table
-	 *
-	 * @exception StandardException		Thrown on error
-	 */
-	int getScanArgs( 
-							MethodBuilder mb,
-							Optimizable innerTable,
-							OptimizablePredicateList storeRestrictionList,
-							OptimizablePredicateList nonStoreRestrictionList,
-							ExpressionClassBuilderInterface acb,
-							int bulkFetch,
-							int resultRowTemplate,
-							int colRefItem,
-							int indexColItem,
-							int lockMode,
-							boolean tableLocked,
-							int isolationLevel,
-							int maxMemoryPerTable,
-							boolean genInListVals
-							)
-					throws StandardException;
+	 
 
 	/**
 	 * Divide up the predicates into different lists for different phases

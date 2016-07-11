@@ -27,8 +27,7 @@ import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.sql.compile.Visitor;
-import org.apache.derby.shared.common.sanity.SanityManager;
-import org.apache.derby.iapi.sql.depend.ProviderList;
+import org.apache.derby.shared.common.sanity.SanityManager; 
 
 /**
  * This node describes a Generation Clause in a column definition.
@@ -51,8 +50,7 @@ class GenerationClauseNode extends ValueNode
     private ValueNode _generationExpression;
     private String      _expressionText;
 
-    private ValueNode _boundExpression;
-	private ProviderList _apl;
+    private ValueNode _boundExpression; 
 
     ///////////////////////////////////////////////////////////////////////////////////
     //
@@ -78,12 +76,7 @@ class GenerationClauseNode extends ValueNode
 
     /** Get the defining text of this generation clause */
     public  String  getExpressionText() { return _expressionText; }
-    
-	/** Set the auxiliary provider list. */
-	void setAuxiliaryProviderList(ProviderList apl) { _apl = apl; }
-
-	/** Return the auxiliary provider list. */
-    ProviderList getAuxiliaryProviderList() { return _apl; }
+ 
 
     ///////////////////////////////////////////////////////////////////////////////////
     //

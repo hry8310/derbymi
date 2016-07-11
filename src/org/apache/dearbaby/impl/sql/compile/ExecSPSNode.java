@@ -25,9 +25,7 @@ import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.sql.ResultDescription;
 import org.apache.derby.iapi.sql.compile.Visitor;
-import org.apache.derby.iapi.sql.dictionary.SPSDescriptor;
-import org.apache.derby.iapi.sql.execute.ConstantAction;
-import org.apache.derby.iapi.sql.execute.ExecPreparedStatement;
+import org.apache.derby.iapi.sql.dictionary.SPSDescriptor; 
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.shared.common.sanity.SanityManager;
 
@@ -48,8 +46,7 @@ import org.apache.derby.shared.common.sanity.SanityManager;
 class ExecSPSNode extends StatementNode
 {
 	private TableName			name;
-	private SPSDescriptor		spsd;
-	private ExecPreparedStatement ps;
+	private SPSDescriptor		spsd; 
 
 	/**
      * Constructor for a ExecSPSNode
@@ -75,13 +72,8 @@ class ExecSPSNode extends StatementNode
 	public boolean isAtomic()
 	{
 
-		if (SanityManager.DEBUG)
-		{
-			SanityManager.ASSERT(ps != null, 
-				"statement expected to be bound before calling isAtomic()");
-		}
-
-		return ps.isAtomic();
+		 
+		return false;
 	}
 
 	 
@@ -94,7 +86,7 @@ class ExecSPSNode extends StatementNode
     @Override
 	public ResultDescription makeResultDescription()
 	{
-		return ps.getResultDescription();
+		return null;
 	}
 
 	/**
@@ -107,7 +99,7 @@ class ExecSPSNode extends StatementNode
     @Override
 	public Object getCursorInfo()
 	{
-		return ps.getCursorInfo();
+		return null;
 	}
 
 	/**
@@ -127,17 +119,7 @@ class ExecSPSNode extends StatementNode
 		return spsd.getParams();
 	}
 
-
-	/**
-	 * Create the Constant information that will drive the guts of Execution.
-	 * This is assumed to be the first action on this node.
-	 *
-	 */
-    @Override
-    public ConstantAction makeConstantAction()
-	{
-		return ps.getConstantAction();
-	}
+ 
 
 	/**
 	 * We need a savepoint if we will do transactional work.
@@ -154,13 +136,7 @@ class ExecSPSNode extends StatementNode
     @Override
 	public boolean needsSavepoint()
 	{
-		if (SanityManager.DEBUG)
-		{
-			SanityManager.ASSERT(ps != null, 
-				"statement expected to be bound before calling needsSavepoint()");
-		}
-
-		return ps.needsSavepoint();
+	 return true;
 	}
 
 	/** @see StatementNode#executeStatementName */

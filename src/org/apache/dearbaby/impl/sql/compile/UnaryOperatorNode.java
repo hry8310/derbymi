@@ -27,13 +27,11 @@ import java.util.List;
 
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.sql.compile.Visitor;
-import org.apache.derby.iapi.store.access.Qualifier;
+import org.apache.derby.iapi.sql.compile.Visitor; 
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.iapi.types.TypeId;
 import org.apache.derby.iapi.util.JBitSet;
@@ -635,8 +633,7 @@ class UnaryOperatorNode extends OperatorNode
             // XML operators take extra arguments.
             numArgs += addXmlOpMethodParams(acb, mb, field);
 
-            mb.callMethod(VMOpcode.INVOKEINTERFACE, null,
-                          methodName, resultTypeName, numArgs);
+       
 
 			/*
 			** Store the result of the method call in the field, so we can re-use
@@ -644,8 +641,7 @@ class UnaryOperatorNode extends OperatorNode
 			*/
 			mb.putField(field);
 		} else {
-			mb.callMethod(VMOpcode.INVOKEINTERFACE, (String) null,
-				methodName, resultTypeName, 0);
+		 
 		}
 	}
 
@@ -692,9 +688,7 @@ class UnaryOperatorNode extends OperatorNode
 		** If we have nothing in the operator, then
 		** it must be constant.
 		*/
-		return (operand != null) ?
-				operand.getOrderableVariantType() :
-				Qualifier.CONSTANT;
+		return 0;
 	}
 
 	/**

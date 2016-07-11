@@ -27,8 +27,7 @@ import org.apache.derby.iapi.reference.Limits;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.iapi.services.io.StoredFormatIds;
-import org.apache.derby.iapi.services.loader.ClassFactory;
+import org.apache.derby.iapi.services.io.StoredFormatIds; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.TypeCompiler;
 import org.apache.derby.iapi.types.DataTypeDescriptor;
@@ -311,11 +310,7 @@ public final class NumericTypeCompiler extends BaseTypeCompiler
 		return (otherType.isNumericTypeId());
 	}
 
-	/** @see TypeCompiler#storable */
-	public boolean storable(TypeId otherType, ClassFactory cf)
-	{
-		return numberStorable(getTypeId(), otherType, cf);
-	}
+	 
 
     /**
      * Return the method name to get a Derby DataValueDescriptor object of the

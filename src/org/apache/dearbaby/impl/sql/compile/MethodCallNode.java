@@ -32,18 +32,15 @@ import org.apache.derby.catalog.types.RoutineAliasInfo;
 import org.apache.derby.catalog.types.TypeDescriptorImpl;
 import org.apache.derby.catalog.types.UserDefinedTypeIdImpl;
 import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.SQLState;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.reference.SQLState; 
 import org.apache.derby.iapi.services.compiler.LocalField;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
-import org.apache.derby.iapi.services.context.ContextManager;
-import org.apache.derby.iapi.services.loader.ClassInspector;
+import org.apache.derby.iapi.services.context.ContextManager; 
 import org.apache.derby.shared.common.sanity.SanityManager;
 import org.apache.derby.iapi.sql.compile.CompilerContext;
 import org.apache.derby.iapi.sql.compile.TypeCompiler;
 import org.apache.derby.iapi.sql.compile.TypeCompilerFactory;
-import org.apache.derby.iapi.sql.compile.Visitor;
-import org.apache.derby.iapi.store.access.Qualifier;
+import org.apache.derby.iapi.sql.compile.Visitor; 
 import org.apache.derby.iapi.types.DataTypeDescriptor;
 import org.apache.derby.iapi.types.JSQLType;
 import org.apache.derby.iapi.types.TypeId;
@@ -183,31 +180,9 @@ abstract class MethodCallNode extends JavaValueNode
 	  */
     Class<?>[]  getMethodParameterClasses()
 	{ 
-		ClassInspector ci = getClassFactory().getClassInspector();
+		 
 
-        Class<?>[]  parmTypeClasses = new Class<?>[methodParms.length];
-
-		for (int i = 0; i < methodParms.length; i++)
-		{
-			String className = methodParameterTypes[i];
-			try
-			{
-				parmTypeClasses[i] = ci.getClass(className);
-			}
-			catch (ClassNotFoundException cnfe)
-			{
-				/* We should never get this exception since we verified 
-				 * that the classes existed at bind time.  Just return null.
-				 */
-				if (SanityManager.DEBUG)
-				{
-					SanityManager.THROWASSERT("Unexpected exception", cnfe);
-				}
-				return null;
-			}
-		}
-
-		return parmTypeClasses;
+		return null;
 	}
 
 	/**
@@ -333,7 +308,7 @@ abstract class MethodCallNode extends JavaValueNode
 	 */
 	 protected boolean areParametersQueryInvariant() throws StandardException
 	 {
-		return (getVariantTypeOfParams() == Qualifier.QUERY_INVARIANT);
+		return true;
 	 }
 
 	/**
@@ -570,72 +545,7 @@ abstract class MethodCallNode extends JavaValueNode
     private void    generateAndCastOneParameter
         ( ExpressionClassBuilder acb, MethodBuilder mb, int param, String parameterType )
         throws StandardException
-    {
-		ClassInspector classInspector = getClassFactory().getClassInspector();
-
-        generateOneParameter( acb, mb, param );
-
-        // type from the SQL-J expression
-        String argumentType = getParameterTypeName( methodParms[param] );
-
-        if (!parameterType.equals(argumentType))
-        {
-            //
-            // This handles the conversion from primitive to wrapper type. See DERBY-6511.
-            // If the parameter type is the wrapper form of the primitive argument type,
-            // then call the "valueOf" static method of the wrapper type in order to convert
-            // the argument into a wrapper object. So, for instance, this converts a primitive "int"
-            // into a "java.lang.Integer".
-            //
-            if (
-                ClassInspector.primitiveType( argumentType ) &&
-                parameterType.equals( JSQLType.getWrapperClassName( JSQLType.getPrimitiveID( argumentType ) ) )
-                )
-            {
-                // short must be converted to int
-                if ( "short".equals( argumentType ) )
-                {
-                    mb.cast( "int" );
-                }
-                
-                mb.callMethod
-                    (
-                     VMOpcode.INVOKESTATIC,
-                     parameterType,
-                     "valueOf",
-                     parameterType,
-                     1
-                     );
-            }
-            // since we reached here through method resolution
-            // casts are only required for primitive types.
-            // In any other case the expression type must be assignable
-            // to the parameter type.
-            else if (ClassInspector.primitiveType(parameterType))
-            {
-                mb.cast(parameterType);
-            } else
-            {
-                // for a procedure
-                if (routineInfo != null)
-                {
-                    return; // probably should be only for INOUT/OUT parameters.
-                }
-
-                if (SanityManager.DEBUG)
-                {
-                    SanityManager.ASSERT(classInspector.assignableTo(argumentType, parameterType),
-                                         "Argument type " + argumentType + " is not assignable to parameter " + parameterType);
-                }
-
-                /*
-                ** Set the parameter type in case the argument type is narrower
-                ** than the parameter type.
-                */
-                mb.upCast(parameterType);
-            }
-        }
-    }
+    { }
 
     /**
      * <p>
@@ -792,274 +702,7 @@ abstract class MethodCallNode extends JavaValueNode
 
 		int			count = signature.length;
 
-		ClassInspector classInspector = getClassFactory().getClassInspector();
-
-		
-		String[]		parmTypeNames;
-		String[]		primParmTypeNames = null;
-		boolean[]		isParam = getIsParam();
-
-		boolean hasDynamicResultSets = hasVarargs() ?
-            false :
-            (routineInfo != null) && (count != 0) && (count != methodParms.length);
-
-        /*
-        ** Find the matching method that is public.
-        */
-        int signatureOffset = methodName.indexOf('(');
-        	
-        // support Java signatures by checking if the method name contains a '('
-        if (signatureOffset != -1) {
-            parmTypeNames = parseValidateSignature(methodName, signatureOffset, hasDynamicResultSets);
-            methodName = methodName.substring(0, signatureOffset);
-            
-            // If the signature is specified then Derby resolves to exactly
-            // that method. Setting this flag to false disables the method
-            // resolution from automatically optionally repeating the last
-            // parameter as needed.
-            hasDynamicResultSets = false;
-        }
-        else
-        {
-            parmTypeNames = getObjectSignature();
-        }
-
-        // the actual type of the trailing Java varargs arg is an array
-        if ( hasVarargs() )
-        {
-            parmTypeNames[ count - 1 ] = parmTypeNames[ count - 1 ] + "[]";
-        }
-
-        try
-        {
-            method = classInspector.findPublicMethod
-                (
-                 javaClassName,
-                 methodName,
-                 parmTypeNames,
-                 null,
-                 isParam,
-                 staticMethod,
-                 hasDynamicResultSets,
-                 hasVarargs()
-                 );
-
-            // DB2 LUW does not support Java object types for SMALLINT, INTEGER, BIGINT, REAL, DOUBLE
-            // and these are the only types that can map to a primitive or an object type according
-            // to SQL part 13. So we never have a second chance match.
-            // Also if the DDL specified a signature, then no alternate resolution
-            if (signatureOffset == -1 && routineInfo == null) {
-
-                /* If no match, then retry with combinations of object and
-                 * primitive types.
-                 */
-                if (method == null)
-                {
-                    primParmTypeNames = getPrimitiveSignature(false);
-
-                    method = classInspector.findPublicMethod
-                        (
-                         javaClassName,
-                         methodName,
-                         parmTypeNames,
-                         primParmTypeNames,
-                         isParam,
-                         staticMethod,
-                         hasDynamicResultSets,
-                         hasVarargs()
-                         );
-                }
-            }
-        }
-        catch (ClassNotFoundException e)
-        {
-            /*
-            ** If one of the classes couldn't be found, just act like the
-            ** method couldn't be found.  The error lists all the class names,
-            ** which should give the user enough info to diagnose the problem.
-            */
-            method = null;
-        }
-		/* Throw exception if no matching signature found */
-		if (method == null)
-		{
-			throwNoMethodFound(javaClassName, parmTypeNames, primParmTypeNames);
-		}
-
-		String	typeName = classInspector.getType(method);
-		actualMethodReturnType = typeName;
-
-		if (routineInfo == null) {
-
-			/* void methods are only okay for CALL Statements */
-			if (typeName.equals("void"))
-			{
-				if (!forCallStatement)
-					throw StandardException.newException(SQLState.LANG_VOID_METHOD_CALL);
-			}
-		}
-		else
-		{
-			String promoteName = null;
-			TypeDescriptorImpl returnType = (TypeDescriptorImpl) routineInfo.getReturnType();
-			String requiredType;
-			if (returnType == null)
-			{
-				// must have a void method for a procedure call.
-				requiredType = "void";
-			}
-			else
-			{
-				TypeId returnTypeId = TypeId.getBuiltInTypeId(returnType.getJDBCTypeId());
-
-				if (
-				    returnType.isRowMultiSet() &&
-				    ( routineInfo.getParameterStyle() == RoutineAliasInfo.PS_DERBY_JDBC_RESULT_SET )
-				)
-				{
-				    requiredType = ResultSet.class.getName();
-				}
-                else if ( returnType.getTypeId().userType() )
-                {
-                    requiredType = ((UserDefinedTypeIdImpl) returnType.getTypeId()).getClassName();
-                }
-				else
-				{
-			 		requiredType = returnTypeId.getCorrespondingJavaTypeName();
-
-					if (!requiredType.equals(typeName)) {
-						switch (returnType.getJDBCTypeId()) {
-						case java.sql.Types.BOOLEAN:
-						case java.sql.Types.SMALLINT:
-						case java.sql.Types.INTEGER:
-						case java.sql.Types.BIGINT:
-						case java.sql.Types.REAL:
-						case java.sql.Types.DOUBLE:
-							TypeCompiler tc = getTypeCompiler(returnTypeId);
-							requiredType = tc.getCorrespondingPrimitiveTypeName();
-							if (!routineInfo.calledOnNullInput() && routineInfo.getParameterCount() != 0)
-							{
-								promoteName = returnTypeId.getCorrespondingJavaTypeName();
-							}
-							break;
-						}
-					}
-				}
-			}
-
-            boolean foundCorrectType;
-            if ( ResultSet.class.getName().equals( requiredType )  )
-            {
-                // allow subtypes of ResultSet too
-                try {
-                    Class<?> actualType = classInspector.getClass( typeName );
-
-                    foundCorrectType = ResultSet.class.isAssignableFrom( actualType );
-                }
-                catch (ClassNotFoundException cnfe) { foundCorrectType = false; }
-            }
-            else{ foundCorrectType = requiredType.equals(typeName); }
-
-			if (!foundCorrectType)
-			{
-				throwNoMethodFound(requiredType + " " + javaClassName, parmTypeNames, primParmTypeNames);
-			}
-
-			// for a returns null on null input with a primitive
-			// type we need to promote to an object so we can return null.
-			if (promoteName != null)
-				typeName = promoteName;
-			//propogate collation type from RoutineAliasInfo to
-			// MethodCallNode DERBY-2972
-                        if (routineInfo.getReturnType() != null)
-                            setCollationType(routineInfo.getReturnType().getCollationType());     
-                }
-	 	setJavaTypeName( typeName );
-                
-		methodParameterTypes = classInspector.getParameterTypes(method);
-
-        String methodParameter = null;
-        
-		for (int i = 0; i < methodParameterTypes.length; i++)
-		{
-			methodParameter = methodParameterTypes[i];
-
-			if (routineInfo != null) {
-				if (i < routineInfo.getParameterCount()) {
-					int parameterMode = routineInfo.getParameterModes()[ getRoutineArgIdx( i ) ];
-
-					switch (parameterMode) {
-                    case (ParameterMetaData.parameterModeIn):
-						break;
-                    case (ParameterMetaData.parameterModeInOut):
-						// we need to see if the type of the array is
-						// primitive, not the array itself.
-						methodParameter = stripOneArrayLevel( methodParameter );
-						break;
-
-                    case (ParameterMetaData.parameterModeOut):
-						// value is not obtained *from* parameter.
-						continue;
-					}
-				}
-			}
-
-            //
-            // Strip off the array type if this is a varargs arg. We are only interested in
-            // whether we need to cast to the cell type.
-            //
-            if ( hasVarargs() && (i >= getFirstVarargIdx()) )
-            {
-                methodParameter = stripOneArrayLevel( methodParameter );
-            }
-
-			if (ClassInspector.primitiveType(methodParameter))
-            {
-                // varargs may be omitted, so there may not be an invocation argument
-                // corresponding to the vararg
-                if ( i < methodParms.length )
-                {
-                    methodParms[i].castToPrimitive(true);
-                }
-            }
-		}
-
-        // the last routine parameter may have been a varargs. if so,
-        // casting may be needed on the trailing varargs
-        if ( hasVarargs() )
-        {
-            int     firstVarargIdx = getFirstVarargIdx();
-            int     trailingVarargCount = methodParms.length - firstVarargIdx;
-
-            // the first vararg was handled in the preceding loop
-            for ( int i = 1; i < trailingVarargCount; i++ )
-            {
-                if (ClassInspector.primitiveType(methodParameter))
-                {
-                    methodParms[ i + firstVarargIdx ].castToPrimitive(true);
-                }
-            }
-        }
-
-		/* Set type info for any null parameters */
-		if ( someParametersAreNull() )
-		{
-			setNullParameterInfo(methodParameterTypes);
-		}
-
-
-    
-		/* bug 4450 - if the callable statement is ? = call form, generate the metadata
-		infor for the return parameter. We don't really need that info in order to
-		execute the callable statement. But with jdbc3.0, this information should be
-		made available for return parameter through ParameterMetaData class.
-		Parser sets a flag in compilercontext if ? = call. If the flag is set,
-		we generate the metadata info for the return parameter and reset the flag
-		in the compilercontext for future call statements*/
-		DataTypeDescriptor dts = DataTypeDescriptor.getSQLDataTypeDescriptor(typeName);
-		if (getCompilerContext().getReturnParameterFlag()) {
-            getParameterTypes()[0] = dts;
-		}
+	  
     }
 
     /** Strip the trailing [] from a type name */
@@ -1416,7 +1059,7 @@ abstract class MethodCallNode extends JavaValueNode
 
 	private int getVariantTypeOfParams() throws StandardException
 	{
-		int variance = Qualifier.QUERY_INVARIANT;
+		int variance =0;
 
 		if (methodParms != null)
 		{
@@ -1431,7 +1074,7 @@ abstract class MethodCallNode extends JavaValueNode
 				}
 				else
 				{
-					variance = Qualifier.VARIANT;
+					variance = 0;
 				}
 			}
 		}

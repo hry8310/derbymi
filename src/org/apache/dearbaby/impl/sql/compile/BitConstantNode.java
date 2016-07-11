@@ -22,8 +22,7 @@
 package	org.apache.dearbaby.impl.sql.compile;
 
 import java.sql.Types;
-import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.services.classfile.VMOpcode;
+import org.apache.derby.iapi.error.StandardException; 
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.iapi.types.BitDataValue;
@@ -97,8 +96,6 @@ class BitConstantNode extends ConstantNode
 		mb.push(hexLiteral);
 		mb.push(0);
 		mb.push(hexLiteral.length());
-
-		mb.callMethod(VMOpcode.INVOKESTATIC, "org.apache.derby.iapi.util.StringUtil", "fromHexString",
-						"byte[]", 3);
+ 
 	}
 }

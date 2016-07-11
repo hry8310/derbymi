@@ -121,11 +121,7 @@ class GroupByColumn extends OrderedColumn
 		 * user types.
 		 */
 		TypeId ctid = columnExpression.getTypeId();
-		if (! ctid.orderable(getClassFactory()))
-		{
-			throw StandardException.newException(SQLState.LANG_COLUMN_NOT_ORDERABLE_DURING_EXECUTION, 
-							ctid.getSQLTypeName());
-		}
+		 
 	}
 
     ValueNode getColumnExpression()
