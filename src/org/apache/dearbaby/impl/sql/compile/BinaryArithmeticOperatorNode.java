@@ -22,6 +22,8 @@
 package	org.apache.dearbaby.impl.sql.compile;
 
 import java.util.List;
+
+import org.apache.dearbaby.util.ByteUtil;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
 import org.apache.derby.iapi.services.context.ContextManager;
@@ -212,6 +214,41 @@ public final class BinaryArithmeticOperatorNode extends BinaryOperatorNode
 		return this;
 	}
 
+    public void genQuery0() {
+    	leftOperand.genQuery(qm);
+    	rightOperand.genQuery(qm);
+    }
+
+    public Object getVal() {
+    	Object left=leftOperand.getVal();
+    	Object right=rightOperand.getVal();
+    	
+    	Object obj= count(left,right);
+    	System.out.println("left: "+left+" , right "+obj.toString());
+    	return obj;
+    }
+    
+    private Object count(Object left,Object right){
+    	//¼Ó¡°+¡±
+	    if(methodName.equals("plus")){
+	    	return ByteUtil.plus(left, right);
+	    }
+	    //-
+	    if(methodName.equals("minus")){
+	    	return  ByteUtil.minus(left, right);
+	    }
+	    //*
+	    if(methodName.equals("times")){
+	    	return ByteUtil.times(left, right);
+	    }
+	    if(methodName.equals("divide")){
+	    	return ByteUtil.divide(left, right);
+	    }
+	    return null;
+    }
+    
+    
+    
     @Override
     boolean isSameNodeKind(ValueNode o) {
         return super.isSameNodeKind(o) &&

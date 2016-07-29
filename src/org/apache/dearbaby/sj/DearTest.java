@@ -31,7 +31,7 @@ public class DearTest {
 		sql="select e.doctorId from (SELECT a.doctorId   , a.doctorName  FROM WorkInforParameter  a  UNION all SELECT b.doctorId   , b.doctorName  FROM doctorinforparameter  b  UNION ALL SELECT c.doctorId   , c.doctorName  FROM doctorinforparameter  c ) e";
 		sql="select distinct e.doctorName from doctorinforparameter e  where e.id=10";
 		//sql="select distinct e.doctorName from doctorinforparameter e  where e.docName='ddd'";
-		
+		sql="SELECT a.doctorName  FROM WorkInforParameter  a , doctorinforparameter b WHERE a.id=b.id+1200";
 		//sql="SELECT a.doctorName from DoctorInforParameter  a order by a.doctorid";
 		 DearSelector selector =new DearSelector();  
 		 selector.query(sql);

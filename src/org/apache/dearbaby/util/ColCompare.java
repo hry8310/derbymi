@@ -38,7 +38,8 @@ public class ColCompare {
 				|| cls.equals("java.lang.Float")
 				|| cls.equals("java.lang.Long")
 				|| cls.equals("java.lang.Short")
-				|| cls.equals("java.lang.Number")) {
+				|| cls.equals("java.lang.Number")
+				|| cls.equals("java.math.BigDecimal")) {
 			r = 1;
 		}
 		return r;

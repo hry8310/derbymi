@@ -327,7 +327,7 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 		if (lo == null || ro == null) {
 			return false;
 		}
-		
+	//	System.out.println("lo:  "+lo+"  ro   "+ro);
 		int r = ColCompare.compareObject(lo, ro);
 		if(r==0){
 			System.out.println("ok");

@@ -1,5 +1,6 @@
 package org.apache.dearbaby.util;
 
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 
 public class ByteUtil {
@@ -169,5 +170,24 @@ public class ByteUtil {
 	public static String getTimestmap(byte[] bytes) {
 		return new String(bytes);
 	}
+	
+	public static Object plus(Object left,Object right){
+		return MathUtil.add(new BigDecimal(left.toString()), new BigDecimal(right.toString()));
+	}
+	
+	public static Object times(Object left,Object right){
+		return MathUtil.multiply(new BigDecimal(left.toString()), new BigDecimal(right.toString()));
+	}
+	
+	public static Object minus(Object left,Object right){
+		return MathUtil.subtract(new BigDecimal(left.toString()), new BigDecimal(right.toString()));
+	}
+	
+	public static Object divide(Object left,Object right){
+		return MathUtil.divide( left.toString() , right.toString());
+	}
+	
+	
+
 
 }
