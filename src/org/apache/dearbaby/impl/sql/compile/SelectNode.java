@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.dearbaby.data.SinResult;
 import org.apache.dearbaby.query.FilterRowValue;
 import org.apache.dearbaby.query.RowColumn;
 import org.apache.dearbaby.query.SinQuery;
@@ -321,7 +322,7 @@ class SelectNode extends ResultSetNode {
 			 if (o instanceof FromSubquery) {
 				FromSubquery t = (FromSubquery) o;
 				t.exeQuery();
-				ArrayList<Map> list =t.getRest();
+				SinResult list =t.getRest();
 				SinQuery sq=new SinQuery();
 				sq.alias=t.correlationName;
 				sq.tableName="";

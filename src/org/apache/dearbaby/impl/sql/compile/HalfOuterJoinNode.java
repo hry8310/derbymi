@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.dearbaby.data.SinResult;
 import org.apache.dearbaby.query.SinQuery;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
@@ -171,7 +172,7 @@ class HalfOuterJoinNode extends JoinNode {
 		 if (result instanceof FromSubquery ){
 			    FromSubquery t = (FromSubquery) result;
 				t.exeQuery();
-				ArrayList<Map> list =t.getRest();
+				SinResult list =t.getRest();
 				SinQuery sq=new SinQuery();
 				sq.alias=t.correlationName;
 				sq.tableName="";

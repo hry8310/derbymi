@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.dearbaby.data.SinResult;
 import org.apache.dearbaby.util.QueryUtil;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
@@ -154,7 +155,7 @@ class FromSubquery extends FromTable
 		subquery.exeQuery();
 	}
 	
-	public ArrayList<Map> getRest( ){
+	public SinResult getRest( ){
 		if(subquery instanceof SelectNode ){
 			return getSelectRest();
 		}else{
@@ -162,13 +163,13 @@ class FromSubquery extends FromTable
 		}
 	}
 	
-	private   ArrayList<Map> getUnionRest(){
+	private  SinResult getUnionRest(){
 		return getSelectRest();
 	}
 	
-	private ArrayList<Map> getSelectRest(){
+	private SinResult getSelectRest(){
 		
-		ArrayList<Map> list=new ArrayList<Map>();
+		SinResult list=new SinResult();
 		while ( subquery.fetch()) {
 			 
 			if (subquery.match()) {

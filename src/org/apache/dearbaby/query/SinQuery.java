@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.dearbaby.data.SinResult;
 import org.apache.dearbaby.impl.sql.compile.QueryTreeNode;
 import org.apache.dearbaby.impl.sql.compile.ValueNode;
 import org.apache.dearbaby.task.QueryTask;
@@ -14,7 +15,9 @@ public class SinQuery {
 	public String tableName;
 	public String alias;
 	public ArrayList<String> columns = new ArrayList<String>();
-	public ArrayList<Map> results = new ArrayList<Map>();
+	public SinResult results = new SinResult();
+	
+	//public  results2 = new ArrayList<Map>();
 	
 	public QueryTaskCtrl taskCtrl=null;
 	
@@ -33,10 +36,7 @@ public class SinQuery {
 	
 	
 	public boolean isOrCond=false;
-
-	private int rowId = 0;
-
-	private boolean endOut = false;
+ 
 	
 	public boolean setTaskCtrl(QueryTaskCtrl taskCtrl){
 		if(this.taskCtrl!=null){
@@ -72,39 +72,34 @@ public class SinQuery {
 
 	public Map getCurrRow() {
 		
-		if (results.size() == 0) {
-			return null;
-		}
-
-		return results.get(rowId);
+		return results.getCurrRow();
 	}
-
+/*
 	public Object getCurrCol(String name) {
 		Map map= getCurrRow();
 		return map.get(name);
 	}
-
+*/
+	public Object getCurrCol(String name) {
+		 
+		return results.getCurrCol(name);
+	}
 	public Map nextRow() {
-		rowId++;
-
-		if (rowId > results.size() - 1) {
-			endOut = true;
-			rowId = results.size() - 1;
-		}
-		return getCurrRow();
+	 
+		return results.nextRow();
 	}
 
 	public void init() {
-		rowId = 0;
-		endOut = false;
+		 
+		results.init();
 	}
 
 	public boolean isEnd() {
-		return rowId >= results.size() - 1;
+		return results.isEnd();
 	}
 
 	public boolean isEndOut() {
-		return endOut;
+		return results.isEndOut();
 	}
 
 	public void addExeTask(){
@@ -133,7 +128,7 @@ public class SinQuery {
 		cloneObj.tableName=this.tableName;
 		cloneObj.alias=this.alias;
 		cloneObj.columns =this.columns;
-		cloneObj.results = this.results;
+		cloneObj.results = this.results.clone();
 		
 		/*默认不是简单查询 */
 		cloneObj.simpleSelect=this.simpleSelect;
@@ -151,9 +146,9 @@ public class SinQuery {
 		
 		cloneObj.isOrCond =this.isOrCond ;
 
-		cloneObj.rowId =this.rowId ;
+//		cloneObj.rowId =this.rowId ;
 
-		cloneObj.endOut=this.endOut ;
+	//	cloneObj.endOut=this.endOut ;
 		cloneObj.init();
 		
 		return cloneObj ;

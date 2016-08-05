@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.dearbaby.data.SinResult;
 import org.apache.dearbaby.util.MysqlUtil;
 
 
@@ -19,8 +20,8 @@ public class JdbcExecutor implements IExecutor {
 		conn = DriverManager.getConnection(MysqlUtil.url, "root", "123456");
 	}
 	
-	public ArrayList<Map> exe(String sql,List<String> columns){
-		ArrayList<Map> results =new 	ArrayList<Map>();
+	public SinResult exe(String sql,List<String> columns){
+		SinResult results =new 	SinResult();
 		try {
 				
 				Statement stmt = conn.createStatement();

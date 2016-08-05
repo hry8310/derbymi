@@ -45,6 +45,23 @@ public class ColCompare {
 		return r;
 	}
 
+	
+	public static int getColType(Object obj) {
+		String cls=obj.getClass().getName();
+		int r = 0;
+		switch(cls){
+			case "java.lang.Integer" :return ColType.XINT;
+			case "java.lang.Double" :return ColType.XDOUBLE;
+			case "java.lang.Float" :return ColType.XFLOAT;
+			case "java.lang.Long" :return ColType.XLONG;
+			case "java.lang.short" :return ColType.XSHORT;
+			case "java.lang.BigDecimal" :return ColType.XBIG;
+			case "java.lang.String" :return ColType.XSTR;
+		}
+		 
+		return r;
+	}
+	
 	public static boolean matchOpr(int ret, String opx) {
 		// System.out.println(">        " + opx + "  , " + ret);
 		boolean r = false;

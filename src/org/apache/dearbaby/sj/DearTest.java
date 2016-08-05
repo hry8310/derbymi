@@ -25,14 +25,14 @@ public class DearTest {
 		sql="SELECT a.doctorId,  (select b.doctorName From doctorinforparameter b Where a.doctorId=b.doctorId) as name   FROM WorkInforParameter  a   ";
 		sql="SELECT a.doctorId   , b.doctorName  FROM WorkInforParameter  a  , (select  c.doctorName , c.doctorId From doctorinforparameter c where c.doctorId='222' ) as b  where    a.doctorId=b.doctorId";
 		sql = "SELECT a.workid,c.doctorName as Name FROM WorkInforParameter a  LEFT JOIN (SELECT d.doctorid,d.doctorName FROM  DoctorInforParameter d  WHERE d.id>120 ) c ON a.doctorid=c.doctorid      ";
-		sql = "  SELECT D.DOCTORID , D.DOCTORNAME , D.ID   FROM DOCTORINFORPARAMETER D  WHERE  d.id>10 AND d.id<1000  ";
+		sql = "  SELECT D.DOCTORID , D.DOCTORNAME , D.ID   FROM DOCTORINFORPARAMETER D  WHERE  d.id>10 AND d.id>100  ";
 	
 		
-		sql="select e.doctorId from (SELECT a.doctorId   , a.doctorName  FROM WorkInforParameter  a  UNION all SELECT b.doctorId   , b.doctorName  FROM doctorinforparameter  b  UNION ALL SELECT c.doctorId   , c.doctorName  FROM doctorinforparameter  c ) e";
-		sql="select distinct e.doctorName from doctorinforparameter e  where e.id=10";
+	//	sql="select e.doctorId from (SELECT a.doctorId   , a.doctorName  FROM WorkInforParameter  a  UNION all SELECT b.doctorId   , b.doctorName  FROM doctorinforparameter  b  UNION ALL SELECT c.doctorId   , c.doctorName  FROM doctorinforparameter  c ) e";
+	//	sql="select distinct e.doctorName from doctorinforparameter e  where e.id=10";
 		//sql="select distinct e.doctorName from doctorinforparameter e  where e.docName='ddd'";
-		sql="SELECT a.doctorName  FROM WorkInforParameter  a , doctorinforparameter b WHERE a.id=b.id+1200";
-		//sql="SELECT a.doctorName from DoctorInforParameter  a order by a.doctorid";
+	//	sql="SELECT a.doctorName  FROM WorkInforParameter  a , doctorinforparameter b WHERE a.id=b.id+1200";
+	//	sql="SELECT a.id from DoctorInforParameter  a ";
 		 DearSelector selector =new DearSelector();  
 		 selector.query(sql);
 		/*

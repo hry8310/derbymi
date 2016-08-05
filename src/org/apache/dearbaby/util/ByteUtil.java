@@ -187,7 +187,77 @@ public class ByteUtil {
 		return MathUtil.divide( left.toString() , right.toString());
 	}
 	
+	public static Integer getIntegerX(byte[] bytes){
+		return  Integer.valueOf(new String(bytes));
+	}
+
+	public static Float getFloatX(byte[] bytes){
+		return  Float.valueOf(new String(bytes));
+	}
+	
+	public static Long getLongX(byte[] bytes){
+		return  Long.valueOf(new String(bytes));
+	}
 	
 
+	public static Short getShortX(byte[] bytes){
+		return  Short.valueOf(new String(bytes));
+	}
+	
+
+	public static Double getDoubleX(byte[] bytes){
+		return  Double.valueOf(new String(bytes));
+	}
+	
+
+	public static BigDecimal getBigDecimalX(byte[] bytes){
+		return new BigDecimal(new String(bytes));
+	}
+	
+	public static Object getCol(byte[] bytes,int type){
+		switch(type){
+			case ColType.XBIG :return getBigDecimalX(bytes);
+			case ColType.XINT :return getIntegerX(bytes);
+			case ColType.XFLOAT :return getFloatX(bytes);
+			case ColType.XSHORT :return getShortX(bytes);
+			case ColType.XLONG :return getLongX(bytes);
+			case ColType.XDOUBLE :return getDoubleX(bytes);
+			case ColType.XSTR :return getStringX(bytes);
+		}
+		return null;
+	}
+	
+	
+	public static String getStringX(byte[] bytes){
+		return new String(bytes) ;
+	}
+	
+	public static int byte2int(byte[] res,int begin){
+		  
+		  
+		int targets = (res[begin] & 0xff) | ((res[begin+1] << 8) & 0xff00) // | 表示安位或   
+		| ((res[begin+2] << 24) >>> 8) | (res[begin+3] << 24);   
+		return targets;   
+	}
+	
+	 public static byte[] int2byte(int res) {  
+		 byte[] targets = new byte[4];  
+		   
+		 targets[0] = (byte) (res & 0xff);// 最低位   
+		 targets[1] = (byte) ((res >> 8) & 0xff);// 次低位   
+		 targets[2] = (byte) ((res >> 16) & 0xff);// 次高位   
+		 targets[3] = (byte) (res >>> 24);// 最高位,无符号右移。   
+		 return targets;   
+	} 
+	 
+	 public static void intCopybyte(int res,byte[] targets,int begin) {  
+		 
+		    
+		 targets[begin] = (byte) (res & 0xff);    
+		 targets[begin+1] = (byte) ((res >> 8) & 0xff);
+		 targets[begin+2] = (byte) ((res >> 16) & 0xff);   
+		 targets[begin+3] = (byte) (res >>> 24); 
+		  
+	} 
 
 }
