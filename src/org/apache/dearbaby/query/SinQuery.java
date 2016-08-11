@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.dearbaby.data.SinResult;
+import org.apache.dearbaby.data.SinResultByte;
+import org.apache.dearbaby.data.SinResultFac;
 import org.apache.dearbaby.impl.sql.compile.QueryTreeNode;
 import org.apache.dearbaby.impl.sql.compile.ValueNode;
 import org.apache.dearbaby.task.QueryTask;
@@ -15,7 +17,7 @@ public class SinQuery {
 	public String tableName;
 	public String alias;
 	public ArrayList<String> columns = new ArrayList<String>();
-	public SinResult results = new SinResult();
+	public SinResult results = SinResultFac.getSinResult();
 	
 	//public  results2 = new ArrayList<Map>();
 	
@@ -74,12 +76,7 @@ public class SinQuery {
 		
 		return results.getCurrRow();
 	}
-/*
-	public Object getCurrCol(String name) {
-		Map map= getCurrRow();
-		return map.get(name);
-	}
-*/
+ 
 	public Object getCurrCol(String name) {
 		 
 		return results.getCurrCol(name);
@@ -87,6 +84,12 @@ public class SinQuery {
 	public Map nextRow() {
 	 
 		return results.nextRow();
+	}
+	
+	
+	public void nextTo() {
+		 
+		 results.nextTo();
 	}
 
 	public void init() {
@@ -101,7 +104,40 @@ public class SinQuery {
 	public boolean isEndOut() {
 		return results.isEndOut();
 	}
+	
+	public void hashMatch(JoinType js){
+		
+	}
+	
+	public void buildIndex(JoinType jt){
+		if(jt.left.getTableName().equalsIgnoreCase(tableName)){
+			results.buildIndex(jt.left._columnName);
+			return;
+		}
+		if(jt.right.getTableName().equalsIgnoreCase(tableName)){
+			results.buildIndex(jt.right._columnName);
+			return;
+		}
+	}
+	
+	public void nextToJn() {
+		 
+		 results.nextTo();
+	}
+	
+	public void initJn() {
+		 
+		results.init();
+	}
+	
+	public boolean isJnEnd(){
+		return true;
+	}
 
+	public boolean isJnEndOut() {
+		return results.isEndOut();
+	}
+	
 	public void addExeTask(){
 		QueryTask qtask=new QueryTask(this);
 		TaskPoolManager.putTask(qtask);
@@ -121,6 +157,14 @@ public class SinQuery {
 	
 	public void exeGroupBy(QueryTreeNode qn){
 		
+	}
+	
+	public void drv(int begin,int end){
+		results.drv(begin, end);
+	}
+	
+	public int  getDrvSize(){
+		return results.size();
 	}
 	
 	public SinQuery clone(){

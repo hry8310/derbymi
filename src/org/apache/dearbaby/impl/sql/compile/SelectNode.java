@@ -30,6 +30,8 @@ import java.util.Set;
 
 import org.apache.dearbaby.data.SinResult;
 import org.apache.dearbaby.query.FilterRowValue;
+import org.apache.dearbaby.query.QueryMananger;
+import org.apache.dearbaby.query.QueryResultManager;
 import org.apache.dearbaby.query.RowColumn;
 import org.apache.dearbaby.query.SinQuery;
 import org.apache.dearbaby.sj.ResultMap;
@@ -225,6 +227,26 @@ class SelectNode extends ResultSetNode {
 		}
 	}
 
+	public   SelectNode copy(){
+		try{
+		SelectNode sn=new SelectNode(  resultColumns,   fromList,
+				  whereClause,   groupByList,
+				  havingClause,   windows,
+				  overridingPlan, null);
+			//copyQuerys(sn);
+			sn.whereClause=(ValueNode)whereClause.copy();
+			 
+			return sn;
+		}catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public  void copyTO( QueryMananger _qm,QueryResultManager _qs){
+		whereClause.copyTO(_qm, _qs);
+	}
+	
 	@Override
 	public void genQuery0() {
 		SinQuery tmp=null;
@@ -536,7 +558,7 @@ class SelectNode extends ResultSetNode {
 				int i=Integer.valueOf(o.toString());
 				rc.replaceRow("#", name, i+ri);
 			}
-		}
+		} 
 		
 	}
 	//max-true

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.dearbaby.data.SinResult;
+import org.apache.dearbaby.data.SinResultByte;
+import org.apache.dearbaby.data.SinResultFac;
 import org.apache.dearbaby.util.MysqlUtil;
 
 
@@ -21,7 +23,7 @@ public class JdbcExecutor implements IExecutor {
 	}
 	
 	public SinResult exe(String sql,List<String> columns){
-		SinResult results =new 	SinResult();
+		SinResult results =SinResultFac.getSinResult();
 		try {
 				
 				Statement stmt = conn.createStatement();

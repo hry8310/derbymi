@@ -201,6 +201,12 @@ public class ColumnReference extends ValueNode {
 			return "";
 		}
 	}
+	
+	@Override
+	public QueryTreeNode copy(){
+		ColumnReference col=new ColumnReference(  _columnName,   _qualifiedTableName,null);
+		return col;
+	}
 
 	@Override
 	public void genQuery0() {
@@ -480,7 +486,7 @@ public class ColumnReference extends ValueNode {
 	 *         name.
 	 */
 	@Override
-	String getTableName() {
+	public String getTableName() {
 		return ((_qualifiedTableName != null) ? _qualifiedTableName
 				.getTableName() : null);
 	}

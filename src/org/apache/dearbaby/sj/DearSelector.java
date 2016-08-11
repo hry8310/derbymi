@@ -1,17 +1,21 @@
 package org.apache.dearbaby.sj;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.dearbaby.impl.sql.compile.AggregateNode;
 import org.apache.dearbaby.impl.sql.compile.ColumnReference;
+import org.apache.dearbaby.impl.sql.compile.QueryTreeNode;
 import org.apache.dearbaby.impl.sql.compile.ResultColumn;
 import org.apache.dearbaby.impl.sql.compile.ResultColumnList;
 import org.apache.dearbaby.impl.sql.compile.StatementNode;
 import org.apache.dearbaby.impl.sql.compile.SubqueryNode;
 import org.apache.dearbaby.query.JdbcExecutor;
 import org.apache.dearbaby.query.QueryMananger;
+import org.apache.dearbaby.query.QueryTaskCtrl;
+import org.apache.dearbaby.query.SinQuery;
 import org.apache.dearbaby.util.QueryUtil;
 import org.apache.derby.ext.DearContext;
 import org.apache.derby.iapi.sql.compile.Parser;
@@ -42,6 +46,35 @@ public class DearSelector {
 	
 	
 	 public List<ResultMap>  getResult(){
-		return  qt.getMatchRows();
+		
+		 StatementNode qtt=(StatementNode)qt.copy();
+		 
+		 
+		 
+		 qtt.initDrv(0,20);
+		 return  qt.getMatchRows();
+	 }
+	 
+	 public List<ResultMap>  getResult_ok(){
+		
+		 List<ResultMap> ls =new ArrayList<ResultMap>();
+		 List<QueryTreeNode>  qtts= qt.copys(28);
+		 QueryTaskCtrl taskCtrl=new QueryTaskCtrl();
+		 int i=0;
+		 for(QueryTreeNode q:qtts){
+			 i++;
+			 q.taskCtrl=taskCtrl;
+		 }
+		 taskCtrl.setCount(i);
+		 for (QueryTreeNode q : qtts) {
+			q.syncGetMatchRows();
+			// System.out.println("dddd "+lss.size());
+		 }
+		 taskCtrl.await();
+		 
+		 for (QueryTreeNode q : qtts) {
+				ls.addAll(q.resList);
+		 }
+		 return  ls;
 	 }
 }

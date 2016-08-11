@@ -85,7 +85,8 @@ public class CursorNode extends DMLStatementNode {
 
 	// true if this CursorNode is the driving left-join of a MERGE statement
 	private boolean forMergeStatement;
-
+	ContextManager cm;
+	String[] updatableColumnList;
 	/**
 	 * Constructor for a CursorNode
 	 *
@@ -117,13 +118,16 @@ public class CursorNode extends DMLStatementNode {
 	 *            statement
 	 * @param cm
 	 *            The context manager
+	 *            String, ResultSetNode, String, OrderByList, ValueNode, ValueNode, boolean, int, List<String>, boolean, ContextManager
 	 */
 	CursorNode(String statementType, ResultSetNode resultSet, String name,
 			OrderByList orderByList, ValueNode offset, ValueNode fetchFirst,
 			boolean hasJDBClimitClause, int updateMode,
 			String[] updatableColumns, boolean forMergeStatement,
 			ContextManager cm) {
+	
 		super(resultSet, cm);
+		this.cm=cm;
 		this.name = name;
 		this.statementType = statementType;
 		this.orderByList = orderByList;
@@ -134,6 +138,7 @@ public class CursorNode extends DMLStatementNode {
 		this.updatableColumns = updatableColumns == null ? null : Arrays
 				.asList(updatableColumns);
 		this.forMergeStatement = forMergeStatement;
+		updatableColumnList=updatableColumns;
 
 		/*
 		 * * This is a sanity check and not an error since the parser* controls
@@ -147,7 +152,44 @@ public class CursorNode extends DMLStatementNode {
 							+ "update mode is UPDATE");
 		}
 	}
-
+	@Override
+	public QueryTreeNode copy(){
+		 
+		CursorNode cn=new CursorNode(  statementType,resultSet,name,
+				  orderByList, offset,fetchFirst,
+				  hasJDBClimitClause,updateMode,
+				  updatableColumnList , forMergeStatement,   cm);
+	//	cn.resultSet.copyQuerys(cn.resultSet);
+		cn.resultSet=(ResultSetNode)resultSet.copy();
+		resultSet.copyQuerys(cn.resultSet);
+		cn.resultSet.copyTO(cn.resultSet.qm,cn.resultSet.qs);
+		return cn;
+	}
+	
+	public List<QueryTreeNode> copys(int cnt){
+		List<QueryTreeNode> ls=new ArrayList<QueryTreeNode>();
+		int s=resultSet.getDrvSize();
+		if(s<cnt){
+			cnt = s ;
+		} 
+		int ss=s/cnt;
+		for(int i=0;i<cnt;i++){
+			QueryTreeNode cn=copy();
+			
+			
+			if(i<cnt-1){
+				System.out.println("b : "+ (i*ss)+"  e : "+( (i+1)*ss-1));
+				cn.initDrv(i*ss, (i+1)*ss);
+			}
+			else{
+				System.out.println("b : "+ (i*ss)+"  e : "+s);
+				cn.initDrv(i*ss, s);
+			}
+			ls.add(cn);
+		}
+		return ls;
+	}
+	
 	@Override
 	public void genQuery0() {
 		resultSet.genQuery(qm);
@@ -166,6 +208,10 @@ public class CursorNode extends DMLStatementNode {
 		resultSet.exeQuery();
 	}
 
+	@Override
+	public void initDrv(int begin,int end){
+		resultSet.initDrv(begin, end);
+	}
 	@Override
 	public boolean fetch() {
 		return resultSet.fetch();

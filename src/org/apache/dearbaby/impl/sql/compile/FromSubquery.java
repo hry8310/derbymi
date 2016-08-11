@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.dearbaby.data.SinResult;
+import org.apache.dearbaby.data.SinResultByte;
+import org.apache.dearbaby.data.SinResultFac;
 import org.apache.dearbaby.util.QueryUtil;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
@@ -169,7 +171,7 @@ class FromSubquery extends FromTable
 	
 	private SinResult getSelectRest(){
 		
-		SinResult list=new SinResult();
+		SinResult list=SinResultFac.getSinResult();
 		while ( subquery.fetch()) {
 			 
 			if (subquery.match()) {

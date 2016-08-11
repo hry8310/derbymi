@@ -1,6 +1,7 @@
 package org.apache.dearbaby.query;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.dearbaby.impl.sql.compile.QueryTreeNode;
@@ -13,7 +14,10 @@ public class QueryMananger {
 	public IExecutor executor;
 	public String sql="";
 	public SinQuery currWhereQuery;
-	 
+
+	//for joinType
+	private ArrayList<JoinType> joins =new ArrayList<JoinType>();
+	
 	 
 	
 	
@@ -139,11 +143,13 @@ public class QueryMananger {
 	public void addFetch() {
 		fetchRow.clear();
 		for (SinQuery q : querys) {
+			/*
 			SinQuery fq = new SinQuery();
 			fq.tableName = q.tableName;
 			fq.alias = q.alias;
 			fq.results.add(q.getCurrRow());
-			fetchRow.add(fq);
+			*/
+			fetchRow.add(q);
 		}
 	}
 
@@ -171,7 +177,31 @@ public class QueryMananger {
 
 	public void initFetch() {
 		fetchRow.clear();
-
+	}
+	
+	public QueryMananger copyOf(){
+		QueryMananger q=new QueryMananger();
+		copyTo(q);
+		return q;
+	}
+	
+	protected void copyTo(QueryMananger q ){
+		 
+		q.currNode=this.currNode;
+		q.sql=this.sql;
+		if(this.currWhereQuery!=null){
+			q.currWhereQuery=this.currWhereQuery.clone();
+		}else{
+			q.currWhereQuery=null;
+		}
+		q.executor=this.executor;
+		q.joins=this.joins;
 	}
 
+	public ArrayList<JoinType> getJoins(){
+		return joins;
+	}
+	public void addJoin(JoinType j){ 
+		joins.add(j); 
+	}
 }

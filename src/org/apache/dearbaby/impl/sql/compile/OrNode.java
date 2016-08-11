@@ -79,10 +79,11 @@ class OrNode extends BinaryLogicalOperatorNode
 		boolean l = leftOperand.match();
 		boolean r = rightOperand.match();
 		boolean ret= l | r;
+		/*
 		if(ret==true){
 			System.out.println("ior--- ior : "+(i++));
 		}
-		
+		*/
 		return ret;
 	}
 

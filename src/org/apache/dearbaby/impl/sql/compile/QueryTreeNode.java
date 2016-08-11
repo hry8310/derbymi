@@ -30,12 +30,16 @@ import java.util.Map;
 import java.util.SortedSet;
 
 import org.apache.dearbaby.query.FilterRowValue;
+import org.apache.dearbaby.query.JoinType;
 import org.apache.dearbaby.query.QueryMananger;
 import org.apache.dearbaby.query.QueryResultManager;
 import org.apache.dearbaby.query.QueryTaskCtrl;
 import org.apache.dearbaby.query.SinQuery;
 import org.apache.dearbaby.sj.ResultMap;
+import org.apache.dearbaby.task.JoinTask;
 import org.apache.dearbaby.task.QueryTask;
+import org.apache.dearbaby.task.TaskPoolManager;
+import org.apache.dearbaby.util.JoinTypeUtil;
 import org.apache.derby.catalog.AliasInfo;
 import org.apache.derby.catalog.TypeDescriptor;
 import org.apache.derby.catalog.types.RowMultiSetImpl;
@@ -79,6 +83,10 @@ public abstract class QueryTreeNode implements Visitable {
 	// Parser uses this static field to make a note if the autoincrement column
 	// is participating in create or alter table.
 	static final int AUTOINCREMENT_CREATE_MODIFY = 3;
+	
+	static final int JOIN_LOOP=1;
+	static final int JOIN_IDX=2;
+	static final int JOIN_UN=3;
 
 	private int beginOffset = -1; // offset into SQL input of the substring
 	// which this query node encodes.
@@ -93,6 +101,13 @@ public abstract class QueryTreeNode implements Visitable {
 	public QueryMananger qm;
 	public QueryResultManager qs = new QueryResultManager();
 	private boolean isFilter =false;
+	
+	//for task 
+	public QueryTaskCtrl taskCtrl=null;
+	public  List<ResultMap>  resList;
+	
+	public int joins=JOIN_UN;
+	public ArrayList<JoinType> ej=new ArrayList<JoinType> ();
 	/*
 	 * 如果为集合处理后，数据将会存放在这里
 	 * */
@@ -217,6 +232,7 @@ public abstract class QueryTreeNode implements Visitable {
 	}
 
 	public boolean fetch() {
+		
 		if(isFilter==false){
 			return fetch0();
 		}else{
@@ -230,13 +246,59 @@ public abstract class QueryTreeNode implements Visitable {
 	}
 
 	public boolean fetch0() {
-		boolean r = qs.next();
-		if (r == true) {
-			addCuRow();
+		 
+		if(joins==JOIN_UN){
+			desi();
+		}
+		//System.out.println("joins  "+joins);;
+		boolean r =false;
+		
+		if(joins==JOIN_LOOP){
+			r = qs.next();
+			if (r == true) {
+				//	addCuRow();
+			}
 		}
 		return r;
 	}
 
+	void desi(){
+		joins= JOIN_LOOP;
+		for(SinQuery sq:qs.querys){
+			if(sq.isOrCond==true){
+				return ;
+			}
+		}
+		
+		int qsize= qs.querys.size();
+		ArrayList<JoinType> js=qm.getJoins();
+		
+		for(int i=0;i<qsize-1;i++){
+			for(int j=i+1;j<qsize;j++){
+				JoinType jt=JoinTypeUtil.findJoin(js,qs.querys.get(i),qs.querys.get(j));
+				if(jt!=null){
+					joins=JOIN_IDX;
+				
+					JoinTypeUtil.addJoin(ej,jt);
+				}
+			}
+		}
+		ArrayList<JoinType> jss=new ArrayList<JoinType>();
+		jss.addAll(ej);
+		
+		JoinType j=JoinTypeUtil.ans(jss);
+		 
+		 ArrayList<JoinType> _js=qs.ans(j); 
+		 qs.buildIndex(_js);
+		
+		
+		
+	}
+	
+	
+	
+	
+	
 	public void fetchInit() {	
 			qs.init();
 			rowValue.again();
@@ -289,9 +351,9 @@ public abstract class QueryTreeNode implements Visitable {
 		}else{
 			SinQuery sq= qm.findFetchRow(alias);
 			try{
-			return sq.getCurrCol(colName);
+				return sq.getCurrCol(colName);
 			}catch(Exception e){
-				System.out.println("ddddddddddddd" + alias);
+				System.out.println("ddddddddddddd : " + alias);
 				SinQuery s=qm.findFetchRow(alias);
 				s.getCurrCol(colName);
 				return null;
@@ -334,7 +396,7 @@ public abstract class QueryTreeNode implements Visitable {
 				return obj;
 			}
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		}
 		return obj;
 	}
@@ -360,22 +422,36 @@ public abstract class QueryTreeNode implements Visitable {
 		return map;
     }
     
+    public void syncGetMatchRows(){
+    	JoinTask qtask=new JoinTask(this);
+		TaskPoolManager.putTask(qtask);
+    }
+    
     public List<ResultMap> getMatchRows(){
     	List<ResultMap> list=new ArrayList<ResultMap>();
+    	int i=0;
     	while ( fetch()) {
-			 
+			// System.out.println("i------  "+(i++));;
 			if ( match()) {
-				HashMap map= getMatchRow();
+			 	HashMap map= getMatchRow();
 				
-				ResultMap m=new ResultMap(map);
+			 	ResultMap m=new ResultMap(map);
 				
-				list.add(m);
+			 	list.add(m);
 			}
 			fetchEnd();
 		}
     	return list;
     }
     
+    public void initDrv(int begin,int end){
+    //	System.out.println(qs.querys);
+    	qs.initDrv(begin, end);
+    }
+    
+    public int getDrvSize(){
+    	return qs.getDrvSize();
+    }
     
     public List<ResultMap> getMatchOrderByRows(OrderByList orderByList){
     	List<ResultMap> list=new ArrayList<ResultMap>();
@@ -393,7 +469,48 @@ public abstract class QueryTreeNode implements Visitable {
     	return list;
     }
     
-      
+    public QueryTreeNode copy(){
+    	return null;
+    }
+    
+    public List<QueryTreeNode> copys(int i){
+    	List<QueryTreeNode>  ls=new ArrayList<QueryTreeNode>();
+    	return ls;
+    }
+    
+    
+    public void copyQuerys(QueryTreeNode tag){
+    		//if(tag.qm==null){
+    		tag.qm=qm.copyOf();
+    		tag.qs=qs.copyOf();
+    		//}
+    		for(SinQuery qs :qm.querys){
+    			SinQuery newOne=qs.clone();
+    			tag.qm.querys.add(newOne);
+    		 
+    		}
+    		 
+    		
+    		for(int i=0;i<qs.querys.size();i++){
+    			for(int j=0;j<qm.querys.size();j++){
+        			 if(qs.querys.get(i)==qm.querys.get(j)){
+        				 tag.qs.querys.add( tag.qm.querys.get(j));
+        				 break;
+        			 }
+        		}
+    		}
+    		
+    }
+    
+    public void copyTO(	  QueryMananger _qm,QueryResultManager _qs ){
+    	copyTO0(_qm,_qs);
+    }
+    
+    public void copyTO0(	  QueryMananger _qm,QueryResultManager _qs ){
+    	qm=_qm;
+    	qs=_qs;
+    }
+    
 	/**
 	 * Gets the LanguageConnectionContext for this connection.
 	 *
@@ -898,6 +1015,8 @@ public abstract class QueryTreeNode implements Visitable {
 			}
 		}
 	}
+	
+	
 
 	/**
 	 * Get the int value of a Property

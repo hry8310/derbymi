@@ -23,6 +23,10 @@ package org.apache.dearbaby.impl.sql.compile;
  
 import java.sql.Types;
 
+import org.apache.dearbaby.query.JoinType;
+import org.apache.dearbaby.query.QueryMananger;
+import org.apache.dearbaby.query.QueryResultManager;
+import org.apache.dearbaby.sj.DearTest;
 import org.apache.dearbaby.util.ColCompare;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.ClassName;
@@ -52,7 +56,7 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 	final static int K_LESS_EQUALS = 3;
 	final static int K_LESS_THAN = 4;
 	final static int K_NOT_EQUALS = 5;
-
+	boolean forQueryRewrite ;
 	/**
 	 * This class is used to hold logically different objects for space
 	 * efficiency. {@code kind} represents the logical object type. See also
@@ -111,6 +115,7 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 			throws StandardException {
 		super(leftOperand, rightOperand, getOperatorName(kind),
 				getMethodName(kind), forQueryRewrite, cm);
+		this.forQueryRewrite = forQueryRewrite;
 		this.kind = kind;
 		constructorMinion();
 	}
@@ -136,6 +141,7 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 			throws StandardException {
 		super(leftOperand, rightOperand, getOperatorName(kind),
 				getMethodName(kind), forQueryRewrite, cm);
+		 this.forQueryRewrite = forQueryRewrite;
 		this.kind = kind;
 		constructorMinion();
 		this.inListProbeSource = inListOp;
@@ -247,6 +253,27 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 	}
 
 	@Override
+	public QueryTreeNode copy(   )
+			  {
+		try{
+			BinaryRelationalOperatorNode bn=new BinaryRelationalOperatorNode(kind,   leftOperand,
+				  rightOperand,   forQueryRewrite,null);
+			bn.leftOperand=(ValueNode)leftOperand.copy();
+			bn.rightOperand=(ValueNode)rightOperand.copy();
+			return bn;
+		}catch(Exception e){
+			return null;
+		}
+	}
+	
+	@Override
+	 public void copyTO(	  QueryMananger _qm,QueryResultManager _qs ){
+		copyTO0(_qm,_qs);
+		leftOperand.copyTO(_qm,_qs);
+		rightOperand.copyTO(_qm,_qs);
+    }
+	
+	@Override
 	public void genQuery0() {
 		leftOperand.genQuery(qm);
 		rightOperand.genQuery(qm);
@@ -301,6 +328,13 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 			if(qm.currWhereQuery!=null){
 				qm.currWhereQuery.simpleSelect=false;
 			}
+			if(rightOperand instanceof ColumnReference&&
+				  leftOperand instanceof ColumnReference){
+				JoinType j=new JoinType((ColumnReference)rightOperand,(ColumnReference)leftOperand,operator);
+				if(j.type!=JoinType.UN){
+					qm.addJoin(j);
+				}
+			}
 		}
 	}
 	
@@ -327,11 +361,15 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 		if (lo == null || ro == null) {
 			return false;
 		}
-	//	System.out.println("lo:  "+lo+"  ro   "+ro);
+//		System.out.println("lo:  "+lo+"  ro   "+ro);
 		int r = ColCompare.compareObject(lo, ro);
+		 
 		if(r==0){
-			System.out.println("ok");
+			DearTest.ix++;
+			if((DearTest.ix%10000==0))
+			System.out.println("ok  "+(DearTest.ix));
 		}
+		 
 		boolean br = ColCompare.matchOpr(r, operator);
 		
 		return br;

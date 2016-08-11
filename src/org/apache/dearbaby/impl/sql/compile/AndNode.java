@@ -23,6 +23,8 @@ package org.apache.dearbaby.impl.sql.compile;
 
 import java.util.List;
 
+import org.apache.dearbaby.query.QueryMananger;
+import org.apache.dearbaby.query.QueryResultManager;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.context.ContextManager;
 import org.apache.derby.shared.common.sanity.SanityManager;
@@ -166,6 +168,29 @@ class AndNode extends BinaryLogicalOperatorNode {
 		return orNode;
 	}
 
+	@Override 
+	public QueryTreeNode copy(){
+		try{
+			AndNode an = new AndNode(  leftOperand,   rightOperand,   methodName,null);
+			an.leftOperand=(ValueNode)leftOperand.copy();
+			an.rightOperand=(ValueNode)rightOperand.copy();
+			return an;
+		}catch(Exception e){
+			return null;
+		}
+	}
+	
+	
+
+
+	@Override
+	public void copyTO(	  QueryMananger _qm,QueryResultManager _qs ){
+		copyTO0(_qm,_qs);
+		leftOperand.copyTO(_qm,_qs);
+		rightOperand.copyTO(_qm,_qs);
+	}
+	
+	
 	@Override
 	public void genQuery0() {
 		leftOperand.genQuery(qm);

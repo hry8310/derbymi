@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class DearTest {
 
+	public static int ix=0;
 	 
 /*
 	String sql = "";
@@ -25,7 +26,7 @@ public class DearTest {
 		sql="SELECT a.doctorId,  (select b.doctorName From doctorinforparameter b Where a.doctorId=b.doctorId) as name   FROM WorkInforParameter  a   ";
 		sql="SELECT a.doctorId   , b.doctorName  FROM WorkInforParameter  a  , (select  c.doctorName , c.doctorId From doctorinforparameter c where c.doctorId='222' ) as b  where    a.doctorId=b.doctorId";
 		sql = "SELECT a.workid,c.doctorName as Name FROM WorkInforParameter a  LEFT JOIN (SELECT d.doctorid,d.doctorName FROM  DoctorInforParameter d  WHERE d.id>120 ) c ON a.doctorid=c.doctorid      ";
-		sql = "  SELECT D.DOCTORID , D.DOCTORNAME , D.ID   FROM DOCTORINFORPARAMETER D  WHERE  d.id>10 AND d.id>100  ";
+	//	sql = "  SELECT D.DOCTORID , D.DOCTORNAME , D.ID   FROM DOCTORINFORPARAMETER D  WHERE  d.id>10 AND d.id>100  ";
 	
 		
 	//	sql="select e.doctorId from (SELECT a.doctorId   , a.doctorName  FROM WorkInforParameter  a  UNION all SELECT b.doctorId   , b.doctorName  FROM doctorinforparameter  b  UNION ALL SELECT c.doctorId   , c.doctorName  FROM doctorinforparameter  c ) e";
@@ -33,7 +34,9 @@ public class DearTest {
 		//sql="select distinct e.doctorName from doctorinforparameter e  where e.docName='ddd'";
 	//	sql="SELECT a.doctorName  FROM WorkInforParameter  a , doctorinforparameter b WHERE a.id=b.id+1200";
 	//	sql="SELECT a.id from DoctorInforParameter  a ";
-		 DearSelector selector =new DearSelector();  
+		sql="SELECT a.doctorName  FROM WorkInforParameter2  a , doctorinforparameter2 b WHERE  a.DoctorId=b.DoctorId  ";
+		
+		DearSelector selector =new DearSelector();  
 		 selector.query(sql);
 		/*
 		 while(true){
@@ -43,10 +46,11 @@ public class DearTest {
 			 }
 		 }
 		 */
-		 
+		 System.out.println("query-end - ");
 		 List<ResultMap>  list=selector.getResult();
+		 System.out.println("size - "+list.size());
 		 for(ResultMap r:list){
-			 System.out.println("r  "+r.m);
+			// System.out.println("r  "+r.m);
 		 }
 		 
 	}

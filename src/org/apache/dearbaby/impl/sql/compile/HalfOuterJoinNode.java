@@ -193,8 +193,8 @@ class HalfOuterJoinNode extends JoinNode {
 	int i = 0;
 	boolean first = true;
 
-	@Override
-	public boolean fetch() {
+ 
+	public boolean fetch_ok() {
 		fetchEnd();
 		if (qs.isEnd() == true) {
 			return false;
@@ -246,6 +246,60 @@ class HalfOuterJoinNode extends JoinNode {
 
 	}
 
+	
+	@Override
+	public boolean fetch() {
+		fetchEnd();
+		if (qs.isEnd() == true) {
+			return false;
+		}
+
+		ArrayList<SinQuery> qry = qs.getQrys();
+
+		SinQuery lq = null;
+		SinQuery rq = null;
+		if (rightOuterJoin == false) {
+			lq = qry.get(0);
+			rq = qry.get(1);
+		} else {
+			lq = qry.get(1);
+			rq = qry.get(0);
+		}
+
+		while (!lq.isEndOut()) {
+
+			while (!rq.isEndOut()) {
+				if (joinClause.match()) {
+					addCuRow();
+					isMatch = true;
+					rq.nextTo();
+					return true;
+				}
+				rq.nextTo();
+			}
+			if (isMatch == false) {
+				qs.initFetch();
+				qs.addFetch(lq.alias, lq.tableName, lq.getCurrRow());
+				qs.addFetch(rq.alias, rq.tableName, new HashMap());
+				qm.addFetch(qs);
+				rq.init();
+				lq.nextTo();
+				i++;
+				return true;
+			} else {
+				isMatch = false;
+				rq.init();
+				lq.nextTo();
+				i++;
+				// return false;
+			}
+			System.out.println("half-----  " + (i));
+		}
+		first = true;
+		return false;
+
+	}
+	
 	/**
 	 * Put a ProjectRestrictNode on top of each FromTable in the FromList.
 	 * ColumnReferences must continue to point to the same ResultColumn, so that
