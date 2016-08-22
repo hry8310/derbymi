@@ -247,11 +247,13 @@ public abstract class QueryTreeNode implements Visitable {
 
 	public boolean fetch0() {
 		 
+		
+		
+		boolean r =false;
 		if(joins==JOIN_UN){
 			desi();
+			 
 		}
-		//System.out.println("joins  "+joins);;
-		boolean r =false;
 		
 		if(joins==JOIN_LOOP){
 			r = qs.next();
@@ -259,10 +261,17 @@ public abstract class QueryTreeNode implements Visitable {
 				//	addCuRow();
 			}
 		}
+		
+		if(joins==JOIN_IDX){
+		
+			r=qs.nextJoin();
+		//	System.out.println("next-join "+r);
+		}
 		return r;
 	}
 
 	void desi(){
+		System.out.println("ejdddddd  ");
 		joins= JOIN_LOOP;
 		for(SinQuery sq:qs.querys){
 			if(sq.isOrCond==true){
@@ -283,11 +292,12 @@ public abstract class QueryTreeNode implements Visitable {
 				}
 			}
 		}
+		System.out.println("ejdddddd  "+ej.size());
 		ArrayList<JoinType> jss=new ArrayList<JoinType>();
 		jss.addAll(ej);
 		
 		JoinType j=JoinTypeUtil.ans(jss);
-		 
+		 qs.jHeader=j;
 		 ArrayList<JoinType> _js=qs.ans(j); 
 		 qs.buildIndex(_js);
 		
@@ -431,7 +441,7 @@ public abstract class QueryTreeNode implements Visitable {
     	List<ResultMap> list=new ArrayList<ResultMap>();
     	int i=0;
     	while ( fetch()) {
-			// System.out.println("i------  "+(i++));;
+			 System.out.println("fetch-ok-----  "+(i++));;
 			if ( match()) {
 			 	HashMap map= getMatchRow();
 				

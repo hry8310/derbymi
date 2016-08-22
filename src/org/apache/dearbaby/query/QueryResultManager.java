@@ -3,6 +3,7 @@ package org.apache.dearbaby.query;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.apache.dearbaby.impl.sql.compile.ColumnReference;
 import org.apache.dearbaby.util.JoinTypeUtil;
 
 public class QueryResultManager extends QueryMananger {
@@ -12,9 +13,10 @@ public class QueryResultManager extends QueryMananger {
 	public IExecutor executor;
 	int i=0;
 	
-	public ArrayList<SinQuery> joinResult=new  ArrayList<SinQuery>();
+	private ArrayList<SinQuery> joinResult=new  ArrayList<SinQuery>();
 	
-	public ArrayList<JoinType> js=new  ArrayList<JoinType>();
+	private ArrayList<JoinType> js=new  ArrayList<JoinType>();
+	public JoinType  jHeader;
 	
 	public boolean next() {
 		
@@ -46,36 +48,97 @@ public class QueryResultManager extends QueryMananger {
 	
 	
 	private SinQuery drvQ=null;
-	public boolean nextJoin(ArrayList<JoinType > js) {
-		
-		for (int i = joinResult.size() - 1; i >= 0; i--) {
-			SinQuery sq = joinResult.get(i);
-			if (sq.isJnEnd()) {
-				if (i == 0) {
-					isEnd = true;
-					return false;
-				}
-				sq.initJn();
-			} else {
+	private boolean isJnMatch=false;
+	int matchTms=0;
+	public boolean nextJoin() {
+		//System.out.println("nextJoin-isJnMatch--0 "+drvQ.isEndOut());
+		while(!drvQ.isEndOut()){
+			if(isJnMatch==false){
 				
-				sq.nextTo();
-				return true;
+				drvQ.nextTo();
+				isJnMatch=matchNext(drvQ,js.get(0),joinResult.get(0));
+				if(isJnMatch==false){
+					continue;
+				}
+				//System.out.println("nextJoin-isJnMatch--000000   "+joinResult.size());
+				for(int i=0;i<joinResult.size()-1;i++){
+					System.out.println("nextJoin-isJnMatch-- ");
+					isJnMatch=matchNext(joinResult.get(i),js.get(i+1),joinResult.get(i+1));
+					if(isJnMatch==false){
+						break;
+					}
+				}
+				if(isJnMatch==true){
+				//	System.out.println("nextJoin-isJnMatch_tms : "+(matchTms++));
+					return true;
+				}
+			}else{
+				for (int i = joinResult.size() - 1; i >= 0; i--) {
+					SinQuery sq = joinResult.get(i);
+					
+					if(sq.nextToJn()==true){
+						System.out.println("hhhhhrrrr ");
+						return true;
+					}else{
+						
+						if(i==0){
+							indexInit();
+							isJnMatch=false;
+							continue;
+						}else{
+							sq.firstMatch();
+							continue;
+						}
+						
+					}
+							
+					 
+				}
 			}
-			//JoinType jt=JoinTypeUtil.findJoin(js,qs.querys.get(i),qs.querys.get(j));
+			
 		}
+		
 		return false;
 	}
 	
+	//清除所有索引
+	private void indexInit(){
+		for (int i = joinResult.size() - 1; i >= 0; i--){
+			SinQuery sq = joinResult.get(i);
+			sq.indexInit();
+		}
+	}
+	
+	private boolean matchNext(SinQuery left,JoinType jt,SinQuery right){
+		
+		ColumnReference ll;
+		ColumnReference rr;
+		
+		if(jt.left.getTableName().equalsIgnoreCase(left.alias)){
+			ll=jt.left;
+			rr=jt.right;
+		}else{
+			ll=jt.right;
+			rr=jt.left;
+		}
+		Object obj=left.getHsCurrCol(ll._columnName);
+		return right.match(obj);
+		 
+	}
+	
 	public void buildIndex(ArrayList<JoinType > js){
+		
 		if(drvQ!=null){
 			return;
 		}
 		drvQ = joinResult.get(0);
+		
 		joinResult.remove(0);
+		System.out.println("ddddjoinResult.size()  "+joinResult.size());
 		for (int i = 0; i <joinResult.size(); i++) {
-			System.out.println("building");
 			joinResult.get(i).buildIndex(js.get(i));
 		}
+		drvQ.setDrv();
 	}
 	
 	
@@ -154,6 +217,7 @@ public class QueryResultManager extends QueryMananger {
 				break;
 			}
 			SinQuery sqi=findQuery(jt.nextTable);
+			System.out.println("joinResult-add>>>>>>>>>>> : "+jt);
 			joinResult.add(sqi);
 			querys.remove(sqi);
 			JoinType jtt=jt;

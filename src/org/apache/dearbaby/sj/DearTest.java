@@ -34,7 +34,7 @@ public class DearTest {
 		//sql="select distinct e.doctorName from doctorinforparameter e  where e.docName='ddd'";
 	//	sql="SELECT a.doctorName  FROM WorkInforParameter  a , doctorinforparameter b WHERE a.id=b.id+1200";
 	//	sql="SELECT a.id from DoctorInforParameter  a ";
-		sql="SELECT a.doctorName  FROM WorkInforParameter2  a , doctorinforparameter2 b WHERE  a.DoctorId=b.DoctorId  ";
+		sql="SELECT a.doctorName  FROM WorkInforParameter2  a , doctorinforparameter2 b, doctorinforparameter3 c WHERE  a.DoctorId=b.DoctorName and b.DoctorName=c.DoctorName  ";
 		
 		DearSelector selector =new DearSelector();  
 		 selector.query(sql);
@@ -48,7 +48,7 @@ public class DearTest {
 		 */
 		 System.out.println("query-end - ");
 		 List<ResultMap>  list=selector.getResult();
-		 System.out.println("size - "+list.size());
+		 System.out.println("sizeiiiii - "+list.size());
 		 for(ResultMap r:list){
 			// System.out.println("r  "+r.m);
 		 }

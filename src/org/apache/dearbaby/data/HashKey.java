@@ -3,6 +3,8 @@ package org.apache.dearbaby.data;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.apache.dearbaby.util.ColCompare;
+
 public class HashKey {
 
 	private ArrayList keys=new ArrayList ();
@@ -10,9 +12,12 @@ public class HashKey {
 	
 	private int rowId=0;
 	
+	private int preId=0;
+	
 	private boolean endOut = false;
 	
 	public void add(Object key,Object value){ 
+		//System.out.println("hashkey-add   "+keys.size());
 		keys.add(key);
 		values.add(value);
 	}
@@ -26,14 +31,19 @@ public class HashKey {
 	}
 	
 	public boolean nextMatch(Object obj){
-		for(int i=rowId;i< keys.size();i++){
+	//	System.out.println("nextMatch   "+keys.size());
+		for(int i=preId;i< keys.size();i++){
 			Object o=keys.get(i);
-			if(o.equals(obj)){
+			//System.out.println("hhhhrr   "+obj +"    ,  "+o);
+			if(ColCompare.compareObject(obj, o)==0){
 				rowId=i;
+				preId=i+1;
+				//System.out.println("hhhhrr   ");
 				return true;
 			}
 		}
 		rowId=0;
+		preId=0;
 		return false;
 	}
 	
@@ -50,6 +60,9 @@ public class HashKey {
 		return endOut;
 	}
 	
+	public Object getCurrRow(){
+		return values.get(rowId);
+	}
 	 
 	
 }

@@ -41,4 +41,17 @@ public interface SinResult {
 	public int size();
 	
 	public void buildIndex(String col);
+	
+	public Object getHsCurrCol(String name);
+	public Map getHsCurrRow( );
+	public boolean firstMatch(Object key);
+	
+	public boolean firstMatch();
+	
+	public boolean matchNext();
+	public void indexInit();
+	
+	public void setIndex(boolean idx);
+	
+	public boolean getIndex();
 }

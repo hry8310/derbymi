@@ -25,6 +25,8 @@ public class SinResultMap implements SinResult {
 	public HashIndex hashIndex;
 	
 	private boolean isBuild=false;
+	private boolean isIdx=false;
+	
 	
 	public void drv(int rowid,int end){
 		drvRowId=rowid;
@@ -38,7 +40,7 @@ public class SinResultMap implements SinResult {
 	
 	
 	
-	public Map getCurrRow () {
+	private Map getCurrRow0 () {
 		
 		if (results.size() == 0) {
 			return null;
@@ -49,7 +51,15 @@ public class SinResultMap implements SinResult {
  
 	}
 	
-	public Object getCurrCol (String name) {
+	public  Map getCurrRow () {
+		if(isBuild==true){
+			return getHsCurrRow();
+		}
+		return getCurrRow0();
+		 
+	}
+	
+	private Object getCurrCol0 (String name) {
 		if (results.size() == 0) {
 			return null;
 		}
@@ -58,7 +68,12 @@ public class SinResultMap implements SinResult {
 		return m.get(name);
 	}
 	 
-	
+	public  Object getCurrCol (String name) {
+		if(isBuild==true){
+			return getHsCurrCol(name);
+		}
+		return getCurrCol0(name);
+	}
 	
 	public Map nextRow() {
 		rowId++;
@@ -82,7 +97,7 @@ public class SinResultMap implements SinResult {
 			endOut = true;
 			rowId = rows - 1;
 		}
-		 ;
+		  
 	}
 	
 	public void init() {
@@ -103,22 +118,40 @@ public class SinResultMap implements SinResult {
 		if(m==null){
 			return;
 		}
-		int needType=0;
-		 
 		rows++;
 		endSize++;
 		results.add(m);
 	}
 	public void buildIndex(String col){
+		System.out.println("buildIndex-col  "+col);  
 		if(hashIndex!=null){
 			return;
 		}
-		hashIndex = new HashIndex(rows/10); 
+		int ss=rows/10;
+		if(ss==0){
+			ss=1;
+		}
+		hashIndex = new HashIndex(ss); 
 		for(Map m:results){
+			
 			hashIndex.addKey(m.get(col), m);
 		}
+		isBuild=true; 
+		//System.exit(0);
 	}
 	
+	public Map getHsCurrRow () {
+		return (Map)hashIndex.getCurrRow();
+	}
+	
+	public Object getHsCurrCol (String name) {
+		 
+		Map m=getHsCurrRow();
+	//	System.out.println("alias   name  "+name+"   "+isBuild+" ,  obj : "+m); 
+		Object obj= m.get(name);
+	//	System.out.println("obj   "+obj+"  name  "+name); 
+		return obj;
+	}
 	
 	 
 	public SinResultMap clone(){
@@ -136,5 +169,28 @@ public class SinResultMap implements SinResult {
 		return endSize;
 	}
 	
+	public boolean firstMatch(Object key){
+		return hashIndex.nextMatch(key);
 	 
+	}
+	
+	public void indexInit(){
+		hashIndex.init();
+	}
+	
+	public boolean firstMatch(){
+		return hashIndex.nextMatch( );
+	 
+	}
+	
+	public boolean matchNext(){
+		return hashIndex.nextMatch();
+	}
+	 
+	public void setIndex(boolean idx){
+		isBuild=idx;
+	}
+	public boolean getIndex(){
+		return isBuild;
+	}
 }

@@ -18,6 +18,8 @@ public class SinQuery {
 	public String alias;
 	public ArrayList<String> columns = new ArrayList<String>();
 	public SinResult results = SinResultFac.getSinResult();
+	private boolean isDrv=false;
+	private boolean isHs=false;
 	
 	//public  results2 = new ArrayList<Map>();
 	
@@ -72,13 +74,16 @@ public class SinQuery {
 		System.out.println("sql---:  " + sql);
 	}
 
+	
 	public Map getCurrRow() {
-		
+		if(isHs==true){
+			return results.getHsCurrRow();
+		}
 		return results.getCurrRow();
 	}
  
 	public Object getCurrCol(String name) {
-		 
+	//	System.out.println("dddddddddddddff   "+results.getIndex()+"    :  "+name);
 		return results.getCurrCol(name);
 	}
 	public Map nextRow() {
@@ -110,19 +115,21 @@ public class SinQuery {
 	}
 	
 	public void buildIndex(JoinType jt){
-		if(jt.left.getTableName().equalsIgnoreCase(tableName)){
+		
+		if(jt.left.getTableName().equalsIgnoreCase(alias)){
+			System.out.println("nextJoin-buildIndexddd");
 			results.buildIndex(jt.left._columnName);
 			return;
 		}
-		if(jt.right.getTableName().equalsIgnoreCase(tableName)){
+		if(jt.right.getTableName().equalsIgnoreCase(alias)){
+			System.out.println("nextJoin-buildIndexwwww");
 			results.buildIndex(jt.right._columnName);
 			return;
 		}
 	}
 	
-	public void nextToJn() {
-		 
-		 results.nextTo();
+	public boolean nextToJn() {
+		return  results.matchNext();
 	}
 	
 	public void initJn() {
@@ -136,6 +143,14 @@ public class SinQuery {
 
 	public boolean isJnEndOut() {
 		return results.isEndOut();
+	}
+	
+	public boolean match(Object key) {
+		return results.firstMatch(key);
+	}
+	
+	public boolean firstMatch( ) {
+		return results.firstMatch();
 	}
 	
 	public void addExeTask(){
@@ -165,6 +180,28 @@ public class SinQuery {
 	
 	public int  getDrvSize(){
 		return results.size();
+	}
+	
+	public Object getHsCurrCol(String name){
+		if(isHs==false){
+			return getCurrCol(name);
+		}
+		return results.getHsCurrCol(name);
+	}
+	
+	public Map getHsCurrRow() {
+		return results.getHsCurrRow();
+	}
+	
+	public void setDrv(){
+		isDrv=true;
+		isHs=false;
+		results.setIndex(false);
+	}
+	
+	public void indexInit( ){
+	 
+		 results.indexInit();
 	}
 	
 	public SinQuery clone(){
