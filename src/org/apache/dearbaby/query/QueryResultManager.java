@@ -101,6 +101,60 @@ public class QueryResultManager extends QueryMananger {
 		return false;
 	}
 	
+	public boolean halfDrvNextTo(){
+		drvQ.nextTo();
+		return drvQ.isEndOut();
+	}
+	
+	public boolean halfNextJoinTo() {
+		 	if(isJnMatch==false){
+				isJnMatch=matchNext(drvQ,js.get(0),joinResult.get(0));
+				if(isJnMatch==false){
+					return false;
+				}
+				//System.out.println("nextJoin-isJnMatch--000000   "+joinResult.size());
+				for(int i=0;i<joinResult.size()-1;i++){
+					System.out.println("nextJoin-isJnMatch-- ");
+					isJnMatch=matchNext(joinResult.get(i),js.get(i+1),joinResult.get(i+1));
+					if(isJnMatch==false){
+						break;
+					}
+				}
+				if(isJnMatch==true){
+				//	System.out.println("nextJoin-isJnMatch_tms : "+(matchTms++));
+					return true;
+				}
+			}else{
+				for (int i = joinResult.size() - 1; i >= 0; i--) {
+					SinQuery sq = joinResult.get(i);
+					
+					if(sq.nextToJn()==true){
+						System.out.println("hhhhhrrrr ");
+						return true;
+					}else{
+						
+						if(i==0){
+						//	indexInit();
+						//	System.out.println("indexInit...... ");
+							isJnMatch=false;
+							continue;
+						}else{
+							sq.firstMatch();
+							continue;
+						}
+						
+					}
+							
+					 
+				}
+			}
+			
+	 
+		
+		return false;
+	}
+	
+	
 	//清除所有索引
 	private void indexInit(){
 		for (int i = joinResult.size() - 1; i >= 0; i--){
@@ -125,6 +179,9 @@ public class QueryResultManager extends QueryMananger {
 		return right.match(obj);
 		 
 	}
+	
+	 
+	
 	
 	public void buildIndex(ArrayList<JoinType > js){
 		
@@ -187,7 +244,8 @@ public class QueryResultManager extends QueryMananger {
 	
 	public void initDrv(int begin,int end){
 		//System.out.println(querys);
-		querys.get(0).drv(begin, end);
+		if(querys.size()>0)
+			querys.get(0).drv(begin, end);
 	}
 	
 	public int  getDrvSize( ){
@@ -228,5 +286,12 @@ public class QueryResultManager extends QueryMananger {
 		return js;
 	}
 	
+	public ArrayList<SinQuery> getJoinSq(){
+		return joinResult;
+	}
+	
+	public SinQuery getDrvQ(){
+		return drvQ;
+	}
 	
 }

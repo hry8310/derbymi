@@ -36,6 +36,8 @@ public class DearTest {
 	//	sql="SELECT a.id from DoctorInforParameter  a ";
 		sql="SELECT a.doctorName  FROM WorkInforParameter2  a , doctorinforparameter2 b, doctorinforparameter3 c WHERE  a.DoctorId=b.DoctorName and b.DoctorName=c.DoctorName  ";
 		
+		sql="SELECT a.doctorName  FROM WorkInforParameter4  a left join doctorinforparameter4 b on  a.DoctorId=b.DoctorId  ";
+		
 		DearSelector selector =new DearSelector();  
 		 selector.query(sql);
 		/*

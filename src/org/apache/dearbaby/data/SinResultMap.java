@@ -148,6 +148,7 @@ public class SinResultMap implements SinResult {
 		 
 		Map m=getHsCurrRow();
 	//	System.out.println("alias   name  "+name+"   "+isBuild+" ,  obj : "+m); 
+		 
 		Object obj= m.get(name);
 	//	System.out.println("obj   "+obj+"  name  "+name); 
 		return obj;

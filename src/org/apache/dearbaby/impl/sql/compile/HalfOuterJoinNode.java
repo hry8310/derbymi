@@ -27,7 +27,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.dearbaby.data.SinResult;
+import org.apache.dearbaby.query.JoinType;
 import org.apache.dearbaby.query.SinQuery;
+import org.apache.dearbaby.util.JoinTypeUtil;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.services.compiler.MethodBuilder;
 import org.apache.derby.iapi.services.context.ContextManager; 
@@ -162,9 +164,11 @@ class HalfOuterJoinNode extends JoinNode {
 		_genQuery( leftResultSet);
 		_genQuery( rightResultSet);
 		 
-
-		if (joinClause != null)
+	//	System.out.println("dddddddddddddddddd   "+joinClause.getClass());;
+		if (joinClause != null){
 			joinClause.genQuery(qm);
+			joinClause.genCondition();
+		}
 
 	}
 	
@@ -239,7 +243,7 @@ class HalfOuterJoinNode extends JoinNode {
 				i++;
 				// return false;
 			}
-			System.out.println("half-----  " + (i));
+			 
 		}
 		first = true;
 		return false;
@@ -249,6 +253,19 @@ class HalfOuterJoinNode extends JoinNode {
 	
 	@Override
 	public boolean fetch() {
+		
+		if(joins==JOIN_UN){
+			desiHalfJoin();
+		}
+		if(joins==JOIN_IDX){
+			return fetch1();
+		}
+		
+			return fetch0();
+		 
+	}
+	
+	public boolean fetch0() {
 		fetchEnd();
 		if (qs.isEnd() == true) {
 			return false;
@@ -293,11 +310,107 @@ class HalfOuterJoinNode extends JoinNode {
 				i++;
 				// return false;
 			}
-			System.out.println("half-----  " + (i));
+			//System.out.println("half-----  " + (i));
 		}
 		first = true;
 		return false;
 
+	}
+	
+int ii=0;
+	public boolean fetch2() {
+		 
+		while(isMatch==true || (isMatch==false&&!qs.halfDrvNextTo())){
+			
+			while(true){
+				boolean r=qs.halfNextJoinTo();
+				 
+				if(r==true){
+					if(joinClause.match()==true){
+						isMatch = true;
+						addCuRow();
+						return true;
+					}else{
+						System.out.println("ddddddddddddddddddcccccccc   " );
+					}
+				}
+				
+				if (isMatch == false) {
+					SinQuery lq = qs.getDrvQ();
+			 		SinQuery rq = qs.getJoinSq().get(0);
+					qs.initFetch();
+					qs.addFetch(lq.alias, lq.tableName, lq.getCurrRow());
+					qs.addFetch(rq.alias, rq.tableName, new HashMap());
+					qm.addFetch(qs);
+					return true;
+				}else{
+					isMatch=false;
+					break;
+				} 
+			}
+		}
+		return false;
+
+	}
+	
+	boolean isNeedNext=false;
+	public boolean fetch1() {
+		
+		 
+		
+		while( !qs.getDrvQ().isEndOut()){
+			if(isNeedNext==false){
+				qs.getDrvQ().nextTo();
+				isNeedNext=true;
+				isMatch=false;
+			}
+			
+			boolean r=qs.halfNextJoinTo();
+			if(r==true){
+				
+				if(joinClause.match()==true){
+					isMatch = true;
+					addCuRow();
+					return true;
+				}else{
+					
+				}
+			}else{
+				isNeedNext=false;  
+			}
+				
+			if (isMatch == false) {
+				
+				SinQuery lq = qs.getDrvQ();
+		 		SinQuery rq = qs.getJoinSq().get(0);
+				qs.initFetch();
+				qs.addFetch(lq.alias, lq.tableName, lq.getCurrRow());
+				qs.addFetch(rq.alias, rq.tableName, new HashMap());
+				qm.addFetch(qs);
+				isMatch = true;
+				return true;
+			} 
+			 
+		}
+		return false;
+
+	}
+	
+	
+	void desiHalfJoin(){
+		ArrayList<JoinType> _js=desi0();
+		if(joins==JOIN_IDX){
+			SinQuery lq = null;
+			ArrayList<SinQuery>  sq=qs.getJoinSq();
+			if (rightOuterJoin == false) {
+		 		lq = sq.get(0);
+		 		sq.remove(0);
+				sq.add(lq);
+			}
+		}
+		if(_js!=null){
+			qs.buildIndex(_js);
+		}
 	}
 	
 	/**

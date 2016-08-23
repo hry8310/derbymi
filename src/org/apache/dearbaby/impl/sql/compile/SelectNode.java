@@ -234,6 +234,7 @@ class SelectNode extends ResultSetNode {
 				  havingClause,   windows,
 				  overridingPlan, null);
 			//copyQuerys(sn);
+		if(whereClause!=null)
 			sn.whereClause=(ValueNode)whereClause.copy();
 			 
 			return sn;
@@ -244,7 +245,8 @@ class SelectNode extends ResultSetNode {
 	}
 	
 	public  void copyTO( QueryMananger _qm,QueryResultManager _qs){
-		whereClause.copyTO(_qm, _qs);
+		if(whereClause!=null)
+			whereClause.copyTO(_qm, _qs);
 	}
 	
 	@Override
@@ -671,6 +673,7 @@ class SelectNode extends ResultSetNode {
 		}
 		for (int i = qryNodes.size() - 1; i > -1; i--) {
 			QueryTreeNode n = qryNodes.get(i);
+			
 			if (n.fetch()) {
 				return true;
 			} else {
@@ -699,6 +702,7 @@ class SelectNode extends ResultSetNode {
 					ColumnReference c=(ColumnReference)t._expression;
 					String alias = c._qualifiedTableName.tableName;
 					String cName = t.getSourceColumnName(); 
+				//	System.out.println("alias  : "+alias);
 					Object obj =getColVal(alias,cName);
 					map.put(alias+"."+cName, obj);
 					

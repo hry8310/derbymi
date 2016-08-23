@@ -49,6 +49,7 @@ public class QueryMananger {
 
 			}
 		}
+		
 		return found;
 	}
 	
@@ -154,13 +155,13 @@ public class QueryMananger {
 	}
 
 	public void addFetch(String alias, String tableName, Map m) {
-		for (SinQuery q : querys) {
+	//	for (SinQuery q : querys) {
 			SinQuery fq = new SinQuery();
 			fq.tableName = tableName;
 			fq.alias = alias;
 			fq.results.add(m);
 			fetchRow.add(fq);
-		}
+	//	}
 	}
 
 	public void addFetch(QueryMananger qm) {
@@ -201,7 +202,7 @@ public class QueryMananger {
 	public ArrayList<JoinType> getJoins(){
 		return joins;
 	}
-	public void addJoin(JoinType j){ 
+	public void addJoinTo(JoinType j){ 
 		joins.add(j); 
 	}
 }

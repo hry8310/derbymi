@@ -283,6 +283,7 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 	private boolean hasGenCond=false;
 	@Override
 	public void genCondition() {
+		
 		if(hasGenCond==true){
 			return;
 		}
@@ -332,7 +333,7 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 				  leftOperand instanceof ColumnReference){
 				JoinType j=new JoinType((ColumnReference)rightOperand,(ColumnReference)leftOperand,operator);
 				if(j.type!=JoinType.UN){
-					qm.addJoin(j);
+					qm.addJoinTo(j);
 				}
 			}
 		}
@@ -359,15 +360,18 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 		Object lo = leftOperand.getVal();
 		Object ro = rightOperand.getVal();
 		if (lo == null || ro == null) {
+			
 			return false;
 		}
-//		System.out.println("lo:  "+lo+"  ro   "+ro);
+		//System.out.println("lo:  "+lo+"  ro   "+ro);
 		int r = ColCompare.compareObject(lo, ro);
 		 
 		if(r==0){
 			DearTest.ix++;
 			if((DearTest.ix%10000==0))
 			System.out.println("ok  "+(DearTest.ix));
+		}else{
+	//		System.out.println("lo:  "+lo+"  ro   "+ro);
 		}
 		 
 		boolean br = ColCompare.matchOpr(r, operator);

@@ -47,7 +47,10 @@ public class HashIndex {
 		hashId = (int)hash(key);
 		HashKey hk=hash[hashId];
 		matchKey=key;
-	
+	//	System.out.println("kkkkkkkkk "+hashId);
+		if(hk==null){
+			return false;
+		}
 		boolean k= hk.nextMatch(key);
 		return k;
 		
