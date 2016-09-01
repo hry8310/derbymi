@@ -332,7 +332,7 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 			if(rightOperand instanceof ColumnReference&&
 				  leftOperand instanceof ColumnReference){
 				JoinType j=new JoinType((ColumnReference)rightOperand,(ColumnReference)leftOperand,operator);
-				if(j.type!=JoinType.UN){
+				if(j.type==JoinType.HASH){
 					qm.addJoinTo(j);
 				}
 			}
@@ -363,7 +363,7 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 			
 			return false;
 		}
-		//System.out.println("lo:  "+lo+"  ro   "+ro);
+//		System.out.println("lo:  "+lo+"  ro   "+ro);
 		int r = ColCompare.compareObject(lo, ro);
 		 
 		if(r==0){

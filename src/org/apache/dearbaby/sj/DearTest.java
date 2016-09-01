@@ -34,12 +34,16 @@ public class DearTest {
 		//sql="select distinct e.doctorName from doctorinforparameter e  where e.docName='ddd'";
 	//	sql="SELECT a.doctorName  FROM WorkInforParameter  a , doctorinforparameter b WHERE a.id=b.id+1200";
 	//	sql="SELECT a.id from DoctorInforParameter  a ";
-		sql="SELECT a.doctorName  FROM WorkInforParameter2  a , doctorinforparameter2 b, doctorinforparameter3 c WHERE  a.DoctorId=b.DoctorName and b.DoctorName=c.DoctorName  ";
+		sql="SELECT a.doctorName  FROM WorkInforParameter2  a , doctorinforparameter2 b, doctorinforparameter3 c WHERE  a.DoctorId=b.DoctorName   ";
+		sql="SELECT a.doctorName  FROM (select c.DoctorId from  WorkInforParameter2 c)  a , (select d.DoctorId from  doctorinforparameter2 d where d.id>200000) b  WHERE  a.DoctorId=b.DoctorId   ";
+	//	sql="SELECT a.doctorName  FROM WorkInforParameter4  a left join doctorinforparameter4 b on  a.DoctorId=b.DoctorId  ";
+		sql="SELECT a.doctorName,b.DoctorId  FROM WorkInforParameter4  a , doctorinforparameter4 b  WHERE  a.DoctorId=b.DoctorId   ";
 		
-		sql="SELECT a.doctorName  FROM WorkInforParameter4  a left join doctorinforparameter4 b on  a.DoctorId=b.DoctorId  ";
+		//sql="SELECT a.doctorName  FROM WorkInforParameter5  a    ";
+		
 		
 		DearSelector selector =new DearSelector();  
-		 selector.query(sql);
+		selector.query(sql);
 		/*
 		 while(true){
 			 ResultMap map=selector.fetch();
@@ -52,13 +56,14 @@ public class DearTest {
 		 List<ResultMap>  list=selector.getResult();
 		 System.out.println("sizeiiiii - "+list.size());
 		 for(ResultMap r:list){
-			// System.out.println("r  "+r.m);
+		//	 System.out.println("r  "+r.m);
 		 }
 		 
 	}
 
 	public static void main(String[] args) {
 		run3();
+	//	run3();
 	}
 
 }

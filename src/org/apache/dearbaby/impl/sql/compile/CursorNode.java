@@ -160,6 +160,7 @@ public class CursorNode extends DMLStatementNode {
 				  hasJDBClimitClause,updateMode,
 				  updatableColumnList , forMergeStatement,   cm);
 	//	cn.resultSet.copyQuerys(cn.resultSet);
+		
 		cn.resultSet=(ResultSetNode)resultSet.copy();
 		resultSet.copyQuerys(cn.resultSet);
 		cn.resultSet.copyTO(cn.resultSet.qm,cn.resultSet.qs);
@@ -172,6 +173,9 @@ public class CursorNode extends DMLStatementNode {
 		if(s<cnt){
 			cnt = s ;
 		} 
+		if(cnt==0){
+			cnt=1;
+		}
 		int ss=s/cnt;
 		for(int i=0;i<cnt;i++){
 			QueryTreeNode cn=copy();
@@ -273,7 +277,10 @@ public class CursorNode extends DMLStatementNode {
 		}
 		return map;
     }
-	
+    public void deciJoin(){
+    	System.out.println(resultSet.getClass());
+    	resultSet.deciJoin();
+    }
 	/**
 	 * Convert this object to a String. See comments in QueryTreeNode.java for
 	 * how this should be done for tree printing.

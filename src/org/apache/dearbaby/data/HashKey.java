@@ -64,5 +64,18 @@ public class HashKey {
 		return values.get(rowId);
 	}
 	 
-	
+	public HashKey clone(){
+		HashKey hk=new HashKey();
+
+		hk.keys=this.keys;
+		hk.values=this.values;
+		
+		hk.rowId=this.rowId;
+		
+		hk.preId=this.preId;
+		
+		hk.endOut = this.endOut ;
+		return hk;
+		
+	}
 }

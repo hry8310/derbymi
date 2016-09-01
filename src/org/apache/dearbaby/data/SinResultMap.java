@@ -15,8 +15,7 @@ public class SinResultMap implements SinResult {
 	public ArrayList<Map> results = new ArrayList<Map>();
 	 
 	 
-	private int[] dataType=null;
-	private int rowSize=20;
+ 
 	private int rows=0;
 	
 	private int drvRowId=0;
@@ -25,7 +24,6 @@ public class SinResultMap implements SinResult {
 	public HashIndex hashIndex;
 	
 	private boolean isBuild=false;
-	private boolean isIdx=false;
 	
 	
 	public void drv(int rowid,int end){
@@ -45,7 +43,7 @@ public class SinResultMap implements SinResult {
 		if (results.size() == 0) {
 			return null;
 		}
-		 
+		// System.out.println("dddddddddddddd  "+this+"  , "+rowId);
 		return results.get(rowId);
 		 
  
@@ -53,6 +51,7 @@ public class SinResultMap implements SinResult {
 	
 	public  Map getCurrRow () {
 		if(isBuild==true){
+			// System.out.println("getHsCurrRowgetHsCurrRow  "+this+"  , "+rowId);
 			return getHsCurrRow();
 		}
 		return getCurrRow0();
@@ -92,7 +91,7 @@ public class SinResultMap implements SinResult {
 	
 	public void nextTo() {
 		rowId++;
-		//System.out.println("rows : "+rows+"  , rowId : "+rowId);
+		//System.out.println("rows : "+this+"  , rowId : "+rowId);
 		if (rowId > rows - 1) {
 			endOut = true;
 			rowId = rows - 1;
@@ -162,6 +161,11 @@ public class SinResultMap implements SinResult {
 		ret.endOut=this.endOut;
 		ret.endSize=this.endSize;
 		ret.rows=this.rows; 
+		ret.isBuild=this.isBuild;
+		if(this.hashIndex!=null){
+			ret.hashIndex=this.hashIndex.clone();
+		}
+			
 		return ret;
 	}
 	

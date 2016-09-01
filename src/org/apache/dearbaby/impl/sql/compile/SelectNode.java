@@ -236,7 +236,7 @@ class SelectNode extends ResultSetNode {
 			//copyQuerys(sn);
 		if(whereClause!=null)
 			sn.whereClause=(ValueNode)whereClause.copy();
-			 
+			sn.joins=this.joins; 
 			return sn;
 		}catch(Exception e){
 			e.printStackTrace();

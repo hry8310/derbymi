@@ -250,9 +250,9 @@ public abstract class QueryTreeNode implements Visitable {
 		
 		
 		boolean r =false;
+		//System.out.println("JOIN_UN  "+(joins==JOIN_UN));
 		if(joins==JOIN_UN){
-			desi();
-			 
+			 desi();
 		}
 		
 		if(joins==JOIN_LOOP){
@@ -301,7 +301,7 @@ public abstract class QueryTreeNode implements Visitable {
 		
 		JoinType j=JoinTypeUtil.ans(jss);
 		 qs.jHeader=j;
-		 ArrayList<JoinType> _js=qs.ans(j); 
+		 ArrayList<JoinType> _js=qs.analyseJoin(j); 
 		 return js;
 	}
 	
@@ -313,7 +313,11 @@ public abstract class QueryTreeNode implements Visitable {
 		qs.buildIndex(_js);
 	}
 	
-	
+	public void deciJoin(){
+		if(joins==JOIN_UN){
+			 desi();
+		}
+	}
 	
 	public void fetchInit() {	
 			qs.init();
@@ -447,10 +451,10 @@ public abstract class QueryTreeNode implements Visitable {
     	List<ResultMap> list=new ArrayList<ResultMap>();
     	int i=0;
     	while ( fetch()) {
-		//	 System.out.println("fetch-ok-----  "+(i++));;
+			 
 			if ( match()) {
 			 	HashMap map= getMatchRow();
-				
+			 //	System.out.println("fetch-ok-----  "+(i++));;
 			 	ResultMap m=new ResultMap(map);
 				
 			 	list.add(m);
@@ -501,16 +505,31 @@ public abstract class QueryTreeNode implements Visitable {
     		tag.qs=qs.copyOf();
     		//}
     		for(SinQuery qs :qm.querys){
+    			//¥¶¿ÌdrvQ
+    			if(tag.qs.getDrvQ()!=null&&qs.alias.equalsIgnoreCase(tag.qs.getDrvQ().alias)){
+    				tag.qm.querys.add(tag.qs.getDrvQ());
+    				continue;
+    			}
+    			
     			SinQuery newOne=qs.clone();
     			tag.qm.querys.add(newOne);
     		 
     		}
     		 
-    		
+    		System.out.println("querys-size  "+qs.querys.size());;
     		for(int i=0;i<qs.querys.size();i++){
     			for(int j=0;j<qm.querys.size();j++){
         			 if(qs.querys.get(i)==qm.querys.get(j)){
         				 tag.qs.querys.add( tag.qm.querys.get(j));
+        				 break;
+        			 }
+        		}
+    		}
+    		
+    		for(int i=0;i<qs.joinResult.size();i++){
+    			for(int j=0;j<qm.querys.size();j++){
+        			 if(qs.joinResult.get(i)==qm.querys.get(j)){
+        				 tag.qs.joinResult.add( tag.qm.querys.get(j));
         				 break;
         			 }
         		}

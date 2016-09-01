@@ -85,7 +85,20 @@ public class HashIndex {
 			
 		return code%hashSize;
 	}
-	
+	public HashIndex clone(){
+		HashIndex hi=new HashIndex(this.hashSize);
+		hi.hashSize=this.hashSize;
+		
+		for(int i=0;i< hashSize;i++){
+			if(this.hash[i]!=null)
+			hi.hash[i]=this.hash[i].clone();
+		}
+		
+		hi.hashId=-this.hashId;
+		
+		hi.matchKey=this.matchKey;
+		return hi;
+	}
 	
 }
 

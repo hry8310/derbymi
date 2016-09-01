@@ -179,7 +179,6 @@ class FromSubquery extends FromTable
 				 
 				list.add(map); 
 			}
-
 			 fetchEnd();
  
 		}

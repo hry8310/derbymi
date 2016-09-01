@@ -12,6 +12,7 @@ public class QueryTask implements Runnable{
 	}
 	public void run(){
 		try{
+			
 			sinQuery.exeSelect();
 		}finally{
 			if(sinQuery.taskCtrl!=null){

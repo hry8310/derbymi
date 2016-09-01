@@ -261,8 +261,14 @@ class HalfOuterJoinNode extends JoinNode {
 			return fetch1();
 		}
 		
-			return fetch0();
+		return fetch0();
 		 
+	}
+	
+	public void deciJoin(){
+		if(joins==JOIN_UN){
+			desiHalfJoin();
+		}
 	}
 	
 	public boolean fetch0() {

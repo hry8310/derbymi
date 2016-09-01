@@ -28,7 +28,7 @@ public class JdbcExecutor implements IExecutor {
 				
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery(sql);
-			
+				System.out.println("begin-nexting");
 				while (rs.next()) {
 					Map m = new HashMap();
 					for (String c : columns) {

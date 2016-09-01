@@ -226,6 +226,8 @@ public class SinQuery {
 		
 		
 		cloneObj.isOrCond =this.isOrCond ;
+		cloneObj.isDrv=this.isDrv;
+		cloneObj.isHs=this.isHs;
 
 //		cloneObj.rowId =this.rowId ;
 

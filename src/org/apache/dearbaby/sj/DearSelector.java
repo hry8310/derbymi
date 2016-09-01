@@ -28,13 +28,16 @@ public class DearSelector {
 			
 			Parser ps =  DearContext.getParser();
 			qt = (StatementNode) ps.parseStatement(sql);
-	
+			
 			QueryMananger qm = new QueryMananger();
 			qm.executor=new JdbcExecutor();
 			qm.sql=sql;
 			qt.genQuery(qm); 
 			//qm.readyMutlTask();
 			qt.exeQuery();
+			System.out.println("dddddddddddddddddddddd--001");
+			qt.deciJoin();
+			System.out.println("dddddddddddddddddddddd--002");
 			//qm.getTaskCtrl().await();
 		}catch(Exception e){
 			e.printStackTrace();
@@ -49,16 +52,14 @@ public class DearSelector {
 		
 		 StatementNode qtt=(StatementNode)qt.copy();
 		 
-		 
-		 
 		 qtt.initDrv(0,20);
 		 return  qt.getMatchRows();
 	 }
 	 
-	 public List<ResultMap>  getResult_ok(){
+	 public List<ResultMap>  getResult_nu(){
 		
 		 List<ResultMap> ls =new ArrayList<ResultMap>();
-		 List<QueryTreeNode>  qtts= qt.copys(28);
+		 List<QueryTreeNode>  qtts= qt.copys(5);
 		 QueryTaskCtrl taskCtrl=new QueryTaskCtrl();
 		 int i=0;
 		 for(QueryTreeNode q:qtts){

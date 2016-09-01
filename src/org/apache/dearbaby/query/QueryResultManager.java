@@ -13,7 +13,7 @@ public class QueryResultManager extends QueryMananger {
 	public IExecutor executor;
 	int i=0;
 	
-	private ArrayList<SinQuery> joinResult=new  ArrayList<SinQuery>();
+	public ArrayList<SinQuery> joinResult=new  ArrayList<SinQuery>();
 	
 	private ArrayList<JoinType> js=new  ArrayList<JoinType>();
 	public JoinType  jHeader;
@@ -49,13 +49,40 @@ public class QueryResultManager extends QueryMananger {
 	
 	private SinQuery drvQ=null;
 	private boolean isJnMatch=false;
-	int matchTms=0;
+	//int matchTms=0;
+	private boolean isQueryNext=false;
 	public boolean nextJoin() {
-		//System.out.println("nextJoin-isJnMatch--0 "+drvQ.isEndOut());
+		while(true){
+			if(isQueryNext==false){
+				if(next()==false){
+					return false;
+				}
+				isQueryNext=true;
+			}
+			boolean r= nextJoin0();
+			if(r==true){
+				return true;
+			}else{
+				isQueryNext=false;
+			}
+		}
+	}
+	boolean drvQFirst=true;
+	public boolean nextJoin0() {
+	//	System.out.println("nextJoin-isJnMatch--0 "+drvQ.results);
 		while(!drvQ.isEndOut()){
 			if(isJnMatch==false){
 				
-				drvQ.nextTo();
+				if (drvQFirst == true) {
+					drvQFirst = false;
+				}else{
+					drvQ.nextTo();
+				}
+				if(drvQ.isEndOut()==true){
+					break;
+				}
+				 
+				
 				isJnMatch=matchNext(drvQ,js.get(0),joinResult.get(0));
 				if(isJnMatch==false){
 					continue;
@@ -244,23 +271,41 @@ public class QueryResultManager extends QueryMananger {
 	
 	public void initDrv(int begin,int end){
 		//System.out.println(querys);
+		if(drvQ!=null){
+			System.out.println("drvQ     "+drvQ.alias);
+			drvQ.drv(begin, end);
+			return ;
+		}
 		if(querys.size()>0)
 			querys.get(0).drv(begin, end);
 	}
 	
 	public int  getDrvSize( ){
-		 
+		if(drvQ!=null){
+			return drvQ.getDrvSize();
+			 
+		} 
 		return querys.get(0).getDrvSize();
 	}
 	
 	public QueryResultManager copyOf(){
 		QueryResultManager newObj=new QueryResultManager();
 		copyTo(newObj);
+		newObj.js=this.js;
+		newObj.jHeader=this.jHeader;
+		if(drvQ!=null)
+		{
+			newObj.drvQ=this.drvQ.clone();
+			//newObj.drvQ=this.drvQ;
+		}
+		newObj.isJnMatch=this.isJnMatch;
+		//int matchTms=0;
+		newObj.isQueryNext=this.isQueryNext;
 		init();
 		return newObj;
 	}
 	
-	public ArrayList<JoinType> ans(JoinType jt){
+	public ArrayList<JoinType> analyseJoin(JoinType jt){
 		String e=jt.emp;
 		SinQuery sq=findQuery(e);
 	 
@@ -274,8 +319,7 @@ public class QueryResultManager extends QueryMananger {
 			if(jt.nextTable==null){
 				break;
 			}
-			SinQuery sqi=findQuery(jt.nextTable);
-			System.out.println("joinResult-add>>>>>>>>>>> : "+jt);
+			SinQuery sqi=findQuery(jt.nextTable); 
 			joinResult.add(sqi);
 			querys.remove(sqi);
 			JoinType jtt=jt;
