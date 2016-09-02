@@ -59,7 +59,7 @@ abstract class DMLStatementNode extends StatementNode {
 	 * the keys will be added after parsing (perhaps in the binding phase?).
 	 *
 	 */
-	ResultSetNode resultSet;
+	public ResultSetNode resultSet; 
 
 	DMLStatementNode(ResultSetNode resultSet, ContextManager cm) {
 		super(cm);

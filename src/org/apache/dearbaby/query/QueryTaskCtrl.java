@@ -11,14 +11,15 @@ public class QueryTaskCtrl {
     }
     
     public void finishOne(){
+    	
     	latch.countDown();
-    }
+      }
     
     public void await( ){
     	try{
-    		latch.await( );
-    	}catch(Exception e){
-    		
+     		latch.await( );
+     	}catch(Exception e){
+    		e.printStackTrace();
     	}
     }
 }

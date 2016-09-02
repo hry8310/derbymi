@@ -35,7 +35,7 @@ import org.apache.derby.shared.common.sanity.SanityManager;
  * A GroupByColumn is a column in the GROUP BY clause.
  *
  */
-class GroupByColumn extends OrderedColumn
+public class GroupByColumn extends OrderedColumn
 {
 	public ValueNode columnExpression;
 	

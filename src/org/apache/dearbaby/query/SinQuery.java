@@ -9,6 +9,7 @@ import org.apache.dearbaby.data.SinResultByte;
 import org.apache.dearbaby.data.SinResultFac;
 import org.apache.dearbaby.impl.sql.compile.QueryTreeNode;
 import org.apache.dearbaby.impl.sql.compile.ValueNode;
+import org.apache.dearbaby.task.BuildTask;
 import org.apache.dearbaby.task.QueryTask;
 import org.apache.dearbaby.task.TaskPoolManager;
 
@@ -46,6 +47,11 @@ public class SinQuery {
 		if(this.taskCtrl!=null){
 			return false;
 		}
+		this.taskCtrl=taskCtrl;
+		return true;
+	}
+	
+	public boolean setTaskCtrlMust(QueryTaskCtrl taskCtrl){
 		this.taskCtrl=taskCtrl;
 		return true;
 	}
@@ -155,6 +161,11 @@ public class SinQuery {
 	
 	public void addExeTask(){
 		QueryTask qtask=new QueryTask(this);
+		TaskPoolManager.putTask(qtask);
+	}
+	
+	public void addBuildIndexTask( JoinType jt){
+		BuildTask qtask=new BuildTask(this,jt);
 		TaskPoolManager.putTask(qtask);
 	}
 	

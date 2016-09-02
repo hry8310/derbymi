@@ -65,7 +65,7 @@ import org.apache.derby.shared.common.sanity.SanityManager;
  *
  */
 
-class SelectNode extends ResultSetNode {
+public class SelectNode extends ResultSetNode {
 	/**
 	 * List of tables in the FROM clause of this SELECT
 	 */
@@ -91,7 +91,7 @@ class SelectNode extends ResultSetNode {
 	/**
 	 * List of result columns in GROUP BY clause
 	 */
-	GroupByList groupByList;
+	public GroupByList groupByList;
 
 	/**
 	 * List of windows.
@@ -140,7 +140,7 @@ class SelectNode extends ResultSetNode {
 
 	private int nestingLevel;
 	
-	boolean haveAggr=false;
+	public boolean haveAggr=false;
 
 	List<QueryTreeNode> qryNodes = new ArrayList<QueryTreeNode>();
 	QueryTreeNode parentNode;
@@ -233,6 +233,9 @@ class SelectNode extends ResultSetNode {
 				  whereClause,   groupByList,
 				  havingClause,   windows,
 				  overridingPlan, null);
+		sn.isFilter=isFilter;
+		sn.rowValue=rowValue.clone();
+		System.out.println("is-isFilter  : "+isFilter);
 			//copyQuerys(sn);
 		if(whereClause!=null)
 			sn.whereClause=(ValueNode)whereClause.copy();
@@ -625,13 +628,18 @@ class SelectNode extends ResultSetNode {
 	@Override
 	public boolean match() {
 		boolean r = true;
-		if (whereClause != null)
+		if(isFilter==true){
+			return true;
+		}
+		if (whereClause != null){
 			r = whereClause.match();
+		}
 		return r;
 	}
 
 	@Override
 	public boolean fetch() {
+		System.out.println("is-isFilter-fetch  : "+isFilter);
 		if(getIsFilter()==true){
 			return rowValue.next();
 		}
@@ -702,7 +710,7 @@ class SelectNode extends ResultSetNode {
 					ColumnReference c=(ColumnReference)t._expression;
 					String alias = c._qualifiedTableName.tableName;
 					String cName = t.getSourceColumnName(); 
-				//	System.out.println("alias  : "+alias);
+					///System.out.println("alias  : "+alias);
 					Object obj =getColVal(alias,cName);
 					map.put(alias+"."+cName, obj);
 					
@@ -710,7 +718,7 @@ class SelectNode extends ResultSetNode {
 					 
 					 
 					String name=QueryUtil.getAggrColName(t);
-					 
+					System.out.println("alias  : ");
 					Object obj =getColVal("#",name);
 					map.put("#"+"."+name, obj);
 				}else if (t._expression instanceof SubqueryNode) {

@@ -34,7 +34,7 @@ import org.apache.derby.shared.common.sanity.SanityManager;
  *
  */
 
-class GroupByList extends OrderedColumnList<GroupByColumn>
+public class GroupByList extends OrderedColumnList<GroupByColumn>
 {
 	int		numGroupingColsAdded = 0;
 	boolean         rollup = false;

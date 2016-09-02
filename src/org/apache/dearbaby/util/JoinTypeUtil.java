@@ -57,10 +57,12 @@ public class JoinTypeUtil {
 	}
 	
 	public static JoinType ans(ArrayList<JoinType> js ){
-		System.out.println("js   "+js.size());
+	
 		JoinType j=js.get(0);
+		
 		j.emp=j.left.getTableName();
 		j.nextTable=j.right.getTableName();
+		System.out.println("js   "+j.emp);
 		JoinType jEnd=null; 
 		js.remove(j);
 		for(int i=0;i<js.size();i++){
@@ -113,15 +115,7 @@ public class JoinTypeUtil {
 			
 			for(int i=0;i<js.size();i++){
 				JoinType ij=js.get(i);
-				if(ij.left.getTableName().equalsIgnoreCase(j.emp)){
-					ij.emp=ij.right.getTableName();
-					j.prev=ij;
-					ij.next=j;
-					ij.nextTable=j.emp;
-					j=ij;
-					js.remove(i);
-					break;
-				}
+			
 				
 				if(ij.left.getTableName().equalsIgnoreCase(jEnd.emp)){
 					ij.emp=ij.right.getTableName();
@@ -132,6 +126,18 @@ public class JoinTypeUtil {
 					js.remove(i);
 					break;
 				}
+			
+				if(ij.right.getTableName().equalsIgnoreCase(jEnd.emp)){
+					ij.emp=ij.left.getTableName();
+					jEnd.next=ij;
+					jEnd.nextTable=jEnd.emp;
+					ij.prev=jEnd;
+					jEnd=ij;
+					js.remove(i);
+					break;
+				}
+				
+				
 				if(ij.right.getTableName().equalsIgnoreCase(j.emp)){
 					ij.emp=ij.left.getTableName();
 					j.prev=ij;
@@ -141,12 +147,12 @@ public class JoinTypeUtil {
 					js.remove(i);
 					break;
 				}
-				if(ij.right.getTableName().equalsIgnoreCase(jEnd.emp)){
-					ij.emp=ij.left.getTableName();
-					jEnd.next=ij;
-					jEnd.nextTable=jEnd.emp;
-					ij.prev=jEnd;
-					jEnd=ij;
+				if(ij.left.getTableName().equalsIgnoreCase(j.emp)){
+					ij.emp=ij.right.getTableName();
+					j.prev=ij;
+					ij.next=j;
+					ij.nextTable=j.emp;
+					j=ij;
 					js.remove(i);
 					break;
 				}

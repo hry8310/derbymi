@@ -16,9 +16,9 @@ public class JoinType {
 	
 	public String emp;
 	public String nextTable;
+	public QueryMananger qm;
 	
-	
-	public JoinType(ColumnReference  le,ColumnReference  rt, String op){
+	public JoinType(ColumnReference  le,ColumnReference  rt, String op ,  QueryMananger _qm){
 		if(op.equals("=")){
 			type=HASH;
 		}else if(op.equals("<")||op.equals(">")) {
@@ -26,8 +26,19 @@ public class JoinType {
 		}else{
 			type=UN;
 		}
+		qm=_qm;
 		operator=op;
 		left=le;
 		right=rt;
+	}
+	public void setToLeft(String key){
+		if(right.getTableName().equalsIgnoreCase(key)){
+			chgx();
+		}
+	}
+	private void chgx(){
+		ColumnReference l=left;
+		left=right;
+		right=l;
 	}
 }

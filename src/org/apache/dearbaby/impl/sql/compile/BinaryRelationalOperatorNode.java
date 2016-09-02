@@ -26,6 +26,7 @@ import java.sql.Types;
 import org.apache.dearbaby.query.JoinType;
 import org.apache.dearbaby.query.QueryMananger;
 import org.apache.dearbaby.query.QueryResultManager;
+import org.apache.dearbaby.query.SinQuery;
 import org.apache.dearbaby.sj.DearTest;
 import org.apache.dearbaby.util.ColCompare;
 import org.apache.derby.iapi.error.StandardException;
@@ -331,7 +332,15 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 			}
 			if(rightOperand instanceof ColumnReference&&
 				  leftOperand instanceof ColumnReference){
-				JoinType j=new JoinType((ColumnReference)rightOperand,(ColumnReference)leftOperand,operator);
+				SinQuery ls=qm.findQuery(leftOperand.getTableName());
+				SinQuery rs=qm.findQuery(rightOperand.getTableName());
+				
+				JoinType j=null;
+				if(ls.getDrvSize()<=rs.getDrvSize()){
+					j=new JoinType((ColumnReference)leftOperand,(ColumnReference)rightOperand,operator,qm);
+				}else{
+					j=new JoinType((ColumnReference)rightOperand,(ColumnReference)leftOperand,operator,qm);
+				}
 				if(j.type==JoinType.HASH){
 					qm.addJoinTo(j);
 				}

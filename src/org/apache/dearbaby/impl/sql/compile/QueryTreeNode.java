@@ -24,6 +24,7 @@ package org.apache.dearbaby.impl.sql.compile;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,7 +101,7 @@ public abstract class QueryTreeNode implements Visitable {
 
 	public QueryMananger qm;
 	public QueryResultManager qs = new QueryResultManager();
-	private boolean isFilter =false;
+	protected boolean isFilter =false;
 	
 	//for task 
 	public QueryTaskCtrl taskCtrl=null;
@@ -270,6 +271,12 @@ public abstract class QueryTreeNode implements Visitable {
 		return r;
 	}
 
+	public ArrayList<JoinType>  desi00(){
+		joins= JOIN_LOOP;
+		ArrayList<JoinType> jss=new ArrayList<JoinType>();
+		return null;
+	}
+	
 	 public ArrayList<JoinType>  desi0(){
 		System.out.println("ejdddddd  "+qm.getJoins().size() );
 		joins= JOIN_LOOP;
@@ -295,7 +302,7 @@ public abstract class QueryTreeNode implements Visitable {
 		if(ej.size()==0){
 			return null;
 		}
-
+		ej=findSingleq(ej);
 		ArrayList<JoinType> jss=new ArrayList<JoinType>();
 		jss.addAll(ej);
 		
@@ -303,6 +310,63 @@ public abstract class QueryTreeNode implements Visitable {
 		 qs.jHeader=j;
 		 ArrayList<JoinType> _js=qs.analyseJoin(j); 
 		 return js;
+	}
+	
+	 //寻找记录集最小的sinquery并作为驱动表
+	private  ArrayList<JoinType> findSingleq( ArrayList<JoinType> _js){
+		if(_js.size()==1){
+			return _js;
+		}
+		HashMap<String ,Integer> hs=new HashMap();
+		for(JoinType j:_js){
+			String left=j.left.getTableName();
+			String right=j.right.getTableName();
+			putTableCnt(left,hs);
+			putTableCnt(right,hs);
+		}
+		int i=-1;
+		String k="";
+		Iterator<String >  it =hs.keySet().iterator();
+		while(it.hasNext()){
+			String key=it.next();
+			if(hs.get(key).intValue()==1){
+				int is=qm.findQuery(key).getDrvSize();
+				if(i==-1){
+					i=is;
+				}else{
+					if(is<i){
+						i=is;
+						k=key;
+					}
+				}
+			}
+		}
+		JoinType tj=null;
+		for(JoinType j:_js){
+			String left=j.left.getTableName();
+			String right=j.right.getTableName();
+			if(left.equalsIgnoreCase(k)||right.equalsIgnoreCase(k)){
+				tj=j;
+				break;
+			}
+		}
+		if(tj==null){
+			return _js;
+		}
+		tj.setToLeft(k);
+		 ArrayList<JoinType> _jss= new  ArrayList<JoinType>();
+		 _jss.add(tj);
+		 _js.remove(tj);
+		 _jss.addAll(_js);
+		 return _jss;
+	}
+	
+	private void putTableCnt(String key ,HashMap<String ,Integer>  h){
+		if(h.containsKey(key)){
+			h.put(key, h.get(key)+1);
+		}else{
+			h.put(key, 1);
+		}
 	}
 	
 	void desi(){
@@ -451,10 +515,10 @@ public abstract class QueryTreeNode implements Visitable {
     	List<ResultMap> list=new ArrayList<ResultMap>();
     	int i=0;
     	while ( fetch()) {
-			 
+			System.out.println("ddddddddddddddddddddddcc =fetech");
 			if ( match()) {
 			 	HashMap map= getMatchRow();
-			 //	System.out.println("fetch-ok-----  "+(i++));;
+				System.out.println("fetch-ok-----  "+(i++));;
 			 	ResultMap m=new ResultMap(map);
 				
 			 	list.add(m);

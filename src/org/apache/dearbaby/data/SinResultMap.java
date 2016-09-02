@@ -43,7 +43,6 @@ public class SinResultMap implements SinResult {
 		if (results.size() == 0) {
 			return null;
 		}
-		// System.out.println("dddddddddddddd  "+this+"  , "+rowId);
 		return results.get(rowId);
 		 
  
@@ -51,7 +50,6 @@ public class SinResultMap implements SinResult {
 	
 	public  Map getCurrRow () {
 		if(isBuild==true){
-			// System.out.println("getHsCurrRowgetHsCurrRow  "+this+"  , "+rowId);
 			return getHsCurrRow();
 		}
 		return getCurrRow0();

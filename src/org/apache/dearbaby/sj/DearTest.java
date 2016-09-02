@@ -1,5 +1,6 @@
 package org.apache.dearbaby.sj;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -38,9 +39,10 @@ public class DearTest {
 		sql="SELECT a.doctorName  FROM (select c.DoctorId from  WorkInforParameter2 c)  a , (select d.DoctorId from  doctorinforparameter2 d where d.id>200000) b  WHERE  a.DoctorId=b.DoctorId   ";
 	//	sql="SELECT a.doctorName  FROM WorkInforParameter4  a left join doctorinforparameter4 b on  a.DoctorId=b.DoctorId  ";
 		sql="SELECT a.doctorName,b.DoctorId  FROM WorkInforParameter4  a , doctorinforparameter4 b  WHERE  a.DoctorId=b.DoctorId   ";
+		sql="SELECT a.doctorId     FROM WorkInforParameter  a , doctorinforparameter b  WHERE  a.DoctorId=b.DoctorId    ";
 		
 		//sql="SELECT a.doctorName  FROM WorkInforParameter5  a    ";
-		
+		 Date d1=new Date();
 		
 		DearSelector selector =new DearSelector();  
 		selector.query(sql);
@@ -52,9 +54,10 @@ public class DearTest {
 			 }
 		 }
 		 */
-		 System.out.println("query-end - ");
+		
 		 List<ResultMap>  list=selector.getResult();
-		 System.out.println("sizeiiiii - "+list.size());
+		 Date d2=new Date();
+		 System.out.println("sizeiiiii - "+list.size()+" , time:"+(d2.getTime()-d1.getTime()));
 		 for(ResultMap r:list){
 		//	 System.out.println("r  "+r.m);
 		 }

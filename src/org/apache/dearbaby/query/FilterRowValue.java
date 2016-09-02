@@ -80,5 +80,11 @@ public class FilterRowValue {
 		row=f;
 		return f;
 	}
+	
+	public FilterRowValue clone(){
+		FilterRowValue clo=new FilterRowValue();
+		clo.resultset =this.resultset;
+		return clo;
+	}
 	 
 }

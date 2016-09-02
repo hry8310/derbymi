@@ -216,12 +216,16 @@ public class QueryResultManager extends QueryMananger {
 			return;
 		}
 		drvQ = joinResult.get(0);
-		
+		QueryTaskCtrl ctr=new QueryTaskCtrl();
 		joinResult.remove(0);
 		System.out.println("ddddjoinResult.size()  "+joinResult.size());
+		ctr.setCount(joinResult.size());
 		for (int i = 0; i <joinResult.size(); i++) {
-			joinResult.get(i).buildIndex(js.get(i));
+			//joinResult.get(i).buildIndex(js.get(i));
+			joinResult.get(i).setTaskCtrlMust(ctr);
+			joinResult.get(i).addBuildIndexTask(js.get(i));
 		}
+		ctr.await();
 		drvQ.setDrv();
 	}
 	
@@ -309,7 +313,7 @@ public class QueryResultManager extends QueryMananger {
 		String e=jt.emp;
 		SinQuery sq=findQuery(e);
 	 
-		
+		System.out.println("fistttttttt "+sq.alias);
 		joinResult.add(sq);
 		
 		querys.remove(sq);

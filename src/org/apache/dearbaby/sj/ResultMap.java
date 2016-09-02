@@ -19,6 +19,11 @@ public class ResultMap {
 		return m.get(key);
 	}
 	
+	public  void setAggrObject( String col,Object obj){
+		String key="#."+col.toUpperCase();
+		  m.put(key,obj);
+	}
+	
     @Override  
    public boolean equals(Object obj) {  
         if(obj == null) return false;  
