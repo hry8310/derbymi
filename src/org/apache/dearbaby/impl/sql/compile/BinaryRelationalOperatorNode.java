@@ -372,13 +372,14 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 			
 			return false;
 		}
-//		System.out.println("lo:  "+lo+"  ro   "+ro);
+	//	System.out.println("lo:  "+lo+"  ro   "+ro);
 		int r = ColCompare.compareObject(lo, ro);
 		 
 		if(r==0){
 			DearTest.ix++;
-			if((DearTest.ix%10000==0))
-			System.out.println("ok  "+(DearTest.ix));
+			if((DearTest.ix%10000==0)){
+			//	System.out.println("okii  "+(DearTest.ix));
+			}
 		}else{
 	//		System.out.println("lo:  "+lo+"  ro   "+ro);
 		}

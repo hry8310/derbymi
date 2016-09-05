@@ -1,18 +1,23 @@
 package org.apache.dearbaby.util;
 
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.dearbaby.impl.sql.compile.*;
 import org.apache.dearbaby.sj.ResultMap;
 
-public class ComparatorResult implements Comparator<ResultMap> {
+public class ComparatorResult implements Comparator<Map> {
 	OrderByList orderByList ;
 	public ComparatorResult(OrderByList orderList){
 		this.orderByList=orderList;
 	}
 	
 	@Override
-    public int compare(ResultMap u1, ResultMap u2) {
+    public int compare(Map u11, Map u22) {
+	 
+		ResultMap u1=new ResultMap((HashMap)u11);
+		ResultMap u2=new ResultMap((HashMap)u22);
 		for(OrderByColumn oc:orderByList.v ){
 				ColumnReference  c	=(ColumnReference)oc.expression;
 				String col=c._columnName;

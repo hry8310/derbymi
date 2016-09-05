@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.dearbaby.data.ResultBuffer;
 import org.apache.dearbaby.impl.sql.compile.AggregateNode;
 import org.apache.dearbaby.impl.sql.compile.ColumnReference;
 import org.apache.dearbaby.impl.sql.compile.CursorNode;
@@ -54,7 +55,7 @@ public class DearSelector {
 	
 	
 	
-	 public List<ResultMap>  getResult(){
+	 public ResultBuffer  getResult_nu(){
 		
 		 StatementNode qtt=(StatementNode)qt.copy();
 		 
@@ -62,9 +63,9 @@ public class DearSelector {
 		 return  qt.getMatchRows();
 	 }
 	 
-	 public List<ResultMap>  getResult_nu(){
+	 public ResultBuffer getResult(){
 		
-		 List<ResultMap> ls =new ArrayList<ResultMap>();
+		 ResultBuffer ls =new ResultBuffer();
 		 List<QueryTreeNode>  qtts= qt.copys(5);
 		 CursorNode cn=(CursorNode)qt;
 		 SelectNode s=(SelectNode)(((CursorNode)qt).resultSet);
@@ -77,43 +78,19 @@ public class DearSelector {
 		 taskCtrl.setCount(i);
 		 for (QueryTreeNode q : qtts) {
 			q.syncGetMatchRows();
-			// System.out.println("dddd ");
+			
 		 }
-		 taskCtrl.await();
-		 HashMap h=new  HashMap();
+		 taskCtrl.await(); 
+		 System.out.println("dddd ");
 		 for (QueryTreeNode q : qtts) {
-			 if(s.groupByList==null){
-				 if(s.haveAggr==false){
-					 ls.addAll(q.resList);
-				}else{
-					for(ResultMap r:q.resList){
-						System.out.println("fffffffffffrrr  "+r);
-						if(ls.isEmpty()){
-							ls.add(r);
-						}else{
-							compRest(ls.get(0),r,s);
-						}
-					}
-				}
+		 
+			ls.comp(q.resList);
 				 
-			}else{
-				if(s.haveAggr==false){
-					for(ResultMap r:q.resList){
-						putGroup(h,s.groupByList,r);
-					}
-				}else{
-					for(ResultMap r:q.resList){
-						putGroupArrg(h,s.groupByList,r,s);
-					}
-				}
-			}
 		 }
-		 if(s.groupByList!=null){
-			 ls.addAll(h.values());
-		 }
+		 
 		 return  ls;
 	 }
-	 
+	  
 	 private String genKey(GroupByList gr,ResultMap rm){
 		 String k="";
 		 for(GroupByColumn col: gr.v){

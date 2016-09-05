@@ -16,8 +16,13 @@ public class JoinTask implements Runnable{
 	}
 	public void run(){
 		try{
+		
 			qt.resList=qt.getMatchRows();
-		}finally{
+			System.out.println("qt......... :  "+qt);;
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		finally{
 			System.out.println("qt-size:  "+qt.resList.size());;
 			if(qt.taskCtrl!=null){
 				qt.taskCtrl.finishOne();

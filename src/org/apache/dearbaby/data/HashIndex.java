@@ -47,7 +47,6 @@ public class HashIndex {
 		hashId = (int)hash(key);
 		HashKey hk=hash[hashId];
 		matchKey=key;
-	//	System.out.println("kkkkkkkkk "+hashId);
 		if(hk==null){
 			return false;
 		}
@@ -71,7 +70,6 @@ public class HashIndex {
 	public Object getCurrRow(){
 	
 		if(hashId==-1){
-			System.out.println("hashIdhashIdhashIdhashId  "+hashId);
 			return null;
 		}
 		

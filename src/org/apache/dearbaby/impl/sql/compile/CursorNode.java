@@ -26,7 +26,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.dearbaby.data.ResultBuffer;
 import org.apache.dearbaby.sj.ResultMap;
 import org.apache.dearbaby.util.ComparatorResult;
 import org.apache.dearbaby.util.QueryUtil;
@@ -415,13 +417,16 @@ public class CursorNode extends DMLStatementNode {
 
 	 
 	
-	public List<ResultMap> getMatchRows(){
+	public ResultBuffer getMatchRows(){
 		if(orderByList==null){
 			return resultSet.getMatchRows();
 		}
-		List<ResultMap>  list= resultSet.getMatchOrderByRows(orderByList);
-		Collections.sort(list, new ComparatorResult(orderByList));  
-		return list;
+		ResultBuffer  list= resultSet.getMatchOrderByRows(orderByList);
+		List<Map> l=list.toList();
+		Collections.sort(l, new ComparatorResult(orderByList));  
+		ResultBuffer r=new ResultBuffer();
+		r.addList(l);
+		return r;
 	}
 
 	 

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.dearbaby.data.ResultBuffer;
 import org.apache.dearbaby.data.SinResult;
 import org.apache.dearbaby.query.FilterRowValue;
 import org.apache.dearbaby.query.QueryMananger;
@@ -639,7 +640,7 @@ public class SelectNode extends ResultSetNode {
 
 	@Override
 	public boolean fetch() {
-		System.out.println("is-isFilter-fetch  : "+isFilter);
+		//System.out.println("is-isFilter-fetch  : "+isFilter);
 		if(getIsFilter()==true){
 			return rowValue.next();
 		}
@@ -771,6 +772,20 @@ public class SelectNode extends ResultSetNode {
 			return map;
 	}
 	@Override	
+	public ResultBuffer getMatchOrderByRows(OrderByList orderByList){
+		ResultBuffer list=super.getMatchOrderByRows(orderByList);
+		if(hasDistinct()){
+			Set<Map> s=new HashSet<Map>();
+			s.addAll(list.toList());
+			List<Map> l=new ArrayList<Map>();
+			l.addAll(s);
+			ResultBuffer lists=new ResultBuffer();
+			lists.addList(l);
+			return lists;
+		}
+		return list;
+	}
+	/*
 	public List<ResultMap> getMatchOrderByRows(OrderByList orderByList){
 		List<ResultMap> list=super.getMatchOrderByRows(orderByList);
 		if(hasDistinct()){
@@ -782,16 +797,18 @@ public class SelectNode extends ResultSetNode {
 		}
 		return list;
 	}
-	
+	*/
 	@Override	
-	public List<ResultMap> getMatchRows(){
-		List<ResultMap> list=super.getMatchRows();
+	public ResultBuffer getMatchRows(){
+		ResultBuffer list=super.getMatchRows();
 		if(hasDistinct()){
-			Set<ResultMap> s=new HashSet<ResultMap>();
-			s.addAll(list);
-			List<ResultMap> l=new ArrayList<ResultMap>();
+			Set<Map> s=new HashSet<Map>();
+			s.addAll(list.toList());
+			List<Map> l=new ArrayList<Map>();
 			l.addAll(s);
-			return l;
+			ResultBuffer lists=new ResultBuffer();
+			lists.addList(l);
+			return lists;
 		}
 		return list;
 	}

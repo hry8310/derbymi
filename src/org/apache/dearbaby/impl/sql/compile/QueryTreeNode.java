@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
+import org.apache.dearbaby.data.ResultBuffer;
 import org.apache.dearbaby.query.FilterRowValue;
 import org.apache.dearbaby.query.JoinType;
 import org.apache.dearbaby.query.QueryMananger;
@@ -105,9 +106,9 @@ public abstract class QueryTreeNode implements Visitable {
 	
 	//for task 
 	public QueryTaskCtrl taskCtrl=null;
-	public  List<ResultMap>  resList;
-	
+	public ResultBuffer  resList;
 	public int joins=JOIN_UN;
+
 	public ArrayList<JoinType> ej=new ArrayList<JoinType> ();
 	/*
 	 * 如果为集合处理后，数据将会存放在这里
@@ -511,20 +512,21 @@ public abstract class QueryTreeNode implements Visitable {
 		TaskPoolManager.putTask(qtask);
     }
     
-    public List<ResultMap> getMatchRows(){
-    	List<ResultMap> list=new ArrayList<ResultMap>();
+    public ResultBuffer getMatchRows(){
+    	ResultBuffer list=new ResultBuffer();
     	int i=0;
+    
     	while ( fetch()) {
-			System.out.println("ddddddddddddddddddddddcc =fetech");
+     
 			if ( match()) {
 			 	HashMap map= getMatchRow();
-				System.out.println("fetch-ok-----  "+(i++));;
-			 	ResultMap m=new ResultMap(map);
+				//System.out.println("fetch-ok-----  "+(i++));;
+			 	//ResultMap m=new ResultMap(map);
 				
-			 	list.add(m);
+			 	list.add(map);
 			}
 			fetchEnd();
-		}
+		} 
     	return list;
     }
     
@@ -537,16 +539,16 @@ public abstract class QueryTreeNode implements Visitable {
     	return qs.getDrvSize();
     }
     
-    public List<ResultMap> getMatchOrderByRows(OrderByList orderByList){
-    	List<ResultMap> list=new ArrayList<ResultMap>();
+    public ResultBuffer getMatchOrderByRows(OrderByList orderByList){
+    	ResultBuffer list=new ResultBuffer();
     	while ( fetch()) {
 			 
 			if ( match()) {
 				HashMap map= getMatchOrderByRow(orderByList);
 				
-				ResultMap m=new ResultMap(map);
+				//ResultMap m=new ResultMap(map);
 				
-				list.add(m);
+				list.add(map);
 			}
 			fetchEnd();
 		}
