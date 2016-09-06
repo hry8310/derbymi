@@ -29,14 +29,17 @@ public class JdbcExecutor implements IExecutor {
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery(sql);
 				System.out.println("begin-nexting");
+				Map m = new HashMap();
 				while (rs.next()) {
-					Map m = new HashMap();
+					
 					for (String c : columns) {
 						Object o = rs.getObject(c);
 						m.put(c, o);
 					}
 					results.add(m);
 				}
+				rs.close();
+				stmt.close();
 		}catch(Exception e){
 			e.printStackTrace();
 		}

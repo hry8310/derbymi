@@ -41,7 +41,7 @@ public class DearTest {
 		sql="SELECT a.doctorName  FROM (select c.DoctorId from  WorkInforParameter2 c)  a , (select d.DoctorId from  doctorinforparameter2 d where d.id>200000) b  WHERE  a.DoctorId=b.DoctorId   ";
 	//	sql="SELECT a.doctorName  FROM WorkInforParameter4  a left join doctorinforparameter4 b on  a.DoctorId=b.DoctorId  ";
 		sql="SELECT a.doctorName,b.DoctorId  FROM WorkInforParameter4  a , doctorinforparameter4 b  WHERE  a.DoctorId=b.DoctorId   ";
-		sql="SELECT a.doctorId     FROM workinforparameter6  a , doctorinforparameter7 b  WHERE  a.DoctorId=b.DoctorId    ";
+		sql="SELECT a.doctorId     FROM workinforparameter7  a , doctorinforparameter7 b  WHERE  a.DoctorId=b.DoctorId    ";
 		
 		//sql="SELECT a.doctorName  FROM WorkInforParameter5  a    ";
 	//	 Date d1=new Date();

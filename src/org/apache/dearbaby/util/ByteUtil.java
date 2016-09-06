@@ -284,4 +284,21 @@ public class ByteUtil {
 		  
 	} 
 
+	public static long compInt(int b,int r){
+		long bl=(int)b;
+		
+		long k=(bl << 32)|r;
+		return k;
+	}
+	
+	public static int getIntLow(long b){
+		int bl=(int)b;
+		return bl;
+	}
+	public static int getIntHght(long b){
+		long bt=b;
+		int bl=(int)(bt>>>32);
+		return bl;
+	}
+	
 }
