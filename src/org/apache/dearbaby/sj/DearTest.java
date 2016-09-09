@@ -41,7 +41,7 @@ public class DearTest {
 		sql="SELECT a.doctorName  FROM (select c.DoctorId from  WorkInforParameter2 c)  a , (select d.DoctorId from  doctorinforparameter2 d where d.id>200000) b  WHERE  a.DoctorId=b.DoctorId   ";
 	//	sql="SELECT a.doctorName  FROM WorkInforParameter4  a left join doctorinforparameter4 b on  a.DoctorId=b.DoctorId  ";
 		sql="SELECT a.doctorName,b.DoctorId  FROM WorkInforParameter4  a , doctorinforparameter4 b  WHERE  a.DoctorId=b.DoctorId   ";
-		sql="SELECT a.doctorId     FROM workinforparameter7  a , doctorinforparameter7 b  WHERE  a.DoctorId=b.DoctorId    ";
+		sql="SELECT  a.doctorId,b.DoctorId     FROM workinforparameter6  a , doctorinforparameter6 b  WHERE  a.DoctorId<b.DoctorId   ";
 		
 		//sql="SELECT a.doctorName  FROM WorkInforParameter5  a    ";
 	//	 Date d1=new Date();
@@ -58,6 +58,13 @@ public class DearTest {
 		 */
 		 Date d1=new Date();
 		 ResultBuffer  list=selector.getResult();
+		 list.init();
+		 /*
+		 while(list.isEndOut()==false){
+			 System.out.println("row - "+list.getCurrRow() );
+			 list.nextTo();
+		 }
+		 */
 		 Date d2=new Date();
 		 System.out.println("sizeiiiii - "+list.size()+" , time:"+(d2.getTime()-d1.getTime()));
 		 

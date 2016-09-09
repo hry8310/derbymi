@@ -517,7 +517,7 @@ public abstract class QueryTreeNode implements Visitable {
     	int i=0;
     
     	while ( fetch()) {
-     
+    		//System.out.println("fetch-ok-----  "+(i++));;
 			if ( match()) {
 			 	HashMap map= getMatchRow();
 				//System.out.println("fetch-ok-----  "+(i++));;

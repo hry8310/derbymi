@@ -6,4 +6,5 @@ public class SinResultFac {
 		//return new SinResultMap();
 		return new SinResultBuffer();
 	}
+	
 }

@@ -37,6 +37,7 @@ import org.apache.dearbaby.query.RowColumn;
 import org.apache.dearbaby.query.SinQuery;
 import org.apache.dearbaby.sj.ResultMap;
 import org.apache.dearbaby.util.ColCompare;
+import org.apache.dearbaby.util.MathUtil;
 import org.apache.dearbaby.util.QueryUtil;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.Limits;
@@ -562,10 +563,15 @@ public class SelectNode extends ResultSetNode {
 				rc.add2Row("#", name,ri);;
 			}else{
 				int i=Integer.valueOf(o.toString());
-				rc.replaceRow("#", name, i+ri);
+				//rc.replaceRow("#", name, i+ri);
+				rc.replaceRow("#", name,add(o,obj));
 			}
 		} 
 		
+	}
+	
+	private Object add(Object i,Object ii){
+		return MathUtil.add(i.toString(), ii.toString());
 	}
 	//max-true
 	private void aggreMinOrMax(RowColumn rc,boolean first, ResultColumn t,boolean max){

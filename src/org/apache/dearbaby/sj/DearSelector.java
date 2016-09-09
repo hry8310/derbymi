@@ -55,7 +55,7 @@ public class DearSelector {
 	
 	
 	
-	 public ResultBuffer  getResult_nu(){
+	 public ResultBuffer  getResult(){
 		
 		 StatementNode qtt=(StatementNode)qt.copy();
 		 
@@ -63,7 +63,7 @@ public class DearSelector {
 		 return  qt.getMatchRows();
 	 }
 	 
-	 public ResultBuffer getResult(){
+	 public ResultBuffer getResult_nu(){
 		
 		 ResultBuffer ls =new ResultBuffer();
 		 List<QueryTreeNode>  qtts= qt.copys(5);

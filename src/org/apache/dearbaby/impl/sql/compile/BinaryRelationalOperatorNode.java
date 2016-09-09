@@ -341,7 +341,8 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 				}else{
 					j=new JoinType((ColumnReference)rightOperand,(ColumnReference)leftOperand,operator,qm);
 				}
-				if(j.type==JoinType.HASH){
+				//if(j.type==JoinType.HASH){
+				if(j.type!=JoinType.UN){
 					qm.addJoinTo(j);
 				}
 			}
@@ -372,9 +373,9 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 			
 			return false;
 		}
-	//	System.out.println("lo:  "+lo+"  ro   "+ro);
+		
 		int r = ColCompare.compareObject(lo, ro);
-		 
+		
 		if(r==0){
 			DearTest.ix++;
 			if((DearTest.ix%10000==0)){
@@ -385,7 +386,7 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 		}
 		 
 		boolean br = ColCompare.matchOpr(r, operator);
-		
+	//	System.out.println("lo:  "+lo+"  ro   "+ro +  "  . r "+r+"  op "+operator);
 		return br;
 		// return true;
 	}

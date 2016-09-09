@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.dearbaby.query.JoinType;
 import org.apache.dearbaby.util.ByteUtil;
 import org.apache.dearbaby.util.ColCompare;
 
@@ -40,7 +41,7 @@ public interface SinResult {
 	
 	public int size();
 	
-	public void buildIndex(String col);
+	public void buildIndex(String col,JoinType jt,int ct);
 	
 	public Object getHsCurrCol(String name);
 	public Map getHsCurrRow( );

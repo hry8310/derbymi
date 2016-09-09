@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.dearbaby.query.JoinType;
 import org.apache.dearbaby.util.ByteUtil;
 import org.apache.dearbaby.util.ColCompare;
 
@@ -21,7 +22,7 @@ public class SinResultMap implements SinResult {
 	private int drvRowId=0;
 	private int endSize=0;
 	
-	public HashIndex hashIndex;
+	public IIndex hashIndex;
 	
 	private boolean isBuild=false;
 	
@@ -119,8 +120,8 @@ public class SinResultMap implements SinResult {
 		endSize++;
 		results.add(m);
 	}
-	public void buildIndex(String col){
-		System.out.println("buildIndex-col  "+col);  
+	public void buildIndex(String col,JoinType jt,int ct){
+		 
 		if(hashIndex!=null){
 			return;
 		}

@@ -2,7 +2,7 @@ package org.apache.dearbaby.data;
 
 import java.util.ArrayList;
 
-public class HashIndex {
+public class HashIndex implements IIndex {
 
 	int hashSize;
 	
@@ -98,5 +98,9 @@ public class HashIndex {
 		return hi;
 	}
 	
+	//no-user
+	public void buildEnd(){
+		
+	}
 }
 

@@ -87,7 +87,22 @@ public class ColCompare {
 				return false;
 			}
 
-		} else if (opx.equals("<>") || opx.equals("!=")) {
+		} else if (opx.equals(">=")) {
+
+			if (ret >= 0) {
+				return true;
+			} else {
+				return false;
+			}
+
+		} else if (opx.equals("<=")) {
+			if (ret <= 0) {
+				return true;
+			} else {
+				return false;
+			}
+
+		}else if (opx.equals("<>") || opx.equals("!=")) {
 			if (ret != 0) {
 				return true;
 			} else {

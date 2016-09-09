@@ -103,8 +103,7 @@ public class QueryResultManager extends QueryMananger {
 				for (int i = joinResult.size() - 1; i >= 0; i--) {
 					SinQuery sq = joinResult.get(i);
 					
-					if(sq.nextToJn()==true){
-						System.out.println("hhhhhrrrr ");
+					if(sq.nextToJn()==true){ 
 						return true;
 					}else{
 						
@@ -156,8 +155,7 @@ public class QueryResultManager extends QueryMananger {
 					SinQuery sq = joinResult.get(i);
 					
 					if(sq.nextToJn()==true){
-						System.out.println("hhhhhrrrr ");
-						return true;
+						 	return true;
 					}else{
 						
 						if(i==0){

@@ -12,6 +12,9 @@ import org.apache.dearbaby.impl.sql.compile.ValueNode;
 import org.apache.dearbaby.task.BuildTask;
 import org.apache.dearbaby.task.QueryTask;
 import org.apache.dearbaby.task.TaskPoolManager;
+import org.apache.dearbaby.util.DRConstant;
+
+import com.sun.corba.se.impl.orbutil.closure.Constant;
 
 public class SinQuery {
 
@@ -120,16 +123,53 @@ public class SinQuery {
 		
 	}
 	
+	private int lorLag(int lor,JoinType jt){
+		if(lor==2)//left
+		{
+			if(jt.opr==DRConstant.LAG){
+				return DRConstant.LAG;
+			}
+			if(jt.opr==DRConstant.LAGEQ){
+				return DRConstant.LAGEQ;
+			}
+			if(jt.opr==DRConstant.LESS){
+				return DRConstant.LESS;
+			}
+			if(jt.opr==DRConstant.LESSEQ){
+				return DRConstant.LESSEQ;
+			}
+		}
+		if(lor==1)//right
+		{
+			if(jt.opr==DRConstant.LAG){
+				return DRConstant.LESS;
+			}
+			if(jt.opr==DRConstant.LAGEQ){
+				return DRConstant.LESSEQ;
+			}
+			if(jt.opr==DRConstant.LESS){
+				return DRConstant.LAG;
+			}
+			if(jt.opr==DRConstant.LESSEQ){
+				return DRConstant.LAGEQ;
+			}
+		}
+		System.out.println("sssssssssssssssss  "+jt.opr);
+		return 0;
+	}
+	
 	public void buildIndex(JoinType jt){
 		
 		if(jt.left.getTableName().equalsIgnoreCase(alias)){
-			System.out.println("nextJoin-buildIndexddd");
-			results.buildIndex(jt.left._columnName);
+			
+			int ct= lorLag(1,jt); 
+			results.buildIndex(jt.left._columnName,jt,ct);
 			return;
 		}
 		if(jt.right.getTableName().equalsIgnoreCase(alias)){
-			System.out.println("nextJoin-buildIndexwwww");
-			results.buildIndex(jt.right._columnName);
+			
+			int ct= lorLag(2,jt); 
+			results.buildIndex(jt.right._columnName,jt,ct);
 			return;
 		}
 	}
