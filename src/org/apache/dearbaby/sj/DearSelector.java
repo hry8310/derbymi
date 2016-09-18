@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.dearbaby.cache.ExcCacheConf;
 import org.apache.dearbaby.data.ResultBuffer;
 import org.apache.dearbaby.impl.sql.compile.AggregateNode;
 import org.apache.dearbaby.impl.sql.compile.ColumnReference;
@@ -30,13 +31,17 @@ import org.apache.derby.iapi.sql.compile.Parser;
 public class DearSelector {
 	private StatementNode qt;
    
-	public void query(String sql) {
+	public void query(String sql){
+		query(sql,null);
+	}
+	public void query(String sql,ExcCacheConf cache) {
 		try{
 			
 			Parser ps =  DearContext.getParser();
 			qt = (StatementNode) ps.parseStatement(sql);
 			
 			QueryMananger qm = new QueryMananger();
+			qm.cacheConf=cache;
 			qm.executor=new JdbcExecutor();
 			qm.sql=sql;
 			qt.genQuery(qm); 

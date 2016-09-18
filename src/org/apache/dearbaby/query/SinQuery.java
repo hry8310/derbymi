@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.dearbaby.cache.CacheTableConf;
+import org.apache.dearbaby.cache.ResultCache;
 import org.apache.dearbaby.data.SinResult;
 import org.apache.dearbaby.data.SinResultByte;
 import org.apache.dearbaby.data.SinResultFac;
@@ -44,7 +46,9 @@ public class SinQuery {
 	
 	
 	public boolean isOrCond=false;
- 
+	
+	public int cacheType=CacheTableConf.ALL;
+	public QueryMananger qm;
 	
 	public boolean setTaskCtrl(QueryTaskCtrl taskCtrl){
 		if(this.taskCtrl!=null){
@@ -214,7 +218,35 @@ public class SinQuery {
 			if (sql == null || sql.length() == 0) {
 				return;
 			}
-			results=executor.exe(sql, columns);
+			boolean getCacheFlg=false;
+			CacheTableConf tb =ResultCache.findTable(tableName);
+			if(qm.cacheConf!=null){
+				int t=qm.cacheConf.get(tableName);
+				
+				if(tb!=null){
+					System.out.println("ttttbbbbbbbbbbbbbbb "+tableName);
+					if(t==CacheTableConf.ALL){
+						
+						if(tb.getType()==CacheTableConf.ALL){
+							getCacheFlg=true;
+						}
+					}else if (t==CacheTableConf.COND) {
+						if(tb.getType()==CacheTableConf.COND){
+							getCacheFlg=true;
+						}
+					}
+				}
+				
+			}
+			
+			if(getCacheFlg==true){
+				results=tb.cacheRule();
+				if(results==null){
+					results=executor.exe(sql, columns);
+				}
+			}else{
+				results=executor.exe(sql, columns);
+			}
 			
 		} catch (Exception e) {
 			e.printStackTrace();

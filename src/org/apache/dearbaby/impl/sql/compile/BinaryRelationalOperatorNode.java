@@ -301,8 +301,9 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 			} else {
 				v = "'" + obj.toString() + "'";
 			}
-			qm.addCond(rc.getTableName(), v + " " + operator + " "
-					+ rc._columnName);
+		//	qm.addCond(rc.getTableName(), v + " " + operator + " "
+		//			+ rc._columnName);
+			qm.addCondLeft(rc.getTableName(), v , operator , rc._columnName);
 			if(qm.currWhereQuery!=null){
 				if(!rc.getTableName().equalsIgnoreCase(qm.currWhereQuery.alias)){
 					qm.currWhereQuery.simpleSelect=false;
@@ -324,8 +325,9 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 					qm.currWhereQuery.simpleSelect=false;
 				}
 			}
-			qm.addCond(lc.getTableName(), lc._columnName + " " + operator + " "
-					+ v);
+		//	qm.addCond(lc.getTableName(), lc._columnName + " " + operator + " "
+		//			+ v);
+			qm.addCondRight(rc.getTableName(), v , operator , lc._columnName);
 		}else{
 			if(qm.currWhereQuery!=null){
 				qm.currWhereQuery.simpleSelect=false;

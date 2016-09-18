@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.dearbaby.cache.CacheTableConf;
+import org.apache.dearbaby.cache.ExcCacheConf;
+import org.apache.dearbaby.cache.ResultCache;
 import org.apache.dearbaby.impl.sql.compile.QueryTreeNode;
 
 public class QueryMananger {
@@ -14,6 +17,7 @@ public class QueryMananger {
 	public IExecutor executor;
 	public String sql="";
 	public SinQuery currWhereQuery;
+	public ExcCacheConf cacheConf;
 
 	//for joinType
 	private ArrayList<JoinType> joins =new ArrayList<JoinType>();
@@ -35,6 +39,7 @@ public class QueryMananger {
 			found.alias = alias;
 			found.tableName = table;
 			found.executor=executor;
+			found.qm=this;
 			querys.add(found);
 		}
 		return found;
@@ -69,6 +74,7 @@ public class QueryMananger {
 
 			}
 		}
+		sq.qm=this;
 		querys.add(sq);
 		return found;
 	}
@@ -113,9 +119,37 @@ public class QueryMananger {
 			found.andCondition = found.andCondition + " and " + cond;
 		}
 	}
+	private void addCond(String table, String cond){
+		addCond(table, table, cond);
+	}
+	private void setKeyCache(String table,String operator ,String cl){
+		SinQuery found = foundQuery(table, table);
+		if(found.isOrCond==true){
+			return ;
+		}
+		if(ResultCache.findTable(table)==null){
+			return;
+		}
+		if(operator.equals("=")){
+			if(ResultCache.isKey(table, cl)){
+				found.cacheType=CacheTableConf.CKEY;
+				return ;
+			}
+		}
+		if(found.cacheType!=CacheTableConf.CKEY){
+			found.cacheType=CacheTableConf.COND;
+		}
+	}
 	
-
-	public void addCond(String table, String cond) {
+	public void addCondLeft(String table, Object v,String operator ,String cl) {
+		setKeyCache(table,operator,cl);
+		String cond=v + " " + operator + " " + cl;
+		addCond(table, table, cond);
+	}
+	
+	public void addCondRight(String table, Object v,String operator ,String cl) {
+		setKeyCache(table,operator,cl);
+		String cond=cl + " " + operator + " " +v;
 		addCond(table, table, cond);
 	}
 

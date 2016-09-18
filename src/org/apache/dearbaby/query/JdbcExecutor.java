@@ -40,6 +40,7 @@ public class JdbcExecutor implements IExecutor {
 				}
 				rs.close();
 				stmt.close();
+				
 		}catch(Exception e){
 			e.printStackTrace();
 		}

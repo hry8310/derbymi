@@ -8,5 +8,5 @@ public class ColType {
 	public static final int XLONG=5;
 	public static final int XBIG=6;
 	public static final int XSHORT=7;
-	
+	public static final int XNULL=0;
 }

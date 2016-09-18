@@ -47,6 +47,9 @@ public class ColCompare {
 
 	
 	public static int getColType(Object obj) {
+		if(obj==null){
+			return   ColType.XNULL;
+		}
 		String cls=obj.getClass().getName();
 		int r = 0;
 		switch(cls){

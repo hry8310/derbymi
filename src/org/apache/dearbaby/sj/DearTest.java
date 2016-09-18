@@ -4,6 +4,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.dearbaby.cache.CacheExecuteImp;
+import org.apache.dearbaby.cache.CacheTableConf;
+import org.apache.dearbaby.cache.ExcCacheConf;
+import org.apache.dearbaby.cache.ResultCache;
 import org.apache.dearbaby.data.ResultBuffer;
 
 public class DearTest {
@@ -41,13 +45,24 @@ public class DearTest {
 		sql="SELECT a.doctorName  FROM (select c.DoctorId from  WorkInforParameter2 c)  a , (select d.DoctorId from  doctorinforparameter2 d where d.id>200000) b  WHERE  a.DoctorId=b.DoctorId   ";
 	//	sql="SELECT a.doctorName  FROM WorkInforParameter4  a left join doctorinforparameter4 b on  a.DoctorId=b.DoctorId  ";
 		sql="SELECT a.doctorName,b.DoctorId  FROM WorkInforParameter4  a , doctorinforparameter4 b  WHERE  a.DoctorId=b.DoctorId   ";
-		sql="SELECT  a.doctorId,b.DoctorId     FROM workinforparameter6  a , doctorinforparameter6 b  WHERE  a.DoctorId<b.DoctorId   ";
+		sql="SELECT  a.doctorId,b.DoctorId     FROM workinforparameter  a , doctorinforparameter b  WHERE  a.DoctorId=b.DoctorId   ";
 		
 		//sql="SELECT a.doctorName  FROM WorkInforParameter5  a    ";
 	//	 Date d1=new Date();
+		ExcCacheConf ccf=new ExcCacheConf();
+		ccf.put("workinforparameter", CacheTableConf.ALL);
+		CacheTableConf ct=new CacheTableConf();
+		ct.setType(CacheTableConf.ALL);
+		ct.setTable("workinforparameter");
+		try{
+			ct.executor=new CacheExecuteImp();
+		}catch(Exception e){
+			
+		}
+		ResultCache.addTable(ct);
 		
 		DearSelector selector =new DearSelector();  
-		selector.query(sql);
+		selector.query(sql,ccf);
 		/*
 		 while(true){
 			 ResultMap map=selector.fetch();
