@@ -320,6 +320,9 @@ public class ResultColumn extends ValueNode implements ResultColumnDescriptor,
 				|| columnName.equals(getSourceColumnName());
 	}
 
+	public Object getVal() {
+		return  getColVal(getTableName(),getSourceColumnName());
+	}
 	/**
 	 * Get non-null column name. This method is called during the bind phase to
 	 * see if we are dealing with ResultColumn in the SELECT list that belongs

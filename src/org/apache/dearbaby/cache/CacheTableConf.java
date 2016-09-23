@@ -3,7 +3,7 @@ package org.apache.dearbaby.cache;
 import org.apache.dearbaby.data.SinResult;
 import org.apache.dearbaby.query.IExecutor;
 
-public class CacheTableConf {
+public abstract class CacheTableConf {
 
 	//全部数据。
 	public static int ALL=1;
@@ -16,7 +16,7 @@ public class CacheTableConf {
 	private String table;
 	private int type;
 	private String sql;
-	private  SinResult result;
+	protected  SinResult result;
 	
 	public  CacheExecute executor;
 	
@@ -49,10 +49,8 @@ public class CacheTableConf {
 		getCache0();
 	}
 	
+	public abstract SinResult loadCacheRule();
 	public SinResult cacheRule(){
-		if(result==null){
-			getCache();
-		}
-		return result;
+		return loadCacheRule();
 	}
 }

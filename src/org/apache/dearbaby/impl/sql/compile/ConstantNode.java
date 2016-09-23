@@ -88,6 +88,14 @@ abstract class ConstantNode extends ValueNode
 		return	value;
 	}
 
+    public Object getVal() {
+    	try {
+    		return  getValue().getObject();
+    	}catch(Exception e){
+    		return null;
+    	}
+	}
+    
 	/**
 	 * Convert this object to a String.  See comments in QueryTreeNode.java
 	 * for how this should be done for tree printing.

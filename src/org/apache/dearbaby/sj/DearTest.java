@@ -8,6 +8,7 @@ import org.apache.dearbaby.cache.CacheExecuteImp;
 import org.apache.dearbaby.cache.CacheTableConf;
 import org.apache.dearbaby.cache.ExcCacheConf;
 import org.apache.dearbaby.cache.ResultCache;
+import org.apache.dearbaby.cache.SimpCacheTableConf;
 import org.apache.dearbaby.data.ResultBuffer;
 
 public class DearTest {
@@ -51,7 +52,7 @@ public class DearTest {
 	//	 Date d1=new Date();
 		ExcCacheConf ccf=new ExcCacheConf();
 		ccf.put("workinforparameter", CacheTableConf.ALL);
-		CacheTableConf ct=new CacheTableConf();
+		CacheTableConf ct=new SimpCacheTableConf();
 		ct.setType(CacheTableConf.ALL);
 		ct.setTable("workinforparameter");
 		try{

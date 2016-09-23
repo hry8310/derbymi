@@ -218,6 +218,10 @@ public class ColumnReference extends ValueNode {
 		qm=q;
 		qm.addCol(getTableName(), _columnName );
 	}
+	
+	public Object getVal() {
+		return  getColVal(getTableName(),_columnName);
+	}
 
 	/**
 	 * Prints the sub-nodes of this object. See QueryTreeNode.java for how tree

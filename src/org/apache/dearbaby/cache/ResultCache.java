@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import org.apache.dearbaby.data.SinResult;
 
-public class ResultCache {
+public  class ResultCache {
 	private static HashMap<String,CacheTableConf > tables=new HashMap<String,CacheTableConf >();
 	public static void addTable(CacheTableConf table){
 		CacheTableConf ct=findTable(table.getTable());
@@ -45,4 +45,6 @@ public class ResultCache {
 		}
 		return c.cacheRule();
 	}
+	
+	
 }

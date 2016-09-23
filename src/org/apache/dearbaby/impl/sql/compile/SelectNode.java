@@ -229,6 +229,26 @@ public class SelectNode extends ResultSetNode {
 		}
 	}
 
+	public Object getVal() {
+		Object obj=null;
+    	try {
+    		List<ResultColumn> list = resultColumns.v;
+			if (list.size() != 1) {
+				return null;
+			}
+			ResultColumn c = list.get(0);
+			c.qm = qm;
+			if(isFilter==false){
+				obj = c.getVal();
+			}else{
+				obj = rowValue.getCurrVal(c.getTableName(), c.getSourceColumnName());
+			}
+			return obj;
+    	}catch(Exception e){
+    		return null;
+    	}
+	}
+	
 	public   SelectNode copy(){
 		try{
 		SelectNode sn=new SelectNode(  resultColumns,   fromList,

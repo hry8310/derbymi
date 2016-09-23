@@ -2,7 +2,7 @@ package org.apache.dearbaby.cache;
 
 import java.util.HashMap;
 
-public class ExcCacheConf {
+public  class ExcCacheConf {
 	HashMap h=new HashMap();
 	public void put(String table,int type){
 		h.put(table.toUpperCase(), type);

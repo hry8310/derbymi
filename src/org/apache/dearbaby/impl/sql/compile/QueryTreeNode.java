@@ -449,6 +449,7 @@ public abstract class QueryTreeNode implements Visitable {
 	/*
 	 * 获取字段的值 
 	 * */
+	/*
 	public Object getVal() {
 		Object obj = null;
 		try {
@@ -485,7 +486,12 @@ public abstract class QueryTreeNode implements Visitable {
 		}
 		return obj;
 	}
-
+	*/
+	
+	public Object getVal() {
+		
+		return null;
+	}
 	
 	 /*获取匹配行信息*/
     protected HashMap getMatchRow(){
