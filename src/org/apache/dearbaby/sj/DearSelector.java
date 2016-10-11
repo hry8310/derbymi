@@ -18,6 +18,7 @@ import org.apache.dearbaby.impl.sql.compile.ResultColumnList;
 import org.apache.dearbaby.impl.sql.compile.SelectNode;
 import org.apache.dearbaby.impl.sql.compile.StatementNode;
 import org.apache.dearbaby.impl.sql.compile.SubqueryNode;
+import org.apache.dearbaby.query.IExecutor;
 import org.apache.dearbaby.query.JdbcExecutor;
 import org.apache.dearbaby.query.QueryMananger;
 import org.apache.dearbaby.query.QueryTaskCtrl;
@@ -30,10 +31,36 @@ import org.apache.derby.iapi.sql.compile.Parser;
 
 public class DearSelector {
 	private StatementNode qt;
+	
+	private IExecutor executor;
    
+	public DearSelector(){
+		try{
+			executor=new JdbcExecutor();
+		}catch(Exception e){
+				
+		}
+	}
+	
+	
+	public void exeQuery(QueryMananger qm){
+		qt.genQuery(qm); 
+	 	qt.exeQuery(); 
+		qt.deciJoin(); 
+		
+			    //qt.genQuery(qm); 
+				//qm.readyMutlTask();
+				//qt.exeQuery(); 
+				//qt.deciJoin(); 
+				//qm.getTaskCtrl().await();
+	}
+	
 	public void query(String sql){
 		query(sql,null);
 	}
+	
+	
+	
 	public void query(String sql,ExcCacheConf cache) {
 		try{
 			
@@ -42,20 +69,33 @@ public class DearSelector {
 			
 			QueryMananger qm = new QueryMananger();
 			qm.cacheConf=cache;
-			qm.executor=new JdbcExecutor();
+			qm.executor=executor;
 			qm.sql=sql;
-			qt.genQuery(qm); 
+			exeQuery(qm);
+		//	qt.genQuery(qm); 
 			//qm.readyMutlTask();
-			qt.exeQuery();
-			System.out.println("dddddddddddddddddddddd--001");
-			qt.deciJoin();
-			System.out.println("dddddddddddddddddddddd--002");
+			//qt.exeQuery(); 
+			//qt.deciJoin(); 
 			//qm.getTaskCtrl().await();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 	
+	
+	
+	
+	public IExecutor getExecutor() {
+		return executor;
+	}
+
+	public void setExecutor(IExecutor executor) {
+		this.executor = executor;
+	}
+
+
+
+
 	int i=0;
 	
 	
@@ -96,73 +136,10 @@ public class DearSelector {
 		 return  ls;
 	 }
 	  
-	 private String genKey(GroupByList gr,ResultMap rm){
-		 String k="";
-		 for(GroupByColumn col: gr.v){
-				ColumnReference colRef=(ColumnReference)col.columnExpression;
-				Object o=rm.getObject(colRef.getTableName(), colRef.getColumnName());
-				if(o!=null){
-					k=k+o.toString()+"<<>>";
-				}
-			
-			};
-		 return k;
-	 }
-	 private void putGroup(HashMap hs,GroupByList gr,ResultMap rm){
-		 String key=genKey(gr,rm);
-		 if(!hs.containsKey(key)){
-			 hs.put(key, rm);
-		 }
-	 }
 	 
-	 private void putGroupArrg(HashMap hs,GroupByList gr,ResultMap rm,SelectNode s){
-		 String key=genKey(gr,rm);
-		 if(!hs.containsKey(key)){
-			 hs.put(key, rm);
-		 }else{
-			 compRest((ResultMap)hs.get(key),rm,s);
-		 }
-	 }
 	 
-	 private void compRest(ResultMap rt,ResultMap rf,SelectNode s){
-		 for (Object o : s.resultColumns.v) {
-				ResultColumn t = (ResultColumn) o;
-				if (t._expression instanceof AggregateNode) {
-					AggregateNode agg=(AggregateNode)t._expression;
-					String fun=agg.aggregateName; 
-					ColumnReference c=(ColumnReference)agg.operand;
-					String cn=QueryUtil.getAggrColName(t);
-					Object vf=rf.getAggrObject(cn);
-					Object vt=rt.getAggrObject(cn);
-					Object ret=aggre(vt,vf,fun);
-					rt.setAggrObject( cn, ret);
-				}
-			}
-	 }
+	  
 	 
-	 private Object aggre(Object vt,Object vf,String fun){
-		 Object ret=null;
-		 if(fun.equalsIgnoreCase("COUNT")){
-			 ret =Integer.valueOf(MathUtil.add(vt.toString(), vf.toString()).toString());
-		}
-		
-		if(fun.equalsIgnoreCase("SUM")){
-			System.out.println("dddddddddddddddddd:vt:  "+vt+" , vf  : "+vf);
-			ret =Integer.valueOf(MathUtil.add(vt.toString(), vf.toString()).toString());
-		}
-		if(fun.equalsIgnoreCase("MAX")){
-			ret =vt;
-			if(ColCompare.compareObject(vt,vf) < 0){
-				ret = vf;
-			}
-		}
-		if(fun.equalsIgnoreCase("min")){
-			ret =vt;
-			if(ColCompare.compareObject(vt,vf) > 0){
-				ret = vf;
-			}
-		}
-		return ret;
-	 }
+	 
 	 
 }

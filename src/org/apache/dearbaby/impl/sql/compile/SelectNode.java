@@ -21,6 +21,7 @@
 
 package org.apache.dearbaby.impl.sql.compile;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -569,20 +570,17 @@ public class SelectNode extends ResultSetNode {
 		String alias = c._qualifiedTableName.tableName;
 		String cName = c.getColumnName(); 
 		Object obj = qm.findFetchRow(alias).getCurrCol(cName);
-		int ri=0;
-		if(obj!=null){
-			ri=Integer.valueOf(obj.toString());
-		}
+		 
 		if(first){
-			rc.add2Row("#", name, ri);;
+			rc.add2Row("#", name, obj);;
 		}else{
 			Object o=rc.findVal("#",name);
 			
 			 
 			if(o==null){
-				rc.add2Row("#", name,ri);;
+				rc.add2Row("#", name,obj);;
 			}else{
-				int i=Integer.valueOf(o.toString());
+				//int i=Integer.valueOf(o.toString());
 				//rc.replaceRow("#", name, i+ri);
 				rc.replaceRow("#", name,add(o,obj));
 			}
@@ -591,7 +589,9 @@ public class SelectNode extends ResultSetNode {
 	}
 	
 	private Object add(Object i,Object ii){
-		return MathUtil.add(i.toString(), ii.toString());
+		BigDecimal val= MathUtil.add(i.toString(), ii.toString());
+		int t=MathUtil.getRetType(i,ii);
+		return MathUtil.getNumVal(val, t);
 	}
 	//max-true
 	private void aggreMinOrMax(RowColumn rc,boolean first, ResultColumn t,boolean max){
@@ -739,15 +739,16 @@ public class SelectNode extends ResultSetNode {
 					String cName = t.getSourceColumnName(); 
 					///System.out.println("alias  : "+alias);
 					Object obj =getColVal(alias,cName);
-					map.put(alias+"."+cName, obj);
-					
+				//	map.put(alias+"."+cName, obj);
+					map.put(QueryUtil.getColName(alias, cName), obj);
 				} else if (t._expression instanceof AggregateNode) {
 					 
 					 
 					String name=QueryUtil.getAggrColName(t);
 					System.out.println("alias  : ");
 					Object obj =getColVal("#",name);
-					map.put("#"+"."+name, obj);
+					//map.put("#"+"."+name, obj);
+					map.put(QueryUtil.getColName(name), obj);
 				}else if (t._expression instanceof SubqueryNode) {
 					 
 					SubqueryNode subQ=(SubqueryNode)t._expression;
@@ -755,7 +756,9 @@ public class SelectNode extends ResultSetNode {
 					String name=QueryUtil.getSubSelColName(t);
 					 
 					//Object obj =qt.getColVal("#",name);
-					map.put("#"+"."+name, obj);
+					//map.put("#"+"."+name, obj);
+					map.put(QueryUtil.getColName(name), obj);
+					
 				}
 				
 			}

@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.dearbaby.sj.ResultMap;
 import org.apache.dearbaby.util.ByteUtil;
 import org.apache.dearbaby.util.ColCompare;
+import org.apache.dearbaby.util.QueryUtil;
 
 public class ResultBuffer {
 	private int rowId = 0;
@@ -87,7 +88,7 @@ public class ResultBuffer {
 		byte[] b= rb.getRow(rowId);
 		 
 		for(int i=0;i<head.size();i++){
-			 if(head.get(i).equals(name)){
+			 if(head.get(i).equalsIgnoreCase(name)){
 				 return getCol(b,i);
 			 }
 		}
@@ -103,6 +104,11 @@ public class ResultBuffer {
 	public  Object getCurrCol (String name) {
 		 
 		return getCurrCol0(name);
+	}
+	
+	public  Object getCurrCol (String alias,String name) {
+		String iName=QueryUtil.getColName(alias,name);
+		return getCurrCol0(iName);
 	}
 	
 	public Map nextRow() {

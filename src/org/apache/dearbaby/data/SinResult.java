@@ -34,7 +34,7 @@ public interface SinResult {
 	public boolean isEndOut() ;
 	
 	public void add(Map m);
-	
+	public void addEnd();
 	 
 	
 	public SinResult clone();

@@ -19,7 +19,12 @@ public class MathUtil {
      */
     public static int ROUNDING_MODE = BigDecimal.ROUND_HALF_EVEN;
 
-    
+    public static final int MSHORT=4;
+    public static final int MINT=5;
+    public static final int MLONG=6;
+    public static final int MFLOAT=7;
+    public static final int MDOUB=8;
+    public static final int MBIG=9;
 
     /**
      * 两数相加
@@ -329,4 +334,62 @@ public class MathUtil {
         return dividend.divide(divisor, SCALE, roundingMode);
     }
 
+    public static int getRetType(Object obj1,Object obj2){
+    	int t1=getNumType(obj1);
+    	int t2=getNumType(obj2);
+    	if(t1>t2){
+    		return t1;
+    	}
+    	return t2;
+    }
+    
+    public static int getNumType(Object obj){
+    	String cls=obj.getClass().getName();
+    	if (cls.equals("java.lang.Integer")) {
+    		return MINT;
+    	} 
+    	
+    	if (cls.equals("java.lang.Double")) {
+    		return MDOUB;
+    	} 
+    	
+    	if (cls.equals("java.lang.Float")) {
+    		return MFLOAT;
+    	} 
+    	
+    	if (cls.equals("java.lang.Long")) {
+    		return MLONG;
+    	} 
+    	
+    	if (cls.equals("java.lang.Short")) {
+    		return MSHORT;
+    	} 
+    	if (cls.equals("java.math.BigDecimal")) {
+    		return MBIG;
+    	} 
+    	return -1;
+    }
+    
+    public static Object getNumVal(BigDecimal val,int type){
+    	if(type==MINT){
+    		return new Integer(val.toString());
+    	}
+    	if(type==MDOUB){
+    		return new Double(val.toString());
+    	}
+    	if(type==MFLOAT){
+    		return new Float(val.toString());
+    	}
+    	if(type==MLONG){
+    		return new Long(val.toString());
+    	}
+    	if(type==MSHORT){
+    		return new Short(val.toString());
+    	}
+    	if(type==MBIG){
+    		return val;
+    	}
+    	return val;
+    }
+    
 }

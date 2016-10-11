@@ -22,6 +22,11 @@ public class CacheExecuteImp implements CacheExecute {
 		conn = DriverManager.getConnection(MysqlUtil.url, "root", "123456");
 	}
 	
+	public CacheExecuteImp(Connection _conn)throws Exception{
+	 
+		conn =_conn;
+	}
+	
 	public SinResult exe(String sql){
 		results=SinResultFac.getSinResult();
 		try {

@@ -88,6 +88,11 @@ public class SinResultMap implements SinResult {
 		return getCurrRow();
 	}
 	
+	//¿Õ·½·¨
+	public void addEnd(){
+		
+	}
+	
 	public void nextTo() {
 		rowId++;
 		//System.out.println("rows : "+this+"  , rowId : "+rowId);

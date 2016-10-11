@@ -22,6 +22,16 @@ public class QueryUtil {
 		return name;
 	}
 	
+	public static String getColName(String alias,String col){
+		String cName = alias+"."+col;
+		return cName;
+	}
+	
+	public static String getColName(String col){
+		String cName = "#."+col;
+		return cName;
+	}
+	
 	public static String getSubSelColName(ResultColumn t){
 		SubqueryNode agg=(SubqueryNode)t._expression; 
 		 

@@ -27,6 +27,8 @@ public class SinResultBuffer  implements SinResult  {
 	public IIndex hashIndex;
 	private boolean isBuild=false;
 	
+	private boolean isPress=false;
+	
 	private int hl=2;
 	public SinResultBuffer(){
 		 
@@ -44,8 +46,20 @@ public class SinResultBuffer  implements SinResult  {
 		return endSize;
 	}
 	
+	private void compress(){
+		if(isPress==true){
+			return;
+		}
+		if(results.size()==0){
+			return;
+		}
+		results.get(results.size()-1).compress();
+		isPress=true;
+	}
 	
-	
+	public void addEnd(){
+		compress();
+	}
 	public Map getCurrRow0 () {
 		
 		if (results.size() == 0) {

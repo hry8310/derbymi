@@ -22,6 +22,10 @@ public class JdbcExecutor implements IExecutor {
 		conn = DriverManager.getConnection(MysqlUtil.url, "root", "123456");
 	}
 	
+	public JdbcExecutor(Connection _conn)throws Exception{
+		conn = _conn;
+	}
+	
 	public SinResult exe(String sql,List<String> columns){
 		SinResult results =SinResultFac.getSinResult();
 		try {
@@ -38,6 +42,7 @@ public class JdbcExecutor implements IExecutor {
 					}
 					results.add(m);
 				}
+				results.addEnd();
 				rs.close();
 				stmt.close();
 				

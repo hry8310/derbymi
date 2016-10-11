@@ -4,8 +4,10 @@ public class RowsBuffer {
 
 	public int begin=-1;
 	public int end;
-	public byte[] buffer=new byte[1024*1024*10];
-	public int[] indexs =new int[1000*1000];
+	public int bufferSize=024*1024*10;
+	public int idxSize=1000*1000;
+	public byte[] buffer=new byte[bufferSize];
+	public int[] indexs =new int[idxSize];
 	public int idx=0;
 	
 	public int currIdx=0;
@@ -15,8 +17,7 @@ public class RowsBuffer {
 	public byte[] getRow(int rowId){
 		int e=currIdx;
 		if((rowId-begin)==-1){
-			System.out.println("begin   "+begin+" , end:  "+end+" , rowId : "+rowId+"  , idx: "+indexs[rowId+1]);
-			System.exit(0);
+		//	System.exit(0);
 		}
 		if(rowId<end){
 			e=indexs[(rowId-begin)+1];
@@ -29,7 +30,19 @@ public class RowsBuffer {
 	}
 	
 	public boolean addRow(byte[] row,int rowId){
-		
+		if(idx>=idxSize){
+			//计算
+			int i=(buffer.length-currIdx)/row.length;
+			//已经无法保证能再放一条了，直接返回full
+			if(i<=1){
+				return false;
+			}
+			int idxSizeTmp=idxSize+i+5;
+			int[] indexsTmp =new int[idxSizeTmp];
+			System.arraycopy(indexs, 0, indexsTmp, 0, indexsTmp.length);
+			idxSize=idxSizeTmp;
+			indexs=indexsTmp;
+		}
 		if((buffer.length-currIdx)<row.length){
 			int[] indexsTmp =new int[idx];
 			System.arraycopy(indexs, 0, indexsTmp, 0, indexsTmp.length);
@@ -49,4 +62,16 @@ public class RowsBuffer {
 		currIdx=currIdx+row.length;
 		return true;
 	}
+	
+	
+	public void compress(){
+		double f=((double)(bufferSize-currIdx))/bufferSize;
+		if(f>0.2){
+			byte[] buffer2=new byte[currIdx];
+			System.arraycopy(buffer, 0, buffer2, 0,currIdx);
+			buffer=buffer2;
+			bufferSize=currIdx;
+		}
+	}
+	
 }
