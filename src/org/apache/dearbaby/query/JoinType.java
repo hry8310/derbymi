@@ -5,7 +5,7 @@ import org.apache.dearbaby.util.DRConstant;
 
 public class JoinType {
 	public static final int HASH=1;
-	public static final int IDX=2;
+	public static final int SORT=2;
 	public static final int UN=3;
  
 
@@ -27,7 +27,7 @@ public class JoinType {
 		if(op.equals("=")){
 			type=HASH;
 		}else if(op.equals("<")||op.equals(">")||op.equals("<=")||op.equals(">=")) {
-			type=IDX;
+			type=SORT;
 		}else{
 			type=UN;
 		}

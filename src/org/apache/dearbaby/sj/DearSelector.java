@@ -21,6 +21,7 @@ import org.apache.dearbaby.impl.sql.compile.SubqueryNode;
 import org.apache.dearbaby.query.IExecutor;
 import org.apache.dearbaby.query.JdbcExecutor;
 import org.apache.dearbaby.query.QueryMananger;
+import org.apache.dearbaby.query.QuerySession;
 import org.apache.dearbaby.query.QueryTaskCtrl;
 import org.apache.dearbaby.query.SinQuery;
 import org.apache.dearbaby.util.ColCompare;
@@ -35,11 +36,7 @@ public class DearSelector {
 	private IExecutor executor;
    
 	public DearSelector(){
-		try{
-			executor=new JdbcExecutor();
-		}catch(Exception e){
-				
-		}
+		 
 	}
 	
 	
@@ -56,20 +53,22 @@ public class DearSelector {
 	}
 	
 	public void query(String sql){
-		query(sql,null);
+		QuerySession s= QuerySession.jdbcSession();
+		 
+		query(sql,s);
 	}
 	
 	
 	
-	public void query(String sql,ExcCacheConf cache) {
+	public void query(String sql,QuerySession session) {
 		try{
 			
 			Parser ps =  DearContext.getParser();
 			qt = (StatementNode) ps.parseStatement(sql);
 			
 			QueryMananger qm = new QueryMananger();
-			qm.cacheConf=cache;
-			qm.executor=executor;
+			qm.cacheConf=session.cacheConf;
+			qm.executor= executor;
 			qm.sql=sql;
 			exeQuery(qm);
 		//	qt.genQuery(qm); 
@@ -84,15 +83,7 @@ public class DearSelector {
 	
 	
 	
-	
-	public IExecutor getExecutor() {
-		return executor;
-	}
-
-	public void setExecutor(IExecutor executor) {
-		this.executor = executor;
-	}
-
+	 
 
 
 
@@ -100,7 +91,17 @@ public class DearSelector {
 	
 	
 	
-	 public ResultBuffer  getResult(){
+	 public IExecutor getExecutor() {
+		return executor;
+	}
+
+
+	public void setExecutor(IExecutor executor) {
+		this.executor = executor;
+	}
+
+
+	public ResultBuffer  getResult(){
 		
 		 StatementNode qtt=(StatementNode)qt.copy();
 		 

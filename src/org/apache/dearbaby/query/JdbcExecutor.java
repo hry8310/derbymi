@@ -16,20 +16,42 @@ import org.apache.dearbaby.util.MysqlUtil;
 
 
 public class JdbcExecutor implements IExecutor {
-	Connection conn;
-	public JdbcExecutor()throws Exception{
-		Class.forName("com.mysql.jdbc.Driver");//
-		conn = DriverManager.getConnection(MysqlUtil.url, "root", "123456");
+	Connection conn=null;
+	 
+	public void open(){
+		try{
+			if(conn!=null){
+				return;
+			}
+			Class.forName("com.mysql.jdbc.Driver");//
+			conn = DriverManager.getConnection(MysqlUtil.url, "root", "123456");
+		}catch(Exception e){
+			
+		}
 	}
 	
-	public JdbcExecutor(Connection _conn)throws Exception{
-		conn = _conn;
-	}
+ 
 	
+	
+	public Connection getConn() {
+		return conn;
+	}
+
+
+
+
+	public void setConn(Connection conn) {
+		this.conn = conn;
+	}
+
+
+
+
 	public SinResult exe(String sql,List<String> columns){
+		open();
 		SinResult results =SinResultFac.getSinResult();
 		try {
-				
+				 
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery(sql);
 				System.out.println("begin-nexting");

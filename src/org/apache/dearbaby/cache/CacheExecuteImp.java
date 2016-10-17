@@ -17,20 +17,44 @@ import org.apache.dearbaby.util.MysqlUtil;
 public class CacheExecuteImp implements CacheExecute {
 	Connection conn;
 	SinResult results=null;
-	public CacheExecuteImp()throws Exception{
-		Class.forName("com.mysql.jdbc.Driver");//
-		conn = DriverManager.getConnection(MysqlUtil.url, "root", "123456");
+	public void open(){
+		try{
+			if(conn!=null){
+				return;
+			}
+			Class.forName("com.mysql.jdbc.Driver");//
+			conn = DriverManager.getConnection(MysqlUtil.url, "root", "123456");
+		}catch(Exception e){
+			
+		}
+		
 	}
-	
-	public CacheExecuteImp(Connection _conn)throws Exception{
 	 
-		conn =_conn;
-	}
 	
+	public Connection getConn() {
+		return conn;
+	}
+
+
+	public void setConn(Connection conn) {
+		this.conn = conn;
+	}
+
+
+	public SinResult getResults() {
+		return results;
+	}
+
+
+	public void setResults(SinResult results) {
+		this.results = results;
+	}
+
+
 	public SinResult exe(String sql){
 		results=SinResultFac.getSinResult();
 		try {
-				
+				open();
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery(sql);
 				ResultSetMetaData rsmd= rs.getMetaData(); 
