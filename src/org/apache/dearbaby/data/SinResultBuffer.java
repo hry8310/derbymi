@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.dearbaby.config.InitConfig;
 import org.apache.dearbaby.query.JoinType;
 import org.apache.dearbaby.util.ByteUtil;
 import org.apache.dearbaby.util.ColCompare;
@@ -196,6 +197,7 @@ public class SinResultBuffer  implements SinResult  {
 			}
 			
 		}
+		cos=compressCol(cos);
 		addCol(cos);
 		
 		rows=rows+1;
@@ -376,6 +378,19 @@ public class SinResultBuffer  implements SinResult  {
 		ByteUtil.shortCopybyte(pre+b.length, buf, i*hl);
 		System.arraycopy( b,0,buf,head.size()*hl+pre,b.length);
 		return buf;
+	}
+	
+	private byte[] compressCol(byte[] buf){
+		if(buf.length-rowSize<InitConfig.row_arrow_remain_length){
+			return buf ;
+		}
+		double f=((double)(buf.length-rowSize))/buf.length;
+		if(f<InitConfig.row_arrow_remain_rotio){
+			return buf ;
+		}
+		byte[] colTmp=new byte[head.size()*hl+rowSize];
+		System.arraycopy( buf,0,colTmp,0, head.size()*hl+rowSize);
+		return colTmp;
 	}
 	
 	private Object getCol(byte[] buf,int i){

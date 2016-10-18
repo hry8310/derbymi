@@ -47,7 +47,7 @@ public class DearTest {
 		sql="SELECT a.doctorName  FROM WorkInforParameter2  a , doctorinforparameter2 b, doctorinforparameter3 c WHERE  a.DoctorId=b.DoctorName   ";
 		sql="SELECT a.doctorName  FROM (select c.DoctorId from  WorkInforParameter2 c)  a , (select d.DoctorId from  doctorinforparameter2 d where d.id>200000) b  WHERE  a.DoctorId=b.DoctorId   ";
 	//	sql="SELECT a.doctorName  FROM WorkInforParameter4  a left join doctorinforparameter4 b on  a.DoctorId=b.DoctorId  ";
-		sql="SELECT a.doctorName,b.DoctorId  FROM WorkInforParameter4  a , doctorinforparameter4 b  WHERE  a.DoctorId=b.DoctorId   ";
+		sql="SELECT a.doctorName,b.DoctorId  FROM WorkInforParameter7  a , doctorinforparameter7 b  WHERE  a.DoctorId=b.DoctorId   ";
 		sql="SELECT  a.doctorId aid,b.DoctorId  bid   FROM workinforparameter  a , doctorinforparameter b  WHERE  a.DoctorId<=b.DoctorId   ";
 		
 		//sql="SELECT a.doctorName  FROM WorkInforParameter5  a    ";

@@ -1,5 +1,7 @@
 package org.apache.dearbaby.data;
 
+import org.apache.dearbaby.config.InitConfig;
+
 public class RowsBuffer {
 
 	public int begin=-1;
@@ -66,12 +68,18 @@ public class RowsBuffer {
 	
 	public void compress(){
 		double f=((double)(bufferSize-currIdx))/bufferSize;
-		if(f>0.2){
-			byte[] buffer2=new byte[currIdx];
-			System.arraycopy(buffer, 0, buffer2, 0,currIdx);
-			buffer=buffer2;
-			bufferSize=currIdx;
+		if(f<InitConfig.block_arrow_remain_rotio){
+			return;
 		}
+		if(bufferSize-currIdx<InitConfig.block_arrow_remain_length){
+			return;
+		}
+		 
+		byte[] buffer2=new byte[currIdx];
+		System.arraycopy(buffer, 0, buffer2, 0,currIdx);
+		buffer=buffer2;
+		bufferSize=currIdx;
+		 
 	}
 	
 }
