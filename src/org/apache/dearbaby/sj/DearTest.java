@@ -7,11 +7,13 @@ import java.util.Map;
 import org.apache.dearbaby.cache.CacheExecuteImp;
 import org.apache.dearbaby.cache.CacheTableConf;
 import org.apache.dearbaby.cache.ExcCacheConf;
+import org.apache.dearbaby.cache.JustCacheTableConf;
 import org.apache.dearbaby.cache.ResultCache;
 import org.apache.dearbaby.cache.SimpCacheTableConf;
 import org.apache.dearbaby.data.ResultBuffer;
 import org.apache.dearbaby.query.JdbcExecutor;
 import org.apache.dearbaby.query.QuerySession;
+import org.apache.dearbaby.util.DRConstant;
 
 public class DearTest {
 
@@ -47,26 +49,21 @@ public class DearTest {
 		sql="SELECT a.doctorName  FROM WorkInforParameter2  a , doctorinforparameter2 b, doctorinforparameter3 c WHERE  a.DoctorId=b.DoctorName   ";
 		sql="SELECT a.doctorName  FROM (select c.DoctorId from  WorkInforParameter2 c)  a , (select d.DoctorId from  doctorinforparameter2 d where d.id>200000) b  WHERE  a.DoctorId=b.DoctorId   ";
 	//	sql="SELECT a.doctorName  FROM WorkInforParameter4  a left join doctorinforparameter4 b on  a.DoctorId=b.DoctorId  ";
-		sql="SELECT a.doctorName,b.DoctorId  FROM WorkInforParameter7  a , doctorinforparameter7 b  WHERE  a.DoctorId=b.DoctorId   ";
-		sql="SELECT  a.doctorId aid,b.DoctorId  bid   FROM workinforparameter  a , doctorinforparameter b  WHERE  a.DoctorId<=b.DoctorId   ";
+	 	sql="SELECT a.doctorName,b.DoctorId  FROM WorkInforParameter6  a , doctorinforparameter7 b  WHERE  a.DoctorId=b.DoctorId   ";
+		sql="SELECT  a.doctorId aid,b.DoctorId  bid   FROM workinforparameter  a , doctorinforparameter b  WHERE  a.DoctorId=b.DoctorId   ";
 		
 		//sql="SELECT a.doctorName  FROM WorkInforParameter5  a    ";
 	//	 Date d1=new Date();
-		CacheTableConf ct=new SimpCacheTableConf();
-		ct.setType(CacheTableConf.ALL);
-		ct.setTable("workinforparameter");
-		 
-		ct.executor=new CacheExecuteImp();
-		 
-		ResultCache.addTable(ct);
+		
 		
 		ExcCacheConf ccf=new ExcCacheConf();
-		ccf.put("workinforparameter", CacheTableConf.ALL);
-		
+		ccf.put("doctorinforparameter", CacheTableConf.ALL,DRConstant.USEIDX);
+		ccf.put("WORKINFORPARAMETER", CacheTableConf.ALL,DRConstant.USEIDX);
 		
 		DearSelector selector =new DearSelector();  
 		selector.setExecutor(new JdbcExecutor()); 
 		QuerySession s=QuerySession.jdbcSession();
+		s.useDriverTable="WORKINFORPARAMETER";
 		s.cacheConf=ccf;
 		selector.query(sql,s);
 		/*
@@ -77,24 +74,43 @@ public class DearTest {
 			 }
 		 }
 		 */
+		System.out.println("开始时间点" );
 		 Date d1=new Date();
 		 ResultBuffer  list=selector.getResult();
 		 list.init();
-		 
+		/* 
 		 while(list.isEndOut()==false){
 			 System.out.println("row - "+list.getCurrCol("a","doctorId") );
 			 list.nextTo();
 		 }
-	 
+	 */
 		 Date d2=new Date();
 		 System.out.println("sizeiiiii - "+list.size()+" , time:"+(d2.getTime()-d1.getTime()));
 		 
 		 
 	}
+	
+	public static void init(){
+		CacheTableConf ct=new JustCacheTableConf();
+		ct.setType(CacheTableConf.ALL);
+		ct.setTable("doctorinforparameter");
+	//	ct.setSql("select  DOCTORID   from DOCTORINFORPARAMETER7   ");
+		ct.executor=new CacheExecuteImp();
+		
+		CacheTableConf ct2=new JustCacheTableConf();
+		ct2.setType(CacheTableConf.ALL);
+		ct2.setTable("WORKINFORPARAMETER");
+	//	ct2.setSql("select  DOCTORNAME ,  DOCTORID   from WORKINFORPARAMETER6  ");
+		ct2.executor=new CacheExecuteImp();
+		
+		ResultCache.addTable(ct);
+		ResultCache.addTable(ct2);
+	}
 
 	public static void main(String[] args) {
+	//	init();
 		run3();
-	//	run3();
+		//run3();
 	}
 
 }

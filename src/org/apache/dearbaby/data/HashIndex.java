@@ -98,7 +98,7 @@ public class HashIndex implements IIndex {
 		return hi;
 	}
 	
-	//no-user
+	//no-use
 	public void buildEnd(){
 		
 	}

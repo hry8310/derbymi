@@ -38,12 +38,12 @@ public  class ResultCache {
 		return false;
 	}
 	
-	public static SinResult getResult(String table){
+	public static SinResult getResult(String table,String sql){
 		CacheTableConf c=findTable(table);
 		if(c==null){
 			return null;
 		}
-		return c.cacheRule();
+		return c.cacheRule(sql);
 	}
 	
 	

@@ -7,4 +7,6 @@ public class DRConstant {
 	
 	public static final int LAGEQ=3;
 	public static final int LAG=4;
+	
+	public static final int USEIDX=1;
 }

@@ -6,7 +6,7 @@ public class RowsBuffer {
 
 	public int begin=-1;
 	public int end;
-	public int bufferSize=024*1024*10;
+	public int bufferSize=1024*1024*10;
 	public int idxSize=1000*1000;
 	public byte[] buffer=new byte[bufferSize];
 	public int[] indexs =new int[idxSize];
@@ -81,5 +81,11 @@ public class RowsBuffer {
 		bufferSize=currIdx;
 		 
 	}
+	public byte[] toSer(){
+		return null;
+	}
 	
+	public RowsBuffer fromSer(byte[] buf){
+		return null;
+	}
 }

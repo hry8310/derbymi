@@ -70,6 +70,7 @@ public class DearSelector {
 			qm.cacheConf=session.cacheConf;
 			qm.executor= executor;
 			qm.sql=sql;
+			qm.useDriverTable=session.useDriverTable;
 			exeQuery(qm);
 		//	qt.genQuery(qm); 
 			//qm.readyMutlTask();

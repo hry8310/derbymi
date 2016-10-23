@@ -16,6 +16,8 @@ public class BuildTask implements Runnable{
 	public void run(){
 		try{
 			sinQuery.buildIndex(jt);
+ 		}catch(Exception e){
+ 			e.printStackTrace();
  		}finally{
 			if(sinQuery.taskCtrl!=null){
 				sinQuery.taskCtrl.finishOne();

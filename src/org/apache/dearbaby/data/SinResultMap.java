@@ -9,7 +9,7 @@ import org.apache.dearbaby.query.JoinType;
 import org.apache.dearbaby.util.ByteUtil;
 import org.apache.dearbaby.util.ColCompare;
 
-public class SinResultMap implements SinResult {
+public class SinResultMap extends AbstractSinResult {
 	private int rowId = 0;
 	private boolean endOut = false;
 //	private ArrayList<Map> results = new ArrayList<Map>();
@@ -158,7 +158,7 @@ public class SinResultMap implements SinResult {
 	}
 	
 	 
-	public SinResultMap clone(){
+	public SinResultMap copy(){
 		SinResultMap ret=new SinResultMap();
 		ret.results=this.results; 
 		ret.rowId=this.rowId;

@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
+import org.apache.dearbaby.config.InitConfig;
 import org.apache.dearbaby.data.ResultBuffer;
 import org.apache.dearbaby.query.FilterRowValue;
 import org.apache.dearbaby.query.JoinType;
@@ -279,7 +280,7 @@ public abstract class QueryTreeNode implements Visitable {
 	}
 	
 	 public ArrayList<JoinType>  desi0(){
-		System.out.println("ejdddddd  "+qm.getJoins().size() );
+		
 		joins= JOIN_LOOP;
 		for(SinQuery sq:qs.querys){
 			if(sq.isOrCond==true){
@@ -303,7 +304,13 @@ public abstract class QueryTreeNode implements Visitable {
 		if(ej.size()==0){
 			return null;
 		}
-		ej=findSingleq(ej);
+		int isMax=1;
+		if(InitConfig.disk_use==1&&qm.useDriverTable!=null){
+		//	isMax=desiMax(ej);
+			ej=findMaxDriver(ej,qm.useDriverTable);
+		}else{
+			ej=findSingleq(ej,isMax);
+		}
 		ArrayList<JoinType> jss=new ArrayList<JoinType>();
 		jss.addAll(ej);
 		
@@ -313,9 +320,65 @@ public abstract class QueryTreeNode implements Visitable {
 		 return js;
 	}
 	
+	 private int desiMax( ArrayList<JoinType> _js){
+		 HashMap<String ,Integer> hs=new HashMap();
+			for(JoinType j:_js){
+				String left=j.left.getTableName();
+				String right=j.right.getTableName();
+				putTableCnt(left,hs);
+				putTableCnt(right,hs);
+			}
+			int i=-1;
+			String k="";
+			Iterator<String >  it =hs.keySet().iterator();
+			while(it.hasNext()){
+				String key=it.next();
+				if(hs.get(key).intValue()==1){
+					int is=qm.findQuery(key).getDrvSize();
+					if(is>=InitConfig.disk_use_max_size){
+						return 2;
+					}
+				}
+			}
+			return 1;
+	 }
+	 
+	 //获取在缓存中最大的表作为驱动表
+	 private  ArrayList<JoinType> findMaxDriver( ArrayList<JoinType> _js,String k){
+
+			JoinType tj=null;
+			
+			for(JoinType j:_js){
+				String left=j.left.getTableName();
+				String right=j.right.getTableName();
+				if(left.equalsIgnoreCase(k)||right.equalsIgnoreCase(k)){
+					tj=j;
+					break;
+				}
+			}
+			if(tj==null){
+				return findSingleq(_js,1);
+			}
+			tj.setToLeft(k);
+			//设定qm的driverTable
+			qm.driverTable=k;
+			 ArrayList<JoinType> _jss= new  ArrayList<JoinType>();
+			 _jss.add(tj);
+			 _js.remove(tj);
+			 _jss.addAll(_js);
+			 return _jss;
+	 }
+	
 	 //寻找记录集最小的sinquery并作为驱动表
-	private  ArrayList<JoinType> findSingleq( ArrayList<JoinType> _js){
+	private  ArrayList<JoinType> findSingleq( ArrayList<JoinType> _js,int isMax){
+		
+		//System.out.println("xxnnnnnnnnnnxxxxxccc : "+isMax+" ,isMax"+_js.size());
 		if(_js.size()==1){
+			if(isMax!=1){
+				_js.get(0).chgx();//
+				
+			}
+			qm.driverTable=_js.get(0).left.getTableName();
 			return _js;
 		}
 		HashMap<String ,Integer> hs=new HashMap();
@@ -335,14 +398,23 @@ public abstract class QueryTreeNode implements Visitable {
 				if(i==-1){
 					i=is;
 				}else{
-					if(is<i){
-						i=is;
-						k=key;
+					if(isMax==1){
+						if(is<i){
+							i=is;
+							k=key;
+						}
+					}else{ 
+						if(is>=i){ //获取大表作为驱动表，用于缓存
+							i=is;
+							k=key;
+						}
 					}
 				}
 			}
 		}
+		
 		JoinType tj=null;
+		
 		for(JoinType j:_js){
 			String left=j.left.getTableName();
 			String right=j.right.getTableName();
@@ -355,6 +427,8 @@ public abstract class QueryTreeNode implements Visitable {
 			return _js;
 		}
 		tj.setToLeft(k);
+		//设定qm的driverTable
+		qm.driverTable=k;
 		 ArrayList<JoinType> _jss= new  ArrayList<JoinType>();
 		 _jss.add(tj);
 		 _js.remove(tj);

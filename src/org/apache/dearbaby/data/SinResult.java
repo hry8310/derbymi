@@ -6,12 +6,13 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.dearbaby.query.JoinType;
+import org.apache.dearbaby.query.QueryMananger;
 import org.apache.dearbaby.util.ByteUtil;
 import org.apache.dearbaby.util.ColCompare;
 
 public interface SinResult {
 	 
-	
+	 
 	public void drv(int rowid,int end);
 	
 	public int endSize();
@@ -22,6 +23,11 @@ public interface SinResult {
 	
 	public Object getCurrCol (String name) ;
 	
+	public void setQueryManager( QueryMananger qm);
+	public QueryMananger getQueryMananger();
+	
+	public void setTableName( String tableName  );
+	public String getTableName();
 	 
 	public Map nextRow() ;
 	
@@ -37,7 +43,7 @@ public interface SinResult {
 	public void addEnd();
 	 
 	
-	public SinResult clone();
+	public SinResult copy();
 	
 	public int size();
 	

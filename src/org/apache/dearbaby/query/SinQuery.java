@@ -23,7 +23,7 @@ public class SinQuery {
 	public String tableName;
 	public String alias;
 	public ArrayList<String> columns = new ArrayList<String>();
-	public SinResult results = SinResultFac.getSinResult();
+	public SinResult results=  SinResultFac.getSinResult();
 	private boolean isDrv=false;
 	private boolean isHs=false;
 	
@@ -49,6 +49,10 @@ public class SinQuery {
 	
 	public int cacheType=CacheTableConf.ALL;
 	public QueryMananger qm;
+	
+	public SinQuery(QueryMananger m){
+		qm=m;
+	}
 	
 	public boolean setTaskCtrl(QueryTaskCtrl taskCtrl){
 		if(this.taskCtrl!=null){
@@ -83,6 +87,9 @@ public class SinQuery {
 		}
 		sql = s;
 		addExeTask( );
+		//创建 results
+		results.setTableName(tableName);
+		results.setQueryManager(qm);
 		//exeSelect();
 		System.out.println("sql---:  " + sql);
 	}
@@ -240,14 +247,15 @@ public class SinQuery {
 			}
 			
 			if(getCacheFlg==true){
-				results=tb.cacheRule();
+				results=tb.cacheRule(sql);
 				if(results==null){
-					results=executor.exe(sql, columns);
+					results=executor.exe(qm,tableName,sql, columns);
 				}
 			}else{
-				results=executor.exe(sql, columns);
+				results=executor.exe(qm,tableName,sql, columns);
 			}
-			
+			results.setTableName(tableName);
+			results.setQueryManager(qm);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -288,11 +296,11 @@ public class SinQuery {
 	}
 	
 	public SinQuery clone(){
-		SinQuery cloneObj=new SinQuery();
+		SinQuery cloneObj=new SinQuery(qm);
 		cloneObj.tableName=this.tableName;
 		cloneObj.alias=this.alias;
 		cloneObj.columns =this.columns;
-		cloneObj.results = this.results.clone();
+		cloneObj.results = this.results.copy();
 		
 		/*默认不是简单查询 */
 		cloneObj.simpleSelect=this.simpleSelect;

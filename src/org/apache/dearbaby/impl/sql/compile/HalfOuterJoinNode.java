@@ -177,7 +177,7 @@ class HalfOuterJoinNode extends JoinNode {
 			    FromSubquery t = (FromSubquery) result;
 				t.exeQuery();
 				SinResult list =t.getRest();
-				SinQuery sq=new SinQuery();
+				SinQuery sq=new SinQuery(qm);
 				sq.alias=t.correlationName;
 				sq.tableName="";
 				sq.results=list;

@@ -15,12 +15,14 @@ public abstract class CacheTableConf {
 	public static int CKEY=3;
 	private String table;
 	private int type;
-	private String sql;
+	protected String sql;
 	protected  SinResult result;
 	
 	public  CacheExecute executor;
 	
 	public String keyCol;
+	
+	public CacheIndexList indexs=new CacheIndexList();
 	
 	public String getTable() {
 		return table;
@@ -38,10 +40,16 @@ public abstract class CacheTableConf {
 	public String genSql(){
 		return "select * from "+table;
 	}
+	public void setSql(String _sql){
+		sql=_sql;
+	}
 	
 	public void getCache0(){
-		String sql=genSql();
-		result = executor.exe(sql);
+		if(sql==null||sql.isEmpty()){
+			sql=genSql();
+		}
+		
+		result = executor.exe(table,sql);
 		
 	}
 	
@@ -49,8 +57,8 @@ public abstract class CacheTableConf {
 		getCache0();
 	}
 	
-	public abstract SinResult loadCacheRule();
-	public SinResult cacheRule(){
-		return loadCacheRule();
+	public abstract SinResult loadCacheRule(String sql);
+	public SinResult cacheRule(String sql){
+		return loadCacheRule(  sql);
 	}
 }

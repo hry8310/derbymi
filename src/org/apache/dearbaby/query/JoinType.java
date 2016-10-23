@@ -52,10 +52,17 @@ public class JoinType {
 	
 	public void setToLeft(String key){
 		if(right.getTableName().equalsIgnoreCase(key)){
-			chgx();
+			chgx0();
 		}
 	}
-	private void chgx(){
+	
+	public void setToRight(String key){
+		if(left.getTableName().equalsIgnoreCase(key)){
+			chgx0();
+		}
+	}
+	
+	private void chgx0(){
 		if(opr==DRConstant.LESS){
 			opr=DRConstant.LAG;
 			operator=">";
@@ -69,9 +76,13 @@ public class JoinType {
 			opr=DRConstant.LESSEQ;
 			operator="<=";
 		}
-		System.exit(0);
+		
 		ColumnReference l=left;
 		left=right;
 		right=l;
+	}
+	
+	public void chgx(){
+		chgx0();
 	}
 }

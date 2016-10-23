@@ -19,6 +19,9 @@ public class QueryMananger {
 	public SinQuery currWhereQuery;
 	public ExcCacheConf cacheConf;
 
+	public String driverTable;
+	
+	public String useDriverTable;
 	//for joinType
 	private ArrayList<JoinType> joins =new ArrayList<JoinType>();
 	
@@ -35,7 +38,7 @@ public class QueryMananger {
 			}
 		}
 		if (found == null) {
-			found = new SinQuery();
+			found = new SinQuery(this);
 			found.alias = alias;
 			found.tableName = table;
 			found.executor=executor;
@@ -190,7 +193,7 @@ public class QueryMananger {
 
 	public void addFetch(String alias, String tableName, Map m) {
 	//	for (SinQuery q : querys) {
-			SinQuery fq = new SinQuery();
+			SinQuery fq = new SinQuery(this);
 			fq.tableName = tableName;
 			fq.alias = alias;
 			fq.results.add(m);

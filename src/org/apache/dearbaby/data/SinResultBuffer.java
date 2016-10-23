@@ -5,32 +5,36 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.dearbaby.cache.CacheIndex;
+import org.apache.dearbaby.cache.CacheTableConf;
+import org.apache.dearbaby.cache.ResultCache;
 import org.apache.dearbaby.config.InitConfig;
 import org.apache.dearbaby.query.JoinType;
 import org.apache.dearbaby.util.ByteUtil;
 import org.apache.dearbaby.util.ColCompare;
+import org.apache.dearbaby.util.DRConstant;
 
-public class SinResultBuffer  implements SinResult  {
-	private int rowId = 0;
-	private int bufferId=0;
-	private boolean endOut = false;
+public class SinResultBuffer  extends AbstractSinResult  {
+	protected int rowId = 0;
+	protected int bufferId=0;
+	protected boolean endOut = false;
 	public ArrayList<RowsBuffer> results = new ArrayList<RowsBuffer>();
 	
 
-	private ArrayList<String > head=null;
-	private int[] dataType=null;
-	private int rowSize=20;
-	private int rows=0;
+	protected ArrayList<String > head=null;
+	protected int[] dataType=null;
+	protected int rowSize=20;
+	protected int rows=0;
 	
-	private int drvRowId=0;
-	private int endSize=0;
+	protected int drvRowId=0;
+	protected int endSize=0;
 	
 	public IIndex hashIndex;
-	private boolean isBuild=false;
+	protected boolean isBuild=false;
 	
-	private boolean isPress=false;
+	protected boolean isPress=false;
 	
-	private int hl=2;
+	protected int hl=2;
 	public SinResultBuffer(){
 		 
 		RowsBuffer rb=new RowsBuffer();
@@ -267,12 +271,45 @@ public class SinResultBuffer  implements SinResult  {
 		isBuild=true;
 	}
 	
+	private boolean cacheIndex(String col,JoinType jt){
+		if(qm.cacheConf.getIndex(tableName)!=DRConstant.USEIDX){
+			return false;
+		}
+		if(tableName==null){
+			return false;
+		}
+		CacheTableConf ccf=ResultCache.findTable(tableName);
+		if(ccf==null){
+			return false;
+		}
+		CacheIndex idx=ccf.indexs.findIndex(col, jt.type);
+		if(idx==null){
+			return false;
+		}
+		
+		hashIndex=idx.index.clone();
+		isBuild=true;
+		return true;
+	}
+	
 	public void buildIndex(String col,JoinType jt,int ct){
 		//System.out.println("ddddddddddddddd isBuild  "+isBuild);
+		if(cacheIndex(col,jt)){
+			return ;
+		}
+		System.out.println("begin-build-index");
 		if(jt.type==jt.HASH){
 			buildHashIndex(col);
 		}else{
 			buildSortIndex(col,jt,ct);
+		}
+		System.out.println("end-build-index");
+		if(qm.cacheConf.getIndex(tableName)==DRConstant.USEIDX){
+			CacheTableConf ccf=ResultCache.findTable(tableName);
+			if(ccf==null){
+				return  ;
+			}
+			ccf.indexs.addIndex(col, jt.type, hashIndex.clone());
 		}
 		//System.exit(0);
 	}
@@ -299,7 +336,7 @@ public class SinResultBuffer  implements SinResult  {
 	
 	
 	
-	public SinResultBuffer clone(){
+	public SinResultBuffer copy(){
 		SinResultBuffer ret=new SinResultBuffer();
 		ret.results=this.results; 
 		ret.rowId=this.rowId;
@@ -380,7 +417,7 @@ public class SinResultBuffer  implements SinResult  {
 		return buf;
 	}
 	
-	private byte[] compressCol(byte[] buf){
+	protected byte[] compressCol(byte[] buf){
 		if(buf.length-rowSize<InitConfig.row_arrow_remain_length){
 			return buf ;
 		}
@@ -393,7 +430,7 @@ public class SinResultBuffer  implements SinResult  {
 		return colTmp;
 	}
 	
-	private Object getCol(byte[] buf,int i){
+	protected Object getCol(byte[] buf,int i){
 		int pre=0;
 		if(i-1>=0){
 			pre=ByteUtil.byte2intShort(buf,(i-1)*hl);
@@ -418,8 +455,11 @@ public class SinResultBuffer  implements SinResult  {
 		return null;
 	}
 	
+	protected int getResSize(){
+		return results.size()-1;
+	}
 	public void addCol(byte[] row){
-		RowsBuffer rb=results.get(results.size()-1);
+		RowsBuffer rb=results.get(getResSize());
 	 
 		if(rb.addRow(row, rows)==false){
 			RowsBuffer rb2=new RowsBuffer();
@@ -430,7 +470,7 @@ public class SinResultBuffer  implements SinResult  {
 		
 	}
 	Map m=new HashMap();
-	private Map getColMap(byte[] row){
+	protected Map getColMap(byte[] row){
 		
 		for(int i=0;i<head.size();i++){
 			m.put(head.get(i), getCol(row,i));

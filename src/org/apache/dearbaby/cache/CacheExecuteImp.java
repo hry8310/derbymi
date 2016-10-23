@@ -51,8 +51,8 @@ public class CacheExecuteImp implements CacheExecute {
 	}
 
 
-	public SinResult exe(String sql){
-		results=SinResultFac.getSinResult();
+	public SinResult exe(String table,String sql){
+		results=SinResultFac.getSinResult(null,null);
 		try {
 				open();
 				Statement stmt = conn.createStatement();
@@ -75,6 +75,6 @@ public class CacheExecuteImp implements CacheExecute {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		return results.clone();
+		return results.copy();
 	}
 }

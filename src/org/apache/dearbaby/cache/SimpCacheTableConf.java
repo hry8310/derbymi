@@ -7,11 +7,11 @@ public   class SimpCacheTableConf extends CacheTableConf {
 
 	 
 	
-	public   SinResult loadCacheRule(){
+	public   SinResult loadCacheRule(String sql){
 		if(result==null){
 			getCache();
 		}
-		return result;
+		return result.copy();
 	}
 	 
 }

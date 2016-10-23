@@ -373,7 +373,7 @@ public class SelectNode extends ResultSetNode {
 				FromSubquery t = (FromSubquery) o;
 				t.exeQuery();
 				SinResult list =t.getRest();
-				SinQuery sq=new SinQuery();
+				SinQuery sq=new SinQuery(qm);
 				sq.alias=t.correlationName;
 				sq.tableName="";
 				sq.results=list;

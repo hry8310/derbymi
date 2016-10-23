@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.dearbaby.data.SinResult;
 import org.apache.dearbaby.data.SinResultByte;
 import org.apache.dearbaby.data.SinResultFac;
+import org.apache.dearbaby.impl.sql.compile.QueryTreeNode;
 import org.apache.dearbaby.util.MysqlUtil;
 
 
@@ -47,9 +48,9 @@ public class JdbcExecutor implements IExecutor {
 
 
 
-	public SinResult exe(String sql,List<String> columns){
+	public SinResult exe(QueryMananger qm,String table,String sql,List<String> columns){
 		open();
-		SinResult results =SinResultFac.getSinResult();
+		SinResult results =SinResultFac.getSinResult1(table,qm);
 		try {
 				 
 				Statement stmt = conn.createStatement();

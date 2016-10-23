@@ -169,7 +169,12 @@ public class SortIndex implements IIndex {
 	
 	public SortIndex clone(){
 		SortIndex hi=new SortIndex(this.size,this.type);
-		
+		hi.idx=idx;
+		hi.sortId=-1;
+		hi.sort=sort;
+		hi.size=size;
+		hi.type=type;
+		hi.sortId=sortId;
 		return hi;
 	}
 	
