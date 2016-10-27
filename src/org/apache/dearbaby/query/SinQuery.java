@@ -231,7 +231,23 @@ public class SinQuery {
 				int t=qm.cacheConf.get(tableName);
 				
 				if(tb!=null){
-					System.out.println("ttttbbbbbbbbbbbbbbb "+tableName);
+					
+					if(tb.cacheType==DRConstant.MEMCACHE&&tableName.equals(qm.session.useDriverTable)){
+						getCacheFlg=false;
+					}else{
+					
+						if(t==CacheTableConf.ALL){
+						
+							if(tb.getType()==CacheTableConf.ALL){
+								getCacheFlg=true;
+							}
+						}else if (t==CacheTableConf.COND) {
+							if(tb.getType()==CacheTableConf.COND){
+								getCacheFlg=true;
+							}
+						}
+					}
+					/*
 					if(t==CacheTableConf.ALL){
 						
 						if(tb.getType()==CacheTableConf.ALL){
@@ -242,6 +258,7 @@ public class SinQuery {
 							getCacheFlg=true;
 						}
 					}
+					*/
 				}
 				
 			}
@@ -328,4 +345,7 @@ public class SinQuery {
 		return cloneObj ;
 	}
 
+	public void endFetch(){
+		results.fetchEnd();
+	}
 }

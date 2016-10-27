@@ -55,7 +55,6 @@ public class JdbcExecutor implements IExecutor {
 				 
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery(sql);
-				System.out.println("begin-nexting");
 				Map m = new HashMap();
 				while (rs.next()) {
 					

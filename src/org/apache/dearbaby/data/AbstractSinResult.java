@@ -18,5 +18,8 @@ public abstract class AbstractSinResult implements SinResult {
 		return qm;
 	}
 
+	public void fetchEnd(){
+		
+	}
 	
 }

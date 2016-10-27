@@ -2,6 +2,7 @@ package org.apache.dearbaby.cache;
 
 import org.apache.dearbaby.data.SinResult;
 import org.apache.dearbaby.query.IExecutor;
+import org.apache.dearbaby.util.DRConstant;
 
 public abstract class CacheTableConf {
 
@@ -23,6 +24,8 @@ public abstract class CacheTableConf {
 	public String keyCol;
 	
 	public CacheIndexList indexs=new CacheIndexList();
+	
+	public int cacheType=DRConstant.MEMCACHE;
 	
 	public String getTable() {
 		return table;
@@ -61,4 +64,12 @@ public abstract class CacheTableConf {
 	public SinResult cacheRule(String sql){
 		return loadCacheRule(  sql);
 	}
+	public int getCacheType() {
+		return cacheType;
+	}
+	public void setCacheType(int cacheType) {
+		this.cacheType = cacheType;
+	}
+	
+	
 }

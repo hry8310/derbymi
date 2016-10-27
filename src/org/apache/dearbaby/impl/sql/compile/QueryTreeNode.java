@@ -279,6 +279,12 @@ public abstract class QueryTreeNode implements Visitable {
 		return null;
 	}
 	
+	private boolean isCanFindByName(){
+		if(qm.session.useDriverTable==null){
+			return false;
+		}
+		return true;
+	}
 	 public ArrayList<JoinType>  desi0(){
 		
 		joins= JOIN_LOOP;
@@ -305,9 +311,9 @@ public abstract class QueryTreeNode implements Visitable {
 			return null;
 		}
 		int isMax=1;
-		if(InitConfig.disk_use==1&&qm.useDriverTable!=null){
+		if(isCanFindByName()){
 		//	isMax=desiMax(ej);
-			ej=findMaxDriver(ej,qm.useDriverTable);
+			ej=findMaxDriver(ej,qm.session.useDriverTable);
 		}else{
 			ej=findSingleq(ej,isMax);
 		}
@@ -335,7 +341,7 @@ public abstract class QueryTreeNode implements Visitable {
 				String key=it.next();
 				if(hs.get(key).intValue()==1){
 					int is=qm.findQuery(key).getDrvSize();
-					if(is>=InitConfig.disk_use_max_size){
+					if(is>=InitConfig.DISK_USE_MAX_SIZE){
 						return 2;
 					}
 				}
@@ -481,6 +487,10 @@ public abstract class QueryTreeNode implements Visitable {
 	public void fetchEnd() {
 		qm.initFetch();
 	}
+	
+	public void endSelect(){
+		qm.endFetch();
+	}
 
 	public boolean match() {
 		return true;
@@ -606,7 +616,8 @@ public abstract class QueryTreeNode implements Visitable {
 			 	list.add(map);
 			}
 			fetchEnd();
-		} 
+		}
+    	endSelect();
     	return list;
     }
     

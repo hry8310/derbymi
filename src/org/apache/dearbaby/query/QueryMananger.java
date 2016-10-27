@@ -21,7 +21,7 @@ public class QueryMananger {
 
 	public String driverTable;
 	
-	public String useDriverTable;
+	public QuerySession session;
 	//for joinType
 	private ArrayList<JoinType> joins =new ArrayList<JoinType>();
 	
@@ -213,10 +213,20 @@ public class QueryMananger {
 		fetchRow.addAll(qm.fetchRow);
 	}
 
-	public void initFetch() {
+	public void initFetch0() {
 		fetchRow.clear();
 	}
 	
+	public void initFetch() {
+		initFetch0();
+		
+	}
+	
+	public void endFetch(){
+		for(SinQuery s:querys){
+			s.endFetch();
+		}
+	}
 	public QueryMananger copyOf(){
 		QueryMananger q=new QueryMananger();
 		copyTo(q);

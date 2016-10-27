@@ -28,6 +28,8 @@ public interface SinResult {
 	
 	public void setTableName( String tableName  );
 	public String getTableName();
+	
+	public void fetchEnd();
 	 
 	public Map nextRow() ;
 	

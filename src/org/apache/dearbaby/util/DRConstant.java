@@ -9,4 +9,8 @@ public class DRConstant {
 	public static final int LAG=4;
 	
 	public static final int USEIDX=1;
+	
+	public static final int MEMCACHE=0;
+	
+	public static final int DISKCACHE=1;
 }

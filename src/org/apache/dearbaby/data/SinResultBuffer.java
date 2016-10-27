@@ -418,11 +418,11 @@ public class SinResultBuffer  extends AbstractSinResult  {
 	}
 	
 	protected byte[] compressCol(byte[] buf){
-		if(buf.length-rowSize<InitConfig.row_arrow_remain_length){
+		if(buf.length-rowSize<InitConfig.ROW_ARROW_REMAIN_LENGTH){
 			return buf ;
 		}
 		double f=((double)(buf.length-rowSize))/buf.length;
-		if(f<InitConfig.row_arrow_remain_rotio){
+		if(f<InitConfig.ROW_ARROW_REMAIN_ROTIO){
 			return buf ;
 		}
 		byte[] colTmp=new byte[head.size()*hl+rowSize];

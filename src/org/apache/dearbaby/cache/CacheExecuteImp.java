@@ -14,7 +14,7 @@ import org.apache.dearbaby.data.SinResultFac;
 import org.apache.dearbaby.util.MysqlUtil;
  
 
-public class CacheExecuteImp implements CacheExecute {
+public  class CacheExecuteImp extends  AbstractCacheExecute {
 	Connection conn;
 	SinResult results=null;
 	public void open(){
@@ -29,7 +29,11 @@ public class CacheExecuteImp implements CacheExecute {
 		}
 		
 	}
-	 
+	
+	public CacheExecuteImp(CacheTableConf conf){
+		tableConf=conf;
+				
+	}
 	
 	public Connection getConn() {
 		return conn;
@@ -41,14 +45,7 @@ public class CacheExecuteImp implements CacheExecute {
 	}
 
 
-	public SinResult getResults() {
-		return results;
-	}
-
-
-	public void setResults(SinResult results) {
-		this.results = results;
-	}
+	 
 
 
 	public SinResult exe(String table,String sql){

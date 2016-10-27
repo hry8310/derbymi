@@ -1,6 +1,8 @@
 package org.apache.dearbaby.data;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -8,37 +10,109 @@ import java.util.Map;
 import org.apache.dearbaby.cache.CacheIndex;
 import org.apache.dearbaby.cache.CacheTableConf;
 import org.apache.dearbaby.cache.ResultCache;
+import org.apache.dearbaby.cache.UserCacheConf;
 import org.apache.dearbaby.config.InitConfig;
 import org.apache.dearbaby.query.JoinType;
+import org.apache.dearbaby.query.QueryMananger;
 import org.apache.dearbaby.util.ByteUtil;
 import org.apache.dearbaby.util.ColCompare;
 import org.apache.dearbaby.util.DRConstant;
 
 public class SinResultBufferDisk  extends SinResultBuffer  {
 	
+	int rSize=0;
+	int res[]=new int[InitConfig.MAP_FILE_HEAD_SIZE];
+	String p=null;
+	MapFile mf=null;
+	RowsBuffer lastBuf; 
+	boolean first=true;
+	
+	RowsBuffer readNow;
+	int readNowId=-1;
+	
 	protected int getResSize(){
-		return results.size();
+		return rSize+1;
 	};
-	private RowsBuffer getRowsBuffer(int i){
-	   
-		return results.get(i);
+	protected RowsBuffer getRowsBuffer(int i){
+		if(readNowId==i){
+			return readNow;
+		}
+		readNowId=i;
+	//	System.out.println("dddddddddddddddddddddddddddd "+i);
+		if(getResSize()<i){
+			return null;
+		}
+		int bi=res[i];
+		int begin=0;
+		if(i>0){
+			begin=res[i-1];
+		}
+		byte[] b=mf.readRs(begin,bi-begin) ;
+		readNow=RowsBuffer.fromSer(b);
+		return readNow;
 	}
-	private void addRowsBuffer(RowsBuffer reb){
-		results.add(reb);
+	protected void genFilePath(){
+		Date c=new Date();
+		p=InitConfig.MAP_FILE_DIR+getTableName()+"-"+Thread.currentThread().getId()+"-"+c.getTime()+".mp";
+	}
+	protected void addRowsBuffer0(RowsBuffer reb,MapFile _mf){
+		 
+		byte[] b=reb.toSer().array();
+		int begin=0;
+		
+		if(rSize==0){
+			begin=0;
+			res[rSize]=b.length;
+		}else{
+			begin=res[rSize-1];
+			res[rSize]=res[rSize-1]+b.length;
+		}
 	 
+		_mf.writeRs(b, begin);
+		rSize++;
+		 
 	}
+	
+	protected void addRowsBuffer(RowsBuffer reb){
+		MapFile _mf=null;
+		if(p==null){
+			genFilePath();
+			_mf=new MapFile();
+			_mf.path=p;
+			boolean t=_mf.open();
+			if(t==false){
+				return;
+			}
+		}else{
+			_mf=mf;
+		}
+		addRowsBuffer0( reb, _mf);
+		mf=_mf;
+	}
+	
+	public   SinResultBufferDisk(){
+		 
+	}
+	
+	
 	public Map getCurrRow0 () {
 		
 		if (getResSize()== 0) {
 			return null;
 		}
 		HashMap m=new HashMap();
-		RowsBuffer rb=null;
-		for(int i=bufferId;i<getResSize();i++){
-			RowsBuffer _rb=getRowsBuffer(i) ;
-			if(rowId<=_rb.end){
-				rb=getRowsBuffer(i) ;
-				break;
+		RowsBuffer rb=readNow;
+		if(rb==null){
+			rb=getRowsBuffer(0);
+		}
+		if(rowId>rb.end){
+			for(int i=readNowId+1;i<getResSize();i++){
+			
+				RowsBuffer _rb=getRowsBuffer(i) ;
+				if(rowId<=_rb.end){
+					rb=getRowsBuffer(i) ;
+					break;
+				}
 			}
 		}
 		byte[] b= rb.getRow(rowId);
@@ -57,14 +131,19 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 		}
 		
 		HashMap m=new HashMap();
-		RowsBuffer rb=null;
-		 
-		for(int i=bufferId;i<getResSize();i++){
-			RowsBuffer _rb=getRowsBuffer(i) ;
-		//	System.out.println("end:::  "+_rb.end+"   i  "+i);
-			if(rowId<=_rb.end){
-				rb=getRowsBuffer(i);
-				break;
+		RowsBuffer rb=readNow;
+		if(rb==null){
+			rb=getRowsBuffer(0);
+		}
+		if(rowId>rb.end){
+		
+			for(int i=readNowId+1;i<getResSize();i++){
+			
+				RowsBuffer _rb=getRowsBuffer(i) ;
+				if(rowId<=_rb.end){
+					rb=getRowsBuffer(i) ;
+					break;
+				}
 			}
 		}
 		byte[] b= rb.getRow(rowId);
@@ -113,6 +192,9 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 		ret.isBuild=this.isBuild;
 		ret.head=this.head;
 		ret.dataType=this.dataType;
+		ret.mf=this.mf;
+		ret.p=this.p;
+		ret.rSize=this.rSize;
 		if(this.hashIndex!=null){
 			ret.hashIndex=this.hashIndex.clone();
 		}
@@ -126,17 +208,55 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 	 
 	
 	public void addCol(byte[] row){
-		RowsBuffer rb=getRowsBuffer(getResSize()-1);
-	 
+		RowsBuffer rb=lastBuf;
+		if(rb==null){
+			rb= buildRowsBuffer();
+			lastBuf=rb;
+		}
 		if(rb.addRow(row, rows)==false){
-			RowsBuffer rb2=new RowsBuffer();
-			 rb2.addRow(row, rows);
-			 addRowsBuffer(rb2);
+			addRowsBuffer(rb);
+			RowsBuffer rb2=buildRowsBuffer();
+			rb2.addRow(row, rows);
+			lastBuf=rb2; 
 			
 		};
 		
 	}
+	
+	private RowsBuffer buildRowsBuffer(){
+		QueryMananger qm= getQueryMananger();
+		String tableName=getTableName();
+		int rotio=InitConfig.DISK_ROW_BUFFER_SIZE_ROTIO;
+		if(qm!=null&&qm.session!=null&&tableName!=null){
+			 UserCacheConf conf=qm.session.cacheConf.getConf(tableName);
+			 rotio=conf.rowRotio;
+		}
+		return new RowsBuffer(rotio);
+	}
+	
 	 
-	 
+	public void addEnd(){
+		if(lastBuf!=null){
+			addRowsBuffer(lastBuf);
+		}
+		if(rSize>0){
+			rSize--;
+		}
+		double f=(double)(res.length-rSize)/res.length;
+		if( f>InitConfig.MAP_FILE_HEAD_SIZE_RE_RATIO){
+			int[] res2=new int[rSize+1];
+			System.arraycopy( res,0,res2,0, rSize+1);
+			res=res2;
+		}
+	} 
+	
+
+	public void fetchEnd0(){
+		mf.close();
+		lastBuf=null;
+		readNow=null;
+		readNowId=0;
+				
+	}
 	
 }
