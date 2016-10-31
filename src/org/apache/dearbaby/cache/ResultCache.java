@@ -8,12 +8,11 @@ import org.apache.dearbaby.data.SinResult;
 public  class ResultCache {
 	private static HashMap<String,CacheTableConf > tables=new HashMap<String,CacheTableConf >();
 	public static void addTable(CacheTableConf table){
-		CacheTableConf ct=findTable(table.getTable());
-		tables.put(table.getTable().toUpperCase(),table);
+		tables.put(table.getCacheName().toUpperCase(),table);
 	}
 
-	public static CacheTableConf findTable(String table){
-		return tables.get(table.toUpperCase());
+	public static CacheTableConf findTable(String cacheName){
+		return tables.get(cacheName.toUpperCase());
 	}
 	
 	public static boolean needCache(String table){

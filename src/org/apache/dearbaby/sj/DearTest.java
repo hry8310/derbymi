@@ -59,11 +59,13 @@ public class DearTest {
 		
 		
 		ExcCacheConf ccf=new ExcCacheConf();
-		UserCacheConf userConf=new UserCacheConf("WORKINFORPARAMETER7", CacheTableConf.ALL,DRConstant.USEIDX,3);
+		UserCacheConf userConf1=new UserCacheConf("WORKINFORPARAMETER7","WORK", CacheTableConf.ALL,DRConstant.USEIDX,3);
+		UserCacheConf userConf2=new UserCacheConf("DOCTORINFORPARAMETER7", CacheTableConf.ALL,DRConstant.USEIDX,3);
+		
 		//ccf.put("doctorinforparameter", CacheTableConf.ALL,DRConstant.USEIDX);
 		//ccf.put("WORKINFORPARAMETER7", CacheTableConf.ALL,DRConstant.USEIDX);
-		ccf.put(userConf);
-		
+		ccf.put(userConf1);
+		ccf.put(userConf2);
 		DearSelector selector =new DearSelector();  
 		selector.setExecutor(new JdbcExecutor()); 
 		QuerySession s=QuerySession.jdbcSession();
@@ -97,15 +99,14 @@ public class DearTest {
 	}
 	
 	public static void init(){
-		CacheTableConf ct=new JustCacheTableConf();
+		CacheTableConf ct=new JustCacheTableConf("doctorinforparameter7");
 		ct.setType(CacheTableConf.ALL);
-		ct.setTable("doctorinforparameter");
+		ct.setCacheType(DRConstant.DISKCACHE);
 	//	ct.setSql("select  DOCTORID   from DOCTORINFORPARAMETER7   ");
 		ct.executor=new CacheExecuteImp(ct);
 		
-		CacheTableConf ct2=new JustCacheTableConf();
+		CacheTableConf ct2=new JustCacheTableConf("WORKINFORPARAMETER7","WORK");
 		ct2.setType(CacheTableConf.ALL);
-		ct2.setTable("WORKINFORPARAMETER7");
 		ct2.setCacheType(DRConstant.DISKCACHE);
 	//	ct2.setSql("select  DOCTORNAME ,  DOCTORID   from WORKINFORPARAMETER6  ");
 		ct2.executor=new CacheExecuteImp(ct2);

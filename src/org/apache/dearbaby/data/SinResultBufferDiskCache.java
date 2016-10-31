@@ -23,12 +23,16 @@ public class SinResultBufferDiskCache  extends SinResultBufferDisk  {
 	
 	 
 	protected void genFilePath(){
+	
+		p=InitConfig.MAP_FILE_DIR+getTableName()+"-"+"-"+i+"-.mp";
+	}
+	
+	public void cutFile(){
 		if(i==1){
 			i=0;
 		}else if(i==0){
 			i=1;
 		}
-		p=InitConfig.MAP_FILE_DIR+getTableName()+"-"+Thread.currentThread().getId()+"-"+i+".mp";
 	}
 	 
 	public   SinResultBufferDiskCache(){
@@ -63,6 +67,7 @@ public class SinResultBufferDiskCache  extends SinResultBufferDisk  {
 		ret.dataType=this.dataType;
 		ret.mf=this.mf.copy();
 		ret.p=this.p;
+		ret.res=this.res;
 		ret.rSize=this.rSize;
 		if(this.hashIndex!=null){
 			ret.hashIndex=this.hashIndex.clone();

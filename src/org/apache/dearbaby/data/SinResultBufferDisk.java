@@ -21,7 +21,7 @@ import org.apache.dearbaby.util.DRConstant;
 public class SinResultBufferDisk  extends SinResultBuffer  {
 	
 	int rSize=0;
-	int res[]=new int[InitConfig.MAP_FILE_HEAD_SIZE];
+	protected int res[]=new int[InitConfig.MAP_FILE_HEAD_SIZE];
 	String p=null;
 	MapFile mf=null;
 	RowsBuffer lastBuf; 
@@ -51,6 +51,23 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 		readNow=RowsBuffer.fromSer(b);
 		return readNow;
 	}
+	
+	protected RowsBuffer getRowsBuffer0(int i){
+	 
+		if(getResSize()<i){
+			return null;
+		}
+		int bi=res[i];
+		int begin=0;
+		if(i>0){
+			begin=res[i-1];
+		}
+		System.out.println("restttt bi "+bi+",  b :"+begin);
+		byte[] b=mf.readRs(begin,bi-begin) ;
+		RowsBuffer ret= RowsBuffer.fromSer(b);  
+		return ret;
+	}
+	
 	protected void genFilePath(){
 		Date c=new Date();
 		p=InitConfig.MAP_FILE_DIR+getTableName()+"-"+Thread.currentThread().getId()+"-"+c.getTime()+".mp";
@@ -195,6 +212,7 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 		ret.mf=this.mf;
 		ret.p=this.p;
 		ret.rSize=this.rSize;
+		ret.res=this.res;
 		if(this.hashIndex!=null){
 			ret.hashIndex=this.hashIndex.clone();
 		}
@@ -246,10 +264,32 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 		if( f>InitConfig.MAP_FILE_HEAD_SIZE_RE_RATIO){
 			int[] res2=new int[rSize+1];
 			System.arraycopy( res,0,res2,0, rSize+1);
-			res=res2;
+		//	res=res2;
 		}
+		mf.reOpen();
 	} 
 	
+	public SinResultBuffer load(){
+		SinResultBuffer ret=new SinResultBuffer();
+		ret.rowId=this.rowId;
+		ret.endOut=this.endOut;
+		ret.endSize=this.endSize;
+		ret.rows=this.rows; 
+		ret.isBuild=this.isBuild;
+		ret.head=this.head;
+		ret.dataType=this.dataType;
+		ret.qm=this.qm;
+		
+		ret.results.clear();
+		System.out.println("dddddddddddddddddd "+ret.results);;
+		for(int i=0;i<getResSize();i++){
+			 	System.out.println("SinResultBuffer-load: "+i);
+				ret.results.add(getRowsBuffer0(i));
+			 
+		}
+		
+		return ret;
+	}
 
 	public void fetchEnd0(){
 		mf.close();

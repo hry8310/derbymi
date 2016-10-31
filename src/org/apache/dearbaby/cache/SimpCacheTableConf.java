@@ -13,5 +13,11 @@ public   class SimpCacheTableConf extends CacheTableConf {
 		}
 		return result.copy();
 	}
+	public SimpCacheTableConf(String table){
+		super(table,table);
+	}
+	public SimpCacheTableConf(String table,String cacheName){
+		super(table,cacheName);
+	}
 	 
 }

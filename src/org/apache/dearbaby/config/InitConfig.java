@@ -17,7 +17,7 @@ public class InitConfig {
 	
 	public static int DISK_ROW_BUFFER_SIZE_ROTIO=4;
 	
-	public static int MAP_FILE_HEAD_SIZE=10*10000;
+	public static int MAP_FILE_HEAD_SIZE=10*100;
 	public static double MAP_FILE_HEAD_SIZE_RE_RATIO=0.25;
 	
 	public static String  MAP_FILE_DIR="F:/derbymi/";

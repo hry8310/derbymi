@@ -18,5 +18,11 @@ public   class JustCacheTableConf extends CacheTableConf {
 		}
 		return result.copy();
 	}
+	public JustCacheTableConf(String table){
+		super(table,table);
+	}
+	public JustCacheTableConf(String table,String cacheName){
+		super(table,cacheName);
+	}
 	 
 }

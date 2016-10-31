@@ -27,6 +27,12 @@ public abstract class CacheTableConf {
 	
 	public int cacheType=DRConstant.MEMCACHE;
 	
+	private String cacheName;
+	public CacheTableConf(String _table,String _cacheName){
+		table=_table;
+		cacheName=_cacheName;
+	}
+	
 	public String getTable() {
 		return table;
 	}
@@ -69,6 +75,12 @@ public abstract class CacheTableConf {
 	}
 	public void setCacheType(int cacheType) {
 		this.cacheType = cacheType;
+	}
+	public String getCacheName() {
+		return cacheName;
+	}
+	public void setCacheName(String cacheName) {
+		this.cacheName = cacheName;
 	}
 	
 	

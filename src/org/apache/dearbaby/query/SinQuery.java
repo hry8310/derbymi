@@ -6,7 +6,9 @@ import java.util.Map;
 
 import org.apache.dearbaby.cache.CacheTableConf;
 import org.apache.dearbaby.cache.ResultCache;
+import org.apache.dearbaby.cache.UserCacheConf;
 import org.apache.dearbaby.data.SinResult;
+import org.apache.dearbaby.data.SinResultBufferDiskCache;
 import org.apache.dearbaby.data.SinResultByte;
 import org.apache.dearbaby.data.SinResultFac;
 import org.apache.dearbaby.impl.sql.compile.QueryTreeNode;
@@ -225,14 +227,29 @@ public class SinQuery {
 			if (sql == null || sql.length() == 0) {
 				return;
 			}
+			
 			boolean getCacheFlg=false;
-			CacheTableConf tb =ResultCache.findTable(tableName);
+			
+			CacheTableConf tb =null;
+			String cacheName=null;
+			if(qm.session!=null&&qm.session.cacheConf!=null){
+				UserCacheConf conf=qm.session.cacheConf.getConf(tableName);
+				if(conf!=null){
+					cacheName=conf.cacheName; 
+				}
+			}
+			if(cacheName!=null){
+				tb=ResultCache.findTable(cacheName);
+			}
+			
+			String drvTab=qm.session.useDriverTable;
+			int isDisk=0;
 			if(qm.cacheConf!=null){
 				int t=qm.cacheConf.get(tableName);
 				
 				if(tb!=null){
 					
-					if(tb.cacheType==DRConstant.MEMCACHE&&tableName.equals(qm.session.useDriverTable)){
+					if(tb.cacheType==DRConstant.MEMCACHE&&tableName.equals(drvTab)){
 						getCacheFlg=false;
 					}else{
 					
@@ -264,7 +281,14 @@ public class SinQuery {
 			}
 			
 			if(getCacheFlg==true){
-				results=tb.cacheRule(sql);
+				if(tb.cacheType==DRConstant.MEMCACHE
+						||(tb.cacheType==DRConstant.DISKCACHE&&tableName.equals(drvTab))
+						){
+					results=tb.cacheRule(sql);
+				}else {
+					results=((SinResultBufferDiskCache)tb.cacheRule(sql)).load();
+				}
+				
 				if(results==null){
 					results=executor.exe(qm,tableName,sql, columns);
 				}

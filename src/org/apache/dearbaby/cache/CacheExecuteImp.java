@@ -49,7 +49,7 @@ public  class CacheExecuteImp extends  AbstractCacheExecute {
 
 
 	public SinResult exe(String table,String sql){
-		results=SinResultFac.getSinResult(null,null);
+		results=SinResultFac.getSinResult(tableConf);
 		try {
 				open();
 				Statement stmt = conn.createStatement();
@@ -66,6 +66,7 @@ public  class CacheExecuteImp extends  AbstractCacheExecute {
 					}
 					results.add(m);
 				}
+				results.addEnd();
 				rs.close();
 				stmt.close();
 				

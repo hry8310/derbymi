@@ -27,7 +27,7 @@ public class MapFile {
 		
 	}
 	
-	private void reOpen(){
+	public void reOpen(){
 		try{
 			  raf.close();
 			  raf=new MapFileHandler(file,"rw");  
