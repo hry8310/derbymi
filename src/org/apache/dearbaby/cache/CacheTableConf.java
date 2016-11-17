@@ -17,7 +17,7 @@ public abstract class CacheTableConf {
 	private String table;
 	private int type;
 	protected String sql;
-	protected  SinResult result;
+	protected  SinResult result=null;
 	
 	public  CacheExecute executor;
 	
@@ -53,7 +53,7 @@ public abstract class CacheTableConf {
 		sql=_sql;
 	}
 	
-	public void getCache0(){
+	private void getCache0(){
 		if(sql==null||sql.isEmpty()){
 			sql=genSql();
 		}
@@ -62,7 +62,10 @@ public abstract class CacheTableConf {
 		
 	}
 	
-	public void getCache(){
+	public final void getCache(){
+		if(result!=null){
+			return ;
+		}
 		getCache0();
 	}
 	

@@ -5,6 +5,7 @@ import org.apache.dearbaby.query.QueryMananger;
 public abstract class AbstractSinResult implements SinResult {
 	public QueryMananger qm;
 	public String tableName;
+	public ResultRef ref;
 	public String getTableName() {
 		return tableName;
 	}
@@ -19,7 +20,19 @@ public abstract class AbstractSinResult implements SinResult {
 	}
 
 	public void fetchEnd(){
-		
+		if(ref!=null){
+			ref.unRef();
+		}
 	}
 	
+	//empt
+	public Object getColVal(long l,String name){
+		return null;
+	}
+	public Object getColVal(long l,int headerId){
+		return null;
+	}
+	public int getHeadId(String name){
+		return -1;
+	}
 }

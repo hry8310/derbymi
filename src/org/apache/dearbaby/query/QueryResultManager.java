@@ -274,7 +274,7 @@ public class QueryResultManager extends QueryMananger {
 	public void initDrv(int begin,int end){
 		//System.out.println(querys);
 		if(drvQ!=null){
-			System.out.println("drvQ     "+drvQ.alias);
+			System.out.println("drvQ     "+drvQ.tableName);
 			drvQ.drv(begin, end);
 			return ;
 		}

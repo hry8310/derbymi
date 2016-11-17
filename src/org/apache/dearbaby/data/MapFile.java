@@ -15,7 +15,8 @@ public class MapFile {
 	private int headerSet=InitConfig.MAP_FILE_HEAD_SIZE*4+4;
 	int[] header=null;
 	int headerIndex=0;
-	
+	int rowLength;
+	byte[] readb;
 	public MapFile copy(){
 		MapFile mf=new MapFile();
 		mf.path=this.path;
@@ -171,10 +172,14 @@ public class MapFile {
 		 try{
 			  
 			 raf.seek(headerSet+offset);
-			 byte[] h=new byte[length];
-			 raf.read(h);
+			 if(length>rowLength){
+				 readb=new  byte[length];
+				 rowLength=length;
+			 }
+			 
+			 raf.read(readb,0,length);
 			// System.out.println("fromSer-----   "+offset);
-			 return h;
+			 return readb;
 		}catch(Exception e){
 			e.printStackTrace();
 			return null;

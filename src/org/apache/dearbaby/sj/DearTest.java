@@ -52,7 +52,7 @@ public class DearTest {
 		sql="SELECT a.doctorName  FROM (select c.DoctorId from  WorkInforParameter2 c)  a , (select d.DoctorId from  doctorinforparameter2 d where d.id>200000) b  WHERE  a.DoctorId=b.DoctorId   ";
 	//	sql="SELECT a.doctorName  FROM WorkInforParameter4  a left join doctorinforparameter4 b on  a.DoctorId=b.DoctorId  ";
 	 	sql="SELECT a.doctorName,b.DoctorId  FROM WorkInforParameter6  a , doctorinforparameter7 b  WHERE  a.DoctorId=b.DoctorId   ";
-		sql="SELECT  a.doctorId aid,b.DoctorId  bid   FROM workinforparameter7  a , doctorinforparameter7 b  WHERE  a.DoctorId=b.DoctorId   ";
+		sql="SELECT  a.DoctorId aid,b.DoctorId  bid   FROM workinforparameter7  a , doctorinforparameter7 b  WHERE  a.DoctorId=b.DoctorId   ";
 		
 		//sql="SELECT a.doctorName  FROM WorkInforParameter5  a    ";
 	//	 Date d1=new Date();
@@ -60,12 +60,12 @@ public class DearTest {
 		
 		ExcCacheConf ccf=new ExcCacheConf();
 		UserCacheConf userConf1=new UserCacheConf("WORKINFORPARAMETER7","WORK", CacheTableConf.ALL,DRConstant.USEIDX,3);
-		UserCacheConf userConf2=new UserCacheConf("DOCTORINFORPARAMETER7", CacheTableConf.ALL,DRConstant.USEIDX,3);
+		UserCacheConf userConf2=new UserCacheConf("DOCTORINFORPARAMETER6", CacheTableConf.ALL,DRConstant.USEIDX,3);
 		
 		//ccf.put("doctorinforparameter", CacheTableConf.ALL,DRConstant.USEIDX);
 		//ccf.put("WORKINFORPARAMETER7", CacheTableConf.ALL,DRConstant.USEIDX);
 		ccf.put(userConf1);
-		ccf.put(userConf2);
+	//	ccf.put(userConf2);
 		DearSelector selector =new DearSelector();  
 		selector.setExecutor(new JdbcExecutor()); 
 		QuerySession s=QuerySession.jdbcSession();
@@ -111,7 +111,7 @@ public class DearTest {
 	//	ct2.setSql("select  DOCTORNAME ,  DOCTORID   from WORKINFORPARAMETER6  ");
 		ct2.executor=new CacheExecuteImp(ct2);
 		
-		ResultCache.addTable(ct);
+	//	ResultCache.addTable(ct);
 		ResultCache.addTable(ct2);
 	}
 

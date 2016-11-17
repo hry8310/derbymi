@@ -95,17 +95,17 @@ public class ByteUtil {
 		return bytes;
 	}
 
-	public static byte[] getBytes(long data) {
-		byte[] bytes = new byte[8];
-		bytes[0] = (byte) (data & 0xff);
-		bytes[1] = (byte) ((data >> 8) & 0xff);
-		bytes[2] = (byte) ((data >> 16) & 0xff);
-		bytes[3] = (byte) ((data >> 24) & 0xff);
-		bytes[4] = (byte) ((data >> 32) & 0xff);
-		bytes[5] = (byte) ((data >> 40) & 0xff);
-		bytes[6] = (byte) ((data >> 48) & 0xff);
-		bytes[7] = (byte) ((data >> 56) & 0xff);
-		return bytes;
+	public static byte[] getBytes(long x) {
+		byte[] bb=new byte[8];
+		    bb[ 0] = (byte) (x >> 56); 
+	        bb[ 1] = (byte) (x >> 48); 
+	        bb[ 2] = (byte) (x >> 40); 
+	        bb[ 3] = (byte) (x >> 32); 
+	        bb[ 4] = (byte) (x >> 24); 
+	        bb[ 5] = (byte) (x >> 16); 
+	        bb[ 6] = (byte) (x >> 8); 
+	        bb[ 7] = (byte) (x >> 0); 
+	    return bb;
 	}
 
 	public static byte[] getBytes(float data) {
@@ -124,7 +124,7 @@ public class ByteUtil {
 	}
 
 	public static byte[] getBytes(String data) {
-		return getBytes(data, "GBK");
+		return getBytes(data, "UTF-8");
 	}
 
 	public static short getShort(byte[] bytes) {
@@ -240,6 +240,19 @@ public class ByteUtil {
 		return targets;   
 	}
 	
+	public static long byte2long(byte[] bb,int begin){
+		 
+		 return ((((long) bb[ 0] & 0xff) << 56) 
+	               | (((long) bb[ 1] & 0xff) << 48) 
+	               | (((long) bb[ 2] & 0xff) << 40) 
+	               | (((long) bb[ 3] & 0xff) << 32) 
+	               | (((long) bb[ 4] & 0xff) << 24) 
+	               | (((long) bb[ 5] & 0xff) << 16) 
+	               | (((long) bb[ 6] & 0xff) << 8) | (((long) bb[ 7] & 0xff) << 0));  
+		  
+	 
+	}
+	
 	public static int byte2intShort(byte[] res,int begin){
 		  
 		  
@@ -301,4 +314,49 @@ public class ByteUtil {
 		return bl;
 	}
 	
+	public static byte[] getHashBytes(Object key){
+		 return key.toString().getBytes();
+		 
+	}
+	
+	 
+	
+	
+	public  static byte[] getHashKey(Object key,Object value){
+		byte[] bk =getHashBytes(key);
+		byte[] bv= getBytes((long)value);
+	
+		byte[] v=new byte[bk.length+8];
+		System.arraycopy(bk, 0,v , 0, bk.length);
+		System.arraycopy(bv, 0,v , bk.length,8 );
+	//	System.out.println("getHashKey   "+new String(v));
+		return v;
+	}
+	
+	
+	public static byte[] growUp (byte[] o,int leng){
+		byte[] tmp=new byte[o.length+leng];
+		System.arraycopy(o,0, tmp, 0,o.length);
+		return tmp;
+		 
+	}
+	
+	public static int[] growUp (int[] o,int leng){
+		int[] tmp=new int[o.length+leng];
+		System.arraycopy(o,0, tmp, 0,o.length);
+		return tmp;
+	 }
+	
+	public static long[] growUp (long[] o,int leng){
+		long[] tmp=new long[o.length+leng];
+		System.arraycopy(o,0, tmp, 0,o.length);
+		return tmp;
+	 }
+	
+	 
+	public static <T> T[] growUpObjec (T[] o,int leng){
+		T[] tmp=(T[]) new Object[o.length+leng];
+		System.arraycopy(o,0, tmp, 0,o.length);
+		return tmp;
+	 }
 }

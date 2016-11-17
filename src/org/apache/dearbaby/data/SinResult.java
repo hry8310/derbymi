@@ -63,4 +63,8 @@ public interface SinResult {
 	public void setIndex(boolean idx);
 	
 	public boolean getIndex();
+	
+	public Object getColVal(long l,String name);
+	public Object getColVal(long l,int headerId);
+	public int getHeadId(String name);
 }

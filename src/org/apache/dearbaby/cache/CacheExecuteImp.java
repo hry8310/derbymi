@@ -52,7 +52,9 @@ public  class CacheExecuteImp extends  AbstractCacheExecute {
 		results=SinResultFac.getSinResult(tableConf);
 		try {
 				open();
-				Statement stmt = conn.createStatement();
+				Statement stmt = conn.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,  
+			              java.sql.ResultSet.CONCUR_READ_ONLY);
+				stmt.setFetchSize(Integer.MIN_VALUE); 
 				ResultSet rs = stmt.executeQuery(sql);
 				ResultSetMetaData rsmd= rs.getMetaData(); 
 				int count=rsmd.getColumnCount();

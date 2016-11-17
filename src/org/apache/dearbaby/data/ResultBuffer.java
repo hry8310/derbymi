@@ -293,9 +293,9 @@ public class ResultBuffer {
 	public void addCol(byte[] row){
 		RowsBuffer rb=results.get(results.size()-1);
 		 
-		if(rb.addRow(row, rows)==false){
+		if(rb.addRow(row, rows,row.length)==false){
 			RowsBuffer rb2=new RowsBuffer();
-			 rb2.addRow(row, rows);
+			 rb2.addRow(row, rows,row.length);
 			 results.add(rb2);
 			
 		};

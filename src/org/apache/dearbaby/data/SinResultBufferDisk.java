@@ -29,6 +29,11 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 	
 	RowsBuffer readNow;
 	int readNowId=-1;
+	SinResultBuffer loaded=null;
+	
+	Date loadDate=null;
+	
+	RowsBuffer nRow;
 	
 	protected int getResSize(){
 		return rSize+1;
@@ -48,7 +53,10 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 			begin=res[i-1];
 		}
 		byte[] b=mf.readRs(begin,bi-begin) ;
-		readNow=RowsBuffer.fromSer(b);
+		if(readNow==null){
+			readNow=new RowsBuffer();
+		}
+		readNow=RowsBuffer.fromSer(b,readNow);
 		return readNow;
 	}
 	
@@ -64,7 +72,8 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 		}
 		System.out.println("restttt bi "+bi+",  b :"+begin);
 		byte[] b=mf.readRs(begin,bi-begin) ;
-		RowsBuffer ret= RowsBuffer.fromSer(b);  
+		RowsBuffer n=new RowsBuffer();
+		RowsBuffer ret= RowsBuffer.fromSer(b,n);  
 		return ret;
 	}
 	
@@ -213,6 +222,7 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 		ret.p=this.p;
 		ret.rSize=this.rSize;
 		ret.res=this.res;
+		ret.ref=ret.ref;
 		if(this.hashIndex!=null){
 			ret.hashIndex=this.hashIndex.clone();
 		}
@@ -225,16 +235,16 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 	
 	 
 	
-	public void addCol(byte[] row){
+	public void addCol(byte[] row,int rowLeng){
 		RowsBuffer rb=lastBuf;
 		if(rb==null){
 			rb= buildRowsBuffer();
 			lastBuf=rb;
 		}
-		if(rb.addRow(row, rows)==false){
+		if(rb.addRow(row, rows,rowLeng)==false){
 			addRowsBuffer(rb);
 			RowsBuffer rb2=buildRowsBuffer();
-			rb2.addRow(row, rows);
+			rb2.addRow(row, rows,rowLeng);
 			lastBuf=rb2; 
 			
 		};
@@ -242,6 +252,9 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 	}
 	
 	private RowsBuffer buildRowsBuffer(){
+		if(nRow!=null){
+			return nRow.copy();
+		}
 		QueryMananger qm= getQueryMananger();
 		String tableName=getTableName();
 		int rotio=InitConfig.DISK_ROW_BUFFER_SIZE_ROTIO;
@@ -249,7 +262,8 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 			 UserCacheConf conf=qm.session.cacheConf.getConf(tableName);
 			 rotio=conf.rowRotio;
 		}
-		return new RowsBuffer(rotio);
+		nRow= new RowsBuffer(rotio);
+		return nRow;
 	}
 	
 	 
@@ -269,7 +283,14 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 		mf.reOpen();
 	} 
 	
-	public SinResultBuffer load(){
+	public synchronized SinResultBuffer load(){
+		if(ref==null){
+			ref=new ResultRef();
+		}
+		ref.ref();
+		if(loaded!=null){
+			return loaded;
+		}
 		SinResultBuffer ret=new SinResultBuffer();
 		ret.rowId=this.rowId;
 		ret.endOut=this.endOut;
@@ -279,16 +300,22 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 		ret.head=this.head;
 		ret.dataType=this.dataType;
 		ret.qm=this.qm;
-		
+		ret.ref=this.ref;
 		ret.results.clear();
 		System.out.println("dddddddddddddddddd "+ret.results);;
 		for(int i=0;i<getResSize();i++){
 			 	System.out.println("SinResultBuffer-load: "+i);
+			 	
 				ret.results.add(getRowsBuffer0(i));
 			 
 		}
-		
+		loaded=ret;
+		loadDate=new Date();
 		return ret;
+	}
+	
+	public void cleanLoad(){
+		loaded=null;
 	}
 
 	public void fetchEnd0(){
@@ -296,6 +323,15 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 		lastBuf=null;
 		readNow=null;
 		readNowId=0;
+				
+	}
+	
+	public void fetchEnd(){
+		super.fetchEnd();
+		fetchEnd0();
+		if(ref!=null){
+			ref.r.get();
+		}
 				
 	}
 	

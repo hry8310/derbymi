@@ -1,0 +1,146 @@
+package org.apache.dearbaby.data;
+
+import java.util.ArrayList;
+import java.util.Map;
+
+import org.apache.dearbaby.util.ByteUtil;
+import org.apache.dearbaby.util.ColCompare;
+
+public class HashKey {
+
+	private int leng=100;
+
+	private int idxs=10;
+	private byte[] kv=new byte[300];
+	private int[] indexs=new int[20];
+	
+	private int rowId=0;
+	
+	private int preId=0;
+	
+	private boolean endOut = false;
+	
+	int type=-1;
+	int idx=0;
+	private SinResult res;
+	private String colName ;
+	public HashKey(SinResult s,String name){
+		res=s;
+		colName=name;
+	}
+	
+	public void add(Object key,Object value){ 
+		if(type==-1){
+			type=ColCompare.getColType(key);
+		}
+		
+		byte[] b=ByteUtil.getHashKey(key,value);
+		int begin=0;
+		if(idx!=0){
+			begin=indexs[idx-1];
+		}
+		if(indexs.length<idx+1){
+			int[] tmp=new int[indexs.length+idxs];
+			System.arraycopy(indexs,0, tmp, 0,indexs.length);
+			indexs=tmp;
+		}
+	//	System.out.println("idx  "+idx+"  indexs.length  "+indexs.length);
+		indexs[idx]=begin+b.length;
+		idx++;
+		if(begin+b.length>kv.length-1){
+			byte[] tmp=new byte[kv.length+leng];
+			System.arraycopy(kv,0, tmp, 0,kv.length);
+			kv=tmp;
+		}
+		System.arraycopy(b,0, kv, begin, b.length);
+	}
+	
+	public void next(){
+		rowId++;
+		if (rowId > idx-1 ) {
+			endOut = true;
+			rowId = idx-1;
+		}
+	}
+	
+	private Object getKey(int i){
+		int begin=0;
+		if(i!=0){
+			begin=indexs[i-1];
+		}
+		int end=indexs[i];
+		byte[] b=new byte[end-begin-8];
+		
+		System.arraycopy(kv, begin, b, 0, b.length);
+	//	System.out.println("type     :  "+new String(b));
+		return  ByteUtil.getCol(b,  type);
+	}
+	
+	private Object getValue(int i){
+		
+		int begin=0;
+		if(i!=0){
+			begin=indexs[i-1];
+		}
+		int end=indexs[i];
+		
+		byte[] b=new byte[8];
+		System.arraycopy(kv, end-8, b, 0, 8);
+		//System.out.println("getHashKey>>>>   "+new String(b)+"  End "+end);
+		long l=  ByteUtil.byte2long(b,0);
+		//System.out.println("getValue   "+l  );
+		return l;
+	}
+	
+	public boolean nextMatch(Object obj){
+	//	System.out.println("nextMatch   "+keys.size());
+		for(int i=preId;i< idx;i++){
+			Object o=getKey(i);
+			//System.out.println("hhhhrr   "+obj +"    ,  "+o);
+			if(ColCompare.compareObject(obj, o)==0){
+				rowId=i;
+				preId=i+1;
+				//System.out.println("hhhhrr   ");
+				return true;
+			}
+		}
+		rowId=0;
+		preId=0;
+		return false;
+	}
+	
+	public void init() {
+		rowId = 0;
+		endOut = false;
+	}
+	
+	public boolean isEnd() {
+		return rowId>=idx;
+	}
+
+	public boolean isEndOut() {
+		return endOut;
+	}
+	
+	public Object getCurrRow(){
+	 
+		return getValue(rowId);
+	}
+	 
+	public HashKey clone(){
+		HashKey hk=new HashKey(res,colName);
+
+		hk.kv=this.kv;
+		hk.indexs=this.indexs;
+		
+		hk.rowId=this.rowId;
+		
+		hk.preId=this.preId;
+		hk.idx=this.idx;
+		hk.type=this.type;
+		
+		hk.endOut = this.endOut ;
+		return hk;
+		
+	}
+}

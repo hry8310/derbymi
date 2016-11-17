@@ -167,7 +167,7 @@ public class SinQuery {
 				return DRConstant.LAGEQ;
 			}
 		}
-		System.out.println("sssssssssssssssss  "+jt.opr);
+		 
 		return 0;
 	}
 	

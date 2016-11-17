@@ -11,9 +11,13 @@ public class HashIndex implements IIndex {
 	int hashId=-1;
 	
 	Object matchKey=null;
+	SinResult result;
+	String colName;
 	
-	public HashIndex(int size){
+	public HashIndex(int size,SinResult sin,String name){
 		hashSize=size;
+		result=sin;
+		colName =name;
 		hash=new HashKey[size];
 	}
 	public void init(){
@@ -32,7 +36,7 @@ public class HashIndex implements IIndex {
 		
 		int hsid =(int)hash(key);
 		if(hash[hsid]==null){
-			hash[hsid]=new HashKey();
+			hash[hsid]=new HashKey(result,colName);
 		}
 		hash[hsid].add(key, value);
 	}
@@ -84,7 +88,7 @@ public class HashIndex implements IIndex {
 		return code%hashSize;
 	}
 	public HashIndex clone(){
-		HashIndex hi=new HashIndex(this.hashSize);
+		HashIndex hi=new HashIndex(this.hashSize,result,colName);
 		hi.hashSize=this.hashSize;
 		
 		for(int i=0;i< hashSize;i++){

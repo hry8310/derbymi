@@ -134,7 +134,7 @@ public class SinResultMap extends AbstractSinResult {
 		if(ss==0){
 			ss=1;
 		}
-		hashIndex = new HashIndex(ss); 
+		hashIndex = new HashIndex(ss,this,col); 
 		for(Map m:results){
 			
 			hashIndex.addKey(m.get(col), m);

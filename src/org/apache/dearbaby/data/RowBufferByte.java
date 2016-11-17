@@ -3,41 +3,34 @@ package org.apache.dearbaby.data;
 import java.nio.ByteBuffer;
 
 import org.apache.dearbaby.config.InitConfig;
-import org.apache.dearbaby.mem.RowBufferPool;
 
-import sun.nio.ch.DirectBuffer;
+public class RowBufferByte {
 
-public class RowsBuffer {
 	public int begin=-1;
 	public int end;
 	public int bufferSize=InitConfig.ROWS_BUFFER_SIZE;
 	public int idxSize=InitConfig.ROWS_SIZE;
-	public ByteBuffer buffer;
+	public byte[] buffer;
 	public int[] indexs;
 	public int idx=0;
 	
 	public int currIdx=0;
 	
-	public RowsBuffer(){
-	//     buffer=ByteBuffer.allocateDirect(bufferSize);
-		 buffer=RowBufferPool.getPool().allocate(bufferSize);
-	     indexs =new int[idxSize];
-	}
-	
- 
-	public RowsBuffer(int radio){
-		//idxSize=idxSize*radio;
-	     //buffer=ByteBuffer.allocateDirect(bufferSize/radio);
-
-		 buffer=RowBufferPool.getPool().allocate(bufferSize);
+	public RowBufferByte(){
+	     buffer=new byte[bufferSize];
 		 indexs =new int[idxSize];
 	}
-	 
-	public RowsBuffer(ByteBuffer _bf,int[] idx){
-	     buffer=_bf;
-		 indexs =idx;
+	
+	public RowBufferByte(int radio){
+	     buffer=new byte[bufferSize/radio];
+		 indexs =new int[idxSize/radio];
 	}
-	 
+	
+	public RowBufferByte(byte[] _buf,int[] idxs){
+	     buffer=_buf;
+		 indexs =idxs;
+	}
+	
 	byte[] ret;
 	public byte[] getRow(int rowId){
 		int e=currIdx;
@@ -53,17 +46,14 @@ public class RowsBuffer {
 	    if(ret==null||ret.length<e-b){
 	    	 ret=new byte[e-b+5] ;
 	    }
-	    buffer.position(b);
-		   
-	    buffer.get(ret, 0, e-b);
-	 //   System.out.println("eeeeeeeeeeeeeeeeeee "+new String(ret));
+		System.arraycopy(buffer, b, ret, 0, e-b);
 		return ret;
 	}
 	
 	public boolean addRow(byte[] row,int rowId,int rowLength){
-		if(idx>=idxSize-1){
+		if(idx>=idxSize){
 			//计算
-			int i=(buffer.capacity()-currIdx)/rowLength;
+			int i=(buffer.length-currIdx)/rowLength;
 			//已经无法保证能再放一条了，直接返回full
 			if(i<=1){
 				return false;
@@ -74,21 +64,19 @@ public class RowsBuffer {
 			idxSize=idxSizeTmp;
 			indexs=indexsTmp;
 		}
-		if((buffer.capacity()-currIdx)<rowLength){
+		if((buffer.length-currIdx)<rowLength){
 			int[] indexsTmp =new int[idx];
 			System.arraycopy(indexs, 0, indexsTmp, 0, indexsTmp.length);
 			indexs=indexsTmp;
 			return false;
 		}
-		
 		if(begin==-1){
 			begin=rowId;
 		}
 		end=rowId;
 	//	System.out.println("end...................  "+end);
-		//System.arraycopy(row, 0, buffer, currIdx, rowLength);
-		buffer.position(currIdx);
-		buffer.put(row,0,rowLength);
+		System.arraycopy(row, 0, buffer, currIdx, rowLength);
+		
 		 
 		indexs[idx]=currIdx;
 		idx=idx+1;
@@ -107,35 +95,28 @@ public class RowsBuffer {
 		}
 		 
 		byte[] buffer2=new byte[currIdx];
-//		System.arraycopy(buffer, 0, buffer2, 0,currIdx);
-	//	buffer=buffer2;
-//		bufferSize=currIdx;
+		System.arraycopy(buffer, 0, buffer2, 0,currIdx);
+		buffer=buffer2;
+		bufferSize=currIdx;
 		 
 	}
-	ByteBuffer buf=null; 
+	byte[] toSer;
 	public ByteBuffer toSer(){
-		int bi=buffer.capacity();
+		int bi=buffer.length;
 		int ii=indexs.length;
 		int toLen=20+bi+ii*4;
-		int bufLen=20+bi+ii*4;
-		if(buf==null||buf.capacity()<bufLen){
-			buf= ByteBuffer.allocate(bufLen); 
-		}else{
-			buf.clear();
+		if(toSer==null||toSer.length<toLen){
+			toSer=new byte[toLen];
 		}
 		//ByteBuffer buf = ByteBuffer.allocate(20+bi+ii*4);
-		 
+		ByteBuffer buf = ByteBuffer.wrap(toSer);
 
 		buf.putInt(begin);
 		buf.putInt(end);
 		buf.putInt(currIdx);
 		buf.putInt(bi);
 		buf.putInt(ii);
-		byte[] bf=new byte[bi];
-		buffer.position(0);
-		buffer.get(bf);
-		buf.put(bf);
-		//buf.put(buffer);
+		buf.put(buffer);
 		for(int i=0;i<ii;i++){
 			
 			buf.putInt(indexs[i]);
@@ -143,48 +124,26 @@ public class RowsBuffer {
 		return buf;
 	}
 	
-	public static RowsBuffer    fromSer( byte[] b  ,RowsBuffer n){ 
+	public static RowBufferByte fromSer( byte[] b ){ 
 		ByteBuffer buf =ByteBuffer.wrap(b);
 	    
-		
+		RowBufferByte n=new RowBufferByte();
 		n.begin=buf.getInt();
 		n.end=buf.getInt();
 		n.currIdx=buf.getInt();
 		int bi=buf.getInt();
 		int ii=buf.getInt();
-		//n.buffer=new byte[bi];
-		if(n.buffer.capacity()<bi){
-			//n.buffer=ByteBuffer.allocateDirect(bi);
-			n.buffer=RowBufferPool.getPool().allocate(bi);
-		}else{
-			n.buffer.clear();
-		}
-		
+		n.buffer=new byte[bi];
 		n.indexs=new int[ii];
-		byte[] buf2=new byte[bi];
-		//buf.get(n.buffer);
-		buf.get(buf2);
-		try{
-		n.buffer.put(buf2);
-		}catch(Exception e)
-		{
-			System.out.println("n.......... "+n.buffer.capacity()+"   , "+bi);
-			
-		}
-		//System.out.println("buffer ;;....   "+new String(n.buffer.array()));
+		buf.get(n.buffer);
+	//	System.out.println("buffer ;;....   "+new String(n.buffer));
 		for(int i=0;i<ii;i++){
 			n.indexs[i]=buf.getInt();
 		}
 		return n;
 	}
 	
-	public RowsBuffer copy(){
-		buffer.clear();
-		return new RowsBuffer(buffer,indexs);
-	}
-	
-	public void clear(){
-		RowBufferPool.getPool().recycle(buffer);
-		buffer=null;
+	public RowBufferByte copy(){
+		return new RowBufferByte(buffer,indexs);
 	}
 }

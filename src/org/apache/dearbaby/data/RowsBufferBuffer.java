@@ -3,11 +3,10 @@ package org.apache.dearbaby.data;
 import java.nio.ByteBuffer;
 
 import org.apache.dearbaby.config.InitConfig;
-import org.apache.dearbaby.mem.RowBufferPool;
 
 import sun.nio.ch.DirectBuffer;
 
-public class RowsBuffer {
+public class RowsBufferBuffer {
 	public int begin=-1;
 	public int end;
 	public int bufferSize=InitConfig.ROWS_BUFFER_SIZE;
@@ -18,22 +17,18 @@ public class RowsBuffer {
 	
 	public int currIdx=0;
 	
-	public RowsBuffer(){
-	//     buffer=ByteBuffer.allocateDirect(bufferSize);
-		 buffer=RowBufferPool.getPool().allocate(bufferSize);
-	     indexs =new int[idxSize];
+	public RowsBufferBuffer(){
+	     buffer=ByteBuffer.allocateDirect(bufferSize);
+		 indexs =new int[idxSize];
 	}
 	
  
-	public RowsBuffer(int radio){
-		//idxSize=idxSize*radio;
-	     //buffer=ByteBuffer.allocateDirect(bufferSize/radio);
-
-		 buffer=RowBufferPool.getPool().allocate(bufferSize);
-		 indexs =new int[idxSize];
+	public RowsBufferBuffer(int radio){
+	     buffer=ByteBuffer.allocateDirect(bufferSize/radio);
+		 indexs =new int[idxSize/radio];
 	}
 	 
-	public RowsBuffer(ByteBuffer _bf,int[] idx){
+	public RowsBufferBuffer(ByteBuffer _bf,int[] idx){
 	     buffer=_bf;
 		 indexs =idx;
 	}
@@ -61,7 +56,7 @@ public class RowsBuffer {
 	}
 	
 	public boolean addRow(byte[] row,int rowId,int rowLength){
-		if(idx>=idxSize-1){
+		if(idx>=idxSize){
 			//计算
 			int i=(buffer.capacity()-currIdx)/rowLength;
 			//已经无法保证能再放一条了，直接返回full
@@ -80,7 +75,6 @@ public class RowsBuffer {
 			indexs=indexsTmp;
 			return false;
 		}
-		
 		if(begin==-1){
 			begin=rowId;
 		}
@@ -143,34 +137,25 @@ public class RowsBuffer {
 		return buf;
 	}
 	
-	public static RowsBuffer    fromSer( byte[] b  ,RowsBuffer n){ 
+	public static RowsBufferBuffer  fromSer( byte[] b ){ 
 		ByteBuffer buf =ByteBuffer.wrap(b);
 	    
-		
+		RowsBufferBuffer n=new RowsBufferBuffer();
 		n.begin=buf.getInt();
 		n.end=buf.getInt();
 		n.currIdx=buf.getInt();
 		int bi=buf.getInt();
 		int ii=buf.getInt();
 		//n.buffer=new byte[bi];
-		if(n.buffer.capacity()<bi){
-			//n.buffer=ByteBuffer.allocateDirect(bi);
-			n.buffer=RowBufferPool.getPool().allocate(bi);
-		}else{
-			n.buffer.clear();
-		}
-		
+		n.buffer=ByteBuffer.allocateDirect(bi);
+		DirectBuffer d=(DirectBuffer)n.buffer;
+		d.cleaner().clean();
 		n.indexs=new int[ii];
 		byte[] buf2=new byte[bi];
 		//buf.get(n.buffer);
 		buf.get(buf2);
-		try{
 		n.buffer.put(buf2);
-		}catch(Exception e)
-		{
-			System.out.println("n.......... "+n.buffer.capacity()+"   , "+bi);
-			
-		}
+		
 		//System.out.println("buffer ;;....   "+new String(n.buffer.array()));
 		for(int i=0;i<ii;i++){
 			n.indexs[i]=buf.getInt();
@@ -178,13 +163,8 @@ public class RowsBuffer {
 		return n;
 	}
 	
-	public RowsBuffer copy(){
+	public RowsBufferBuffer copy(){
 		buffer.clear();
-		return new RowsBuffer(buffer,indexs);
-	}
-	
-	public void clear(){
-		RowBufferPool.getPool().recycle(buffer);
-		buffer=null;
+		return new RowsBufferBuffer(buffer,indexs);
 	}
 }

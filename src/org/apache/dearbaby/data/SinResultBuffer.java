@@ -124,10 +124,11 @@ public class SinResultBuffer  extends AbstractSinResult  {
 	}
 	
 	public  Object getCurrCol (String name) {
-		//System.out.println("ddddddddddddddddddddd "+isBuild);
+	  
 		if(isBuild==true){
 			return getHsCurrCol(name);
 		}
+	//	   System.out.println("ddddddddddddddddddddd-getCurrCol "+rowId+"  name "+name);
 		return getCurrCol0(name);
 	}
 	
@@ -170,6 +171,7 @@ public class SinResultBuffer  extends AbstractSinResult  {
 		return endOut;
 	}
 	
+	byte[] cos;
 	public void add(Map m){
 		if(m==null){
 			return;
@@ -191,18 +193,21 @@ public class SinResultBuffer  extends AbstractSinResult  {
 		if(dataType==null){
 			dataType=new int[head.size()];
 		}
-		byte cos[]=new byte[head.size()*4+rowSize];
-		
+		int rowLeng=head.size()*4+rowSize;
+		if(cos==null||cos.length<rowLeng){
+		  cos=new byte[rowLeng+5];
+		 }
 		for(int i=0;i<head.size();i++){
 			obj[i]=m.get(head.get(i));
 			cos=putCol(cos,m.get(head.get(i)),i);
+			rowLeng=cos.length;
 			if(needType==1){
 				dataType[i]=ColCompare.getColType(obj[i]);
 			}
 			
 		}
-		cos=compressCol(cos);
-		addCol(cos);
+		//cos=compressCol(cos);
+		addCol(cos,rowLeng);
 		
 		rows=rows+1;
 		endSize++;
@@ -213,12 +218,12 @@ public class SinResultBuffer  extends AbstractSinResult  {
 		if(hashIndex!=null){
 			return;
 		}
-		int ss=rows/5;
+		int ss=rows/InitConfig.HASH_IDX_RATIO;
 		if(ss==0){
 			ss=1;
 		}
 		 
-		hashIndex = new HashIndex(ss); 
+		hashIndex = new HashIndex(ss,this,col); 
 
 		for(int i=0;i<results.size();i++){
 			RowsBuffer rb=results.get(i);
@@ -229,9 +234,20 @@ public class SinResultBuffer  extends AbstractSinResult  {
 				//HashBufEle e=new HashBufEle();
 				//e.bufIdx=i; 
 				//e.rowId=b;
+			
 				long e=ByteUtil.compInt(i, b);
+			//	System.out.println( "   e "+e  +  "  i  "+i+"  b  "+b);
+				byte[] bf=rb.getRow(b);
+				//System.out.println( "   e "+e  +  "  i  "+i+"  b  "+new String(bf));
+				Object key=getCol(bf,col);
 				
-				Object key=getCol(rb.getRow(b),col);
+				//System.out.println("key  "+key+"   e "+e  +  "  i  "+i+"  b  "+b);
+				if(key.equals("dept_67")){
+					
+					rb.getRow(b);
+				//	System.out.println("ddddddddd+");
+					 
+				}
 				hashIndex.addKey(key, e);
 			}
 			}catch(Exception e){
@@ -319,7 +335,9 @@ public class SinResultBuffer  extends AbstractSinResult  {
 		
 	//	byte[] b=results.get(ele.bufIdx).getRow(ele.rowId);
 		long ele=  (long)hashIndex.getCurrRow();
-		byte[] b=results.get(ByteUtil.getIntHght(ele)).getRow(ByteUtil.getIntLow(ele));
+		int h=ByteUtil.getIntHght(ele);
+		int l=ByteUtil.getIntLow(ele);
+		byte[] b=results.get(h).getRow(l);
 		
 		return getColMap(b);
 	}
@@ -446,6 +464,31 @@ public class SinResultBuffer  extends AbstractSinResult  {
 			
 	}
 	
+	public Object getColVal(long ele,String name){
+		int h=ByteUtil.getIntHght(ele);
+		int l=ByteUtil.getIntLow(ele);
+		byte[] b=results.get(h).getRow(l);
+		
+		return getCol(b,name);
+	}
+	
+	public Object getColVal(long ele,int headId){
+		int h=ByteUtil.getIntHght(ele);
+		int l=ByteUtil.getIntLow(ele);
+		byte[] b=results.get(h).getRow(l);
+		
+		return getCol(b,headId);
+	}
+	
+	public int getHeadId(String name){
+		for(int i=0;i<head.size();i++){
+			 if(head.get(i).equals(name)){
+				 return i;
+			 }
+		}
+		return -1;
+	}
+	
 	public Object getCol(byte[] b,String name){
 		for(int i=0;i<head.size();i++){
 			 if(head.get(i).equals(name)){
@@ -458,12 +501,12 @@ public class SinResultBuffer  extends AbstractSinResult  {
 	protected int getResSize(){
 		return results.size()-1;
 	}
-	public void addCol(byte[] row){
+	public void addCol(byte[] row,int rowLength){
 		RowsBuffer rb=results.get(getResSize());
 	 
-		if(rb.addRow(row, rows)==false){
+		if(rb.addRow(row, rows,rowLength)==false){
 			RowsBuffer rb2=new RowsBuffer();
-			 rb2.addRow(row, rows);
+			 rb2.addRow(row, rows,rowLength);
 			 results.add(rb2);
 			
 		};
@@ -476,6 +519,17 @@ public class SinResultBuffer  extends AbstractSinResult  {
 			m.put(head.get(i), getCol(row,i));
 		}
 		return m;
+	}
+	
+	public void fetchEnd(){
+		super.fetchEnd();
+		if(ref!=null&&ref.r.get()>0){
+		//	return ;
+		}
+		for(RowsBuffer rb: results){
+			rb.clear();
+		}
+		results.clear();
 	}
 	
 }
