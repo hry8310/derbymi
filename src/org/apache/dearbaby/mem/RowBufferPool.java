@@ -8,6 +8,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.dearbaby.config.InitConfig;
+import org.apache.dearbaby.data.AbstractSinResult;
+import org.apache.dearbaby.data.SinResult;
+import org.apache.dearbaby.data.SinResultBuffer;
+import org.apache.dearbaby.help.PrintTrace;
+import org.apache.dearbaby.util.DRConstant;
 
 import sun.nio.ch.DirectBuffer;
 
@@ -15,19 +20,23 @@ import sun.nio.ch.DirectBuffer;
 public  class RowBufferPool {
 	private   int chunkSize;
 	private final LinkedBlockingQueue<ByteBuffer> items = new LinkedBlockingQueue<ByteBuffer>();
+	private final LinkedBlockingQueue<SinResultHolder> holderQueue = new LinkedBlockingQueue<SinResultHolder>();
  
 	private volatile int newCreated;
 	private   int capactiy; 
 	private static RowBufferPool instance=new RowBufferPool();
 	private AtomicInteger allo=new AtomicInteger(0) ;
 	private AtomicInteger puted=new AtomicInteger(0) ;
+	PoolManager pm=new PoolManager();
+	
+	private volatile long holder=DRConstant.NO_HOLDER; //1-
 	private void init(int size,int chunkSize) {
 		this.chunkSize = chunkSize;
 		this.capactiy = size;
 		for (int i = 0; i < capactiy/10; i++) {
 			items.offer(createDirectBuffer(chunkSize));
 		}
-		 
+		pm.start(); 
 	}
 	public RowBufferPool(int size,int chunkSize) {
 		init(size,chunkSize);
@@ -50,21 +59,87 @@ public  class RowBufferPool {
 		return capactiy + newCreated;
 	}
 
+	
+	public synchronized void waiting( ){
+		try{
+			//如果没有人占用
+			if(holder==DRConstant.NO_HOLDER){
+				holder=Thread.currentThread().getId();
+				return;
+			}
+			//如果自己hold
+			else if(holder==Thread.currentThread().getId()){
+				return;
+			}
+		
+			wait( );
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	public void entenWait(){
+		//如果还没有人独占资源，就说明现在可以并发
+		if(holder==DRConstant.NO_HOLDER){
+			return ;
+		}
+		//进入等待
+		waiting();
+	}
+	
+	public synchronized void notifying (int num){
+		try{
+			//正在释放
+			holder=DRConstant.HOLDER_FREE_ING;
+			if(num==DRConstant.NOTI_ALL){
+				notifyAll();
+				
+			}else{
+				for(int i=0;i<num;i++){
+					notify( );
+				}
+					
+			}
+			//释放完毕
+			holder=DRConstant.NO_HOLDER;
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public void chkNotify(){
+		double ratio=(double)allo.get()/capactiy;
+		if(ratio<0.5){
+			notifying(DRConstant.NOTI_ALL);
+		}else{
+			notifying(1);
+		}
+	}
+	
+ 
+	 
 	public ByteBuffer allocate() {
 		ByteBuffer node = null;
 		 
 		node = items.poll();
-		if(allo.get()>((double)capactiy)*(1.2)){
-			try{
-				node = items.take();
-			}catch(Exception e){
-				
-			}
-		}
-		
 		if (node == null) {
-			newCreated++;
-			node = this.createDirectBuffer(chunkSize);
+			if(allo.get()>((double)capactiy)*(1.2)){
+				try{
+					notifyFree();
+					//并发改为按队列处理
+					entenWait();
+					//PrintTrace.print();
+					node = items.take();
+				}catch(Exception e){
+					
+				}
+			}
+			else {
+				
+				node = this.createDirectBuffer(chunkSize);
+			}
 		}
 		node.clear();
 		allo.incrementAndGet();
@@ -113,6 +188,7 @@ public  class RowBufferPool {
 	}
 
 	private ByteBuffer createTempBuffer(int size) {
+		System.out.println("------createTempBuffer--------");
 		return ByteBuffer.allocate(size);
 	}
 
@@ -144,5 +220,73 @@ public  class RowBufferPool {
 	public static RowBufferPool getPool(){
 		return instance;
 	}
-	 
+	
+	public boolean holder(SinResultBuffer rst){
+		if(rst.ref==null||rst.ref.r.get()==0){
+			return false;
+		}
+		SinResultHolder holder3=new SinResultHolder(rst);
+		
+		if(holder!=DRConstant.NO_HOLDER||holder!=DRConstant.HOLDER_FREE_ING){
+			chkNotify();
+		}
+		holderQueue.add(holder3);
+		return true;
+	}
+	
+	public boolean freeHolder(){
+		return freeHolder(1);
+	}
+	public boolean freeHolder(int freeTime){
+		boolean hasFree=false;
+		for(int i=0;i<freeTime;){
+			SinResultHolder holder=holderQueue.poll();
+			if(holder==null){
+				return hasFree;
+			}
+			if(holder!=null){
+				if(holder.result.clear()){
+					hasFree=true;
+					i++;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private void notifyFree(){
+		pm.notifying();
+	}
+	
+	class PoolManager extends Thread{
+
+		public synchronized void waiting(long time){
+			try{
+				wait(time);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		
+		public synchronized void notifying (){
+			try{
+				notify( );
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		
+		public void run(){
+			while(true){
+				try{
+					waiting(InitConfig.FREE_MONITOR_INYRTVAL);
+					
+					RowBufferPool pool=RowBufferPool.getPool();
+					pool.freeHolder();
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }

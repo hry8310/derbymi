@@ -22,9 +22,9 @@ public class InitConfig {
 	
 	public static String  MAP_FILE_DIR="F:/derbymi/";
 	
-	public static int HASH_IDX_RATIO=8; //必须大于8，最好定义为8的倍数
+	public static int HASH_IDX_RATIO=16; //必须大于8，最好定义为8的倍数
 	
-	public static int DIR_BUFFER_CAP=1024;
+	public static int DIR_BUFFER_CAP=800;
 	
-	
+	public static int FREE_MONITOR_INYRTVAL=1000*300;
 }

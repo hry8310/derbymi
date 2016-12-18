@@ -25,6 +25,9 @@ public abstract class AbstractSinResult implements SinResult {
 		}
 	}
 	
+	public boolean clear(){
+		return true;
+	}
 	//empt
 	public Object getColVal(long l,String name){
 		return null;

@@ -154,23 +154,23 @@ public class RowsBuffer {
 		int ii=buf.getInt();
 		//n.buffer=new byte[bi];
 		if(n.buffer.capacity()<bi){
-			//n.buffer=ByteBuffer.allocateDirect(bi);
+			RowBufferPool.getPool().recycle(n.buffer);
 			n.buffer=RowBufferPool.getPool().allocate(bi);
 		}else{
 			n.buffer.clear();
 		}
 		
 		n.indexs=new int[ii];
-		byte[] buf2=new byte[bi];
-		//buf.get(n.buffer);
-		buf.get(buf2);
+ 
 		try{
-		n.buffer.put(buf2);
+	 
+			n.buffer.put(b,20,bi);
 		}catch(Exception e)
 		{
 			System.out.println("n.......... "+n.buffer.capacity()+"   , "+bi);
 			
 		}
+		buf.position(20+bi);
 		//System.out.println("buffer ;;....   "+new String(n.buffer.array()));
 		for(int i=0;i<ii;i++){
 			n.indexs[i]=buf.getInt();

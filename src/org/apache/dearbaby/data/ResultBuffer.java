@@ -12,19 +12,19 @@ import org.apache.dearbaby.util.ColCompare;
 import org.apache.dearbaby.util.QueryUtil;
 
 public class ResultBuffer {
-	private int rowId = 0;
-	private int bufferId=0;
-	private boolean endOut = false;
+	protected int rowId = 0;
+	protected int bufferId=0;
+	protected boolean endOut = false;
 	public ArrayList<RowsBuffer> results = new ArrayList<RowsBuffer>();
 	
 
-	private ArrayList<String > head=null;
-	private int[] dataType=null;
-	private int rowSize=20;
-	private int rows=0;
+	protected ArrayList<String > head=null;
+	protected int[] dataType=null;
+	protected int rowSize=20;
+	protected int rows=0;
 	
-	private int drvRowId=0;
-	private int endSize=0;
+	protected int drvRowId=0;
+	protected int endSize=0;
 	 
 	
 	public ResultBuffer(){
@@ -181,7 +181,7 @@ public class ResultBuffer {
 			}
 			
 		}
-		addCol(cos);
+		addCol(cos,cos.length);
 		
 		rows=rows+1;
 		endSize++;
@@ -249,7 +249,7 @@ public class ResultBuffer {
 		return buf;
 	}
 	
-	private Object getCol(byte[] buf,int i){
+	protected Object getCol(byte[] buf,int i){
 		int pre=0;
 		if(i-1>=0){
 			pre=ByteUtil.byte2int(buf,(i-1)*4);
@@ -290,7 +290,7 @@ public class ResultBuffer {
 		}
 	}
 	
-	public void addCol(byte[] row){
+	public void addCol(byte[] row,int length){
 		RowsBuffer rb=results.get(results.size()-1);
 		 
 		if(rb.addRow(row, rows,row.length)==false){
@@ -308,6 +308,12 @@ public class ResultBuffer {
 			m.put(head.get(i), getCol(row,i));
 		}
 		return m;
+	}
+	
+	
+	
+	public void fetchEnd(){
+		 
 	}
 	
 }

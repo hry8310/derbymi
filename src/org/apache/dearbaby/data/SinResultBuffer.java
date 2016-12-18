@@ -9,6 +9,7 @@ import org.apache.dearbaby.cache.CacheIndex;
 import org.apache.dearbaby.cache.CacheTableConf;
 import org.apache.dearbaby.cache.ResultCache;
 import org.apache.dearbaby.config.InitConfig;
+import org.apache.dearbaby.mem.RowBufferPool;
 import org.apache.dearbaby.query.JoinType;
 import org.apache.dearbaby.util.ByteUtil;
 import org.apache.dearbaby.util.ColCompare;
@@ -35,6 +36,8 @@ public class SinResultBuffer  extends AbstractSinResult  {
 	protected boolean isPress=false;
 	
 	protected int hl=2;
+	
+	public  SinResultBufferDisk from;
 	public SinResultBuffer(){
 		 
 		RowsBuffer rb=new RowsBuffer();
@@ -521,15 +524,33 @@ public class SinResultBuffer  extends AbstractSinResult  {
 		return m;
 	}
 	
+	public boolean clear(){
+		if(from!=null){
+			if(from.cleanLoad()==false){
+				return false;
+			};
+		}
+		for(RowsBuffer rb: results){
+			rb.clear();
+		}
+	
+		results.clear();
+		return true;
+		
+	}
+	
 	public void fetchEnd(){
 		super.fetchEnd();
 		if(ref!=null&&ref.r.get()>0){
 		//	return ;
 		}
-		for(RowsBuffer rb: results){
-			rb.clear();
+		 
+		if(ref==null){ //不需要自己释放内存
+			clear();
+			return;
 		}
-		results.clear();
+		RowBufferPool.getPool().holder(this);
+		
 	}
 	
 }

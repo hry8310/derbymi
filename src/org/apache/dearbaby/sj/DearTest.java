@@ -60,7 +60,7 @@ public class DearTest {
 		
 		ExcCacheConf ccf=new ExcCacheConf();
 		UserCacheConf userConf1=new UserCacheConf("WORKINFORPARAMETER7","WORK", CacheTableConf.ALL,DRConstant.USEIDX,3);
-		UserCacheConf userConf2=new UserCacheConf("DOCTORINFORPARAMETER6", CacheTableConf.ALL,DRConstant.USEIDX,3);
+		//UserCacheConf userConf2=new UserCacheConf("DOCTORINFORPARAMETER6", CacheTableConf.ALL,DRConstant.USEIDX,3);
 		
 		//ccf.put("doctorinforparameter", CacheTableConf.ALL,DRConstant.USEIDX);
 		//ccf.put("WORKINFORPARAMETER7", CacheTableConf.ALL,DRConstant.USEIDX);
@@ -114,11 +114,32 @@ public class DearTest {
 	//	ResultCache.addTable(ct);
 		ResultCache.addTable(ct2);
 	}
-
-	public static void main(String[] args) {
-		init();
-		run3();
-		//run3();
+	
+	public static void hinit(){
+ 
+		
+		CacheTableConf ct2=new JustCacheTableConf("WORKINFORPARAMETER7","WORK");
+		ct2.setType(CacheTableConf.ALL);
+		ct2.setCacheType(DRConstant.DISKCACHE); 
+		ct2.executor=new CacheExecuteImp(ct2);
+ 
+		ResultCache.addTable(ct2);
 	}
 
+	public static void main(String[] args) {
+		hinit();
+		run3(); 
+	//	trun();
+	}
+	
+	public static void trun(){
+		for(int i=0;i<3;i++){
+			Thread t=new Thread(){
+				public void run(){
+					run3();
+				}
+			};
+			t.start();
+		}
+	}
 }

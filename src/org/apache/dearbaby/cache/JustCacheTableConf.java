@@ -7,7 +7,7 @@ public   class JustCacheTableConf extends CacheTableConf {
 
     String _sql="";
 	
-	public   SinResult loadCacheRule(String _sql){
+	public synchronized   SinResult loadCacheRule(String _sql){
 		if(result==null){
 			sql=_sql;
 			getCache();
