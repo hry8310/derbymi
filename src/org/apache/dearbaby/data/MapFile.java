@@ -119,7 +119,7 @@ public class MapFile {
 		 }
 		  
 		 try{
-			 System.out.println("write-offset "+offset);
+			// System.out.println("write-offset "+offset);
 			 raf.seek(headerSet+offset);
 			 
 			 

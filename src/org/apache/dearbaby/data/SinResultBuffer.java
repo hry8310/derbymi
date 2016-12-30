@@ -65,7 +65,12 @@ public class SinResultBuffer  extends AbstractSinResult  {
 		isPress=true;
 	}
 	
+	protected void freeNotity(){
+		RowBufferPool.getPool().chkNotify();
+	}
 	public void addEnd(){
+		//System.out.println("ddddddddddd");
+		freeNotity();
 		compress();
 	}
 	public Map getCurrRow0 () {
@@ -244,13 +249,7 @@ public class SinResultBuffer  extends AbstractSinResult  {
 				//System.out.println( "   e "+e  +  "  i  "+i+"  b  "+new String(bf));
 				Object key=getCol(bf,col);
 				
-				//System.out.println("key  "+key+"   e "+e  +  "  i  "+i+"  b  "+b);
-				if(key.equals("dept_67")){
-					
-					rb.getRow(b);
-				//	System.out.println("ddddddddd+");
-					 
-				}
+				 
 				hashIndex.addKey(key, e);
 			}
 			}catch(Exception e){
@@ -291,6 +290,9 @@ public class SinResultBuffer  extends AbstractSinResult  {
 	}
 	
 	private boolean cacheIndex(String col,JoinType jt){
+		if(qm.cacheConf==null){
+			return false;
+		}
 		if(qm.cacheConf.getIndex(tableName)!=DRConstant.USEIDX){
 			return false;
 		}
@@ -323,6 +325,9 @@ public class SinResultBuffer  extends AbstractSinResult  {
 			buildSortIndex(col,jt,ct);
 		}
 		System.out.println("end-build-index");
+		if(qm.cacheConf==null){
+			return;
+		}
 		if(qm.cacheConf.getIndex(tableName)==DRConstant.USEIDX){
 			CacheTableConf ccf=ResultCache.findTable(tableName);
 			if(ccf==null){
@@ -372,6 +377,28 @@ public class SinResultBuffer  extends AbstractSinResult  {
 		}
 			
 		return ret;
+	}
+	
+	public SinResultBufferDisk wrapDisk(){
+		SinResultBufferDisk disk=new SinResultBufferDisk();
+	//	disk.results=this.results; 
+		disk.rowId=this.rowId;
+		disk.endOut=this.endOut;
+	//	disk.endSize=this.endSize;
+	//	disk.rows=this.rows; 
+		disk.isBuild=this.isBuild;
+		disk.head=this.head;
+		disk.dataType=this.dataType;
+		disk.openMpFile();
+		for(RowsBuffer b:results){
+			disk.addRowsBuffer(b);
+		}
+		 
+		if(this.hashIndex!=null){
+			disk.hashIndex=this.hashIndex.clone();
+		}
+		return disk;
+		
 	}
 	
 	public int size(){
@@ -547,10 +574,11 @@ public class SinResultBuffer  extends AbstractSinResult  {
 		 
 		if(ref==null){ //不需要自己释放内存
 			clear();
+			RowBufferPool.getPool().chkNotify();
 			return;
 		}
 		RowBufferPool.getPool().holder(this);
-		
+		RowBufferPool.getPool().chkNotify();		
 	}
 	
 }

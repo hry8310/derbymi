@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.dearbaby.config.InitConfig;
@@ -23,6 +24,7 @@ public  class RowBufferPool {
 	private final LinkedBlockingQueue<SinResultHolder> holderQueue = new LinkedBlockingQueue<SinResultHolder>();
  
 	private volatile int newCreated;
+	private volatile int isFull=DRConstant.POOL_FREE;
 	private   int capactiy; 
 	private static RowBufferPool instance=new RowBufferPool();
 	private AtomicInteger allo=new AtomicInteger(0) ;
@@ -62,16 +64,7 @@ public  class RowBufferPool {
 	
 	public synchronized void waiting( ){
 		try{
-			//如果没有人占用
-			if(holder==DRConstant.NO_HOLDER){
-				holder=Thread.currentThread().getId();
-				return;
-			}
-			//如果自己hold
-			else if(holder==Thread.currentThread().getId()){
-				return;
-			}
-		
+			
 			wait( );
 		}catch(Exception e){
 			e.printStackTrace();
@@ -83,8 +76,15 @@ public  class RowBufferPool {
 	public void entenWait(){
 		//如果还没有人独占资源，就说明现在可以并发
 		if(holder==DRConstant.NO_HOLDER){
+			holder=Thread.currentThread().getId();
 			return ;
 		}
+		if(holder==Thread.currentThread().getId()){
+			return;
+		}
+	
+	//	System.out.println("enting waiting......."+Thread.currentThread().getId());
+	//	PrintTrace.print();
 		//进入等待
 		waiting();
 	}
@@ -127,19 +127,26 @@ public  class RowBufferPool {
 		if (node == null) {
 			if(allo.get()>((double)capactiy)*(1.2)){
 				try{
+					//预记为full
+					//isFull=DRConstant.POOL_FULL;
 					notifyFree();
 					//并发改为按队列处理
 					entenWait();
+					//
+					if(holder==Thread.currentThread().getId()){
+					//	System.out.println("empty>>>>>>>>>>>>>>>>>>>>> "+holder);
+					}
 					//PrintTrace.print();
-					node = items.take();
+					node = items.poll(0, TimeUnit.MILLISECONDS); 
 				}catch(Exception e){
 					
 				}
 			}
-			else {
-				
-				node = this.createDirectBuffer(chunkSize);
-			}
+		}
+		//如果最后还是空了，只能增加一个了
+		
+		if (node == null){
+			node = this.createDirectBuffer(chunkSize);
 		}
 		node.clear();
 		allo.incrementAndGet();
@@ -153,9 +160,22 @@ public  class RowBufferPool {
 			return createTempBuffer(size);
 		}
 	}
+	
+	public ByteBuffer allocateAndFreeHolder(int size) {
+		ByteBuffer b=null;
+		if (size <= this.chunkSize) {
+			  b= allocate();
+		} else {
+		 
+			b= createTempBuffer(size);
+		}
+		chkNotify();
+		return b;
+	}
 
 	private boolean checkValidBuffer(ByteBuffer buffer) {
-		if (buffer == null || !buffer.isDirect()) {
+		//System.out.println("ddddddddddddddddddd "+buffer.isDirect());
+		if (buffer == null ) {
 			return false;
 		}   
 		buffer.clear();
@@ -167,13 +187,17 @@ public  class RowBufferPool {
 		if (!checkValidBuffer(buffer)) {
 			return;
 		}
+		//System.out.println("offfferrrrrrrrrrrrr");
 		allo.decrementAndGet();
 		if(items.size()>capactiy){
+			
 			DirectBuffer d=(DirectBuffer)buffer;
 			d.cleaner().clean();
 			return ;
 		}  
-		items.offer(buffer);
+		ByteBuffer b=buffer;
+		
+		items.offer(b);
 	}
 
 	 
@@ -222,14 +246,14 @@ public  class RowBufferPool {
 	}
 	
 	public boolean holder(SinResultBuffer rst){
+		if(holder!=DRConstant.NO_HOLDER||holder!=DRConstant.HOLDER_FREE_ING){
+			chkNotify();
+		}
+		System.out.println("holder................");
 		if(rst.ref==null||rst.ref.r.get()==0){
 			return false;
 		}
 		SinResultHolder holder3=new SinResultHolder(rst);
-		
-		if(holder!=DRConstant.NO_HOLDER||holder!=DRConstant.HOLDER_FREE_ING){
-			chkNotify();
-		}
 		holderQueue.add(holder3);
 		return true;
 	}

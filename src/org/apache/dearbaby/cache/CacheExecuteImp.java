@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.apache.dearbaby.data.SinResult;
 import org.apache.dearbaby.data.SinResultFac;
+import org.apache.dearbaby.mem.RowBufferPool;
 import org.apache.dearbaby.util.MysqlUtil;
  
 
@@ -69,6 +70,8 @@ public  class CacheExecuteImp extends  AbstractCacheExecute {
 					results.add(m);
 				}
 				results.addEnd();
+				//
+				RowBufferPool.getPool().notifying(1);
 				rs.close();
 				stmt.close();
 				

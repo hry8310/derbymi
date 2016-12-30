@@ -1,6 +1,7 @@
 package org.apache.dearbaby.cache;
 
 import org.apache.dearbaby.data.SinResult;
+import org.apache.dearbaby.mem.RowBufferPool;
 import org.apache.dearbaby.query.IExecutor;
 import org.apache.dearbaby.util.DRConstant;
 
@@ -71,8 +72,14 @@ public abstract class CacheTableConf {
 	
 	public abstract SinResult loadCacheRule(String sql);
 	public SinResult cacheRule(String sql){
-		return loadCacheRule(  sql);
+		SinResult s= loadCacheRule(  sql);
+		endCacheLoad(s);
+		return s;
 	}
+	protected void endCacheLoad(SinResult s){
+		RowBufferPool.getPool().chkNotify();
+	}
+	
 	public int getCacheType() {
 		return cacheType;
 	}

@@ -186,8 +186,10 @@ class AndNode extends BinaryLogicalOperatorNode {
 	@Override
 	public void copyTO(	  QueryMananger _qm,QueryResultManager _qs ){
 		copyTO0(_qm,_qs);
-		leftOperand.copyTO(_qm,_qs);
-		rightOperand.copyTO(_qm,_qs);
+		if(leftOperand!=null)
+			leftOperand.copyTO(_qm,_qs);
+		if(rightOperand!=null)
+			rightOperand.copyTO(_qm,_qs);
 	}
 	
 	

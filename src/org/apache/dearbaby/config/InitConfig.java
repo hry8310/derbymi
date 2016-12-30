@@ -12,7 +12,7 @@ public class InitConfig {
 	
 	public static int DISK_USE_MAX_SIZE=50;
 	
-	public static int ROWS_BUFFER_SIZE=1024*1024;
+	public static int ROWS_BUFFER_SIZE=1024*102;
 	public static int ROWS_SIZE=1000;	
 	
 	public static int DISK_ROW_BUFFER_SIZE_ROTIO=4;
@@ -24,7 +24,7 @@ public class InitConfig {
 	
 	public static int HASH_IDX_RATIO=16; //必须大于8，最好定义为8的倍数
 	
-	public static int DIR_BUFFER_CAP=800;
+	public static int DIR_BUFFER_CAP=30;
 	
 	public static int FREE_MONITOR_INYRTVAL=1000*300;
 }

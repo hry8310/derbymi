@@ -184,6 +184,7 @@ public class RowsBuffer {
 	}
 	
 	public void clear(){
+	//	System.out.println("clearrrrrrrrrrrrrrrrr");
 		RowBufferPool.getPool().recycle(buffer);
 		buffer=null;
 	}

@@ -776,18 +776,27 @@ public class SubqueryNode extends ValueNode {
 		}
 		Object obj = leftOperand.getVal();
 		resultSet.fetchInit();
+		this.qs.bindContext(resultSet.fetchCtx);
 		while (resultSet.fetch()) {
+			
+		//	System.out.println("xxxxxxxxxxxxxxxxxxxxxxx  "+obj);
 			if (resultSet.match()) {
 				Object rObj = resultSet.getVal();
 				if (ColCompare.compareObject(obj, rObj) == 0) { 
+					//System.out.println("subbbbbbbbbbbbbb");
 					if(subqueryType== IN_SUBQUERY){
+						resultSet.fetchCxtEnd();
 						return true;
-					}else{
-						return false;
+					}
+				}else{
+					if(subqueryType== NOT_IN_SUBQUERY){
+						resultSet.fetchCxtEnd();
+						return true;
 					}
 				} 
 			}
 		}
+		resultSet.fetchCxtEnd(); 
 		return def;
 	}
 

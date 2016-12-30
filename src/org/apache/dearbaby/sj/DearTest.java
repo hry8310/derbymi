@@ -52,7 +52,7 @@ public class DearTest {
 		sql="SELECT a.doctorName  FROM (select c.DoctorId from  WorkInforParameter2 c)  a , (select d.DoctorId from  doctorinforparameter2 d where d.id>200000) b  WHERE  a.DoctorId=b.DoctorId   ";
 	//	sql="SELECT a.doctorName  FROM WorkInforParameter4  a left join doctorinforparameter4 b on  a.DoctorId=b.DoctorId  ";
 	 	sql="SELECT a.doctorName,b.DoctorId  FROM WorkInforParameter6  a , doctorinforparameter7 b  WHERE  a.DoctorId=b.DoctorId   ";
-		sql="SELECT  a.DoctorId aid,b.DoctorId  bid   FROM workinforparameter7  a , doctorinforparameter7 b  WHERE  a.DoctorId=b.DoctorId   ";
+		sql="SELECT  a.DoctorId aid,b.DoctorId  bid   FROM workinforparameter7  a , doctorinforparameter6 b  WHERE  a.DoctorId=b.DoctorId   ";
 		
 		//sql="SELECT a.doctorName  FROM WorkInforParameter5  a    ";
 	//	 Date d1=new Date();
@@ -126,10 +126,42 @@ public class DearTest {
 		ResultCache.addTable(ct2);
 	}
 
-	public static void main(String[] args) {
+	public static void test1(){
 		hinit();
-		run3(); 
-	//	trun();
+		System.out.println("main-end");
+	//	run3(); 
+		trun();
+	}
+	
+	public static void test2(){
+		String sql;
+		sql="SELECT  a.DoctorId aid,b.DoctorId  bid   FROM workinforparameter2  a , doctorinforparameter2 b  WHERE  a.DoctorId=b.DoctorId   ";
+	 	sql=" SELECT  a.DoctorId aid,b.DoctorId  bid   FROM workinforparameter4  a , doctorinforparameter4 b  WHERE  a.DoctorId=b.DoctorId and  a.DoctorId in (select c.DoctorId from   workinforparameter5 c ,doctorinforparameter5 d where c.DoctorId=d.DoctorId) ";
+	//	sql="SELECT a.doctorName  FROM WorkInforParameter5  a    ";
+	//	 Date d1=new Date();
+		
+		
+		 
+		DearSelector selector =new DearSelector();  
+		selector.setExecutor(new JdbcExecutor()); 
+		QuerySession s=QuerySession.jdbcSession();
+		 
+		
+	
+		selector.query(sql,s);
+	 
+		System.out.println("开始时间点" );
+		 Date d1=new Date();
+		 ResultBuffer  list=selector.getResult();
+		 list.init();
+	 
+		 Date d2=new Date();
+		 System.out.println("sizeiiiii - "+list.size()+" , time:"+(d2.getTime()-d1.getTime()));
+	
+	}
+	
+	public static void main(String[] args) {
+		test2();
 	}
 	
 	public static void trun(){

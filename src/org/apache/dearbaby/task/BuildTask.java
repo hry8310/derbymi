@@ -15,6 +15,7 @@ public class BuildTask implements Runnable{
 	}
 	public void run(){
 		try{
+			System.out.println("dddddddddddddddd");;
 			sinQuery.buildIndex(jt);
  		}catch(Exception e){
  			e.printStackTrace();

@@ -19,4 +19,8 @@ public class DRConstant {
 	public static final long HOLDER_FREE_ING=-2l;
 	
 	public static final int NOTI_ALL=-1;
+	
+	
+	public static final int POOL_FULL=1;
+	public static final int POOL_FREE=2;
 }

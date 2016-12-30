@@ -81,6 +81,18 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 		Date c=new Date();
 		p=InitConfig.MAP_FILE_DIR+getTableName()+"-"+Thread.currentThread().getId()+"-"+c.getTime()+".mp";
 	}
+	
+	protected void openMpFile(){
+	
+		if(mf==null){
+			genFilePath();
+			mf=new MapFile();
+			mf.path=p;
+			boolean t=mf.open();
+				
+		}
+	}
+	
 	protected void addRowsBuffer0(RowsBuffer reb,MapFile _mf){
 		 
 		byte[] b=reb.toSer().array();
@@ -115,6 +127,8 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 		addRowsBuffer0( reb, _mf);
 		mf=_mf;
 	}
+	
+	
 	
 	public   SinResultBufferDisk(){
 		 
@@ -268,6 +282,7 @@ public class SinResultBufferDisk  extends SinResultBuffer  {
 	
 	 
 	public void addEnd(){
+		
 		if(lastBuf!=null){
 			addRowsBuffer(lastBuf);
 		}

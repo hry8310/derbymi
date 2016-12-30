@@ -73,6 +73,7 @@ public class JoinTypeUtil {
 				ij.emp=ij.right.getTableName();
 				j.next=ij;
 				ij.prev=j;
+				ij.nextTable=ij.right.getTableName();
 				j.nextTable=ij.left.getTableName();
 				jEnd=ij;
 				js.remove(i);
@@ -82,6 +83,7 @@ public class JoinTypeUtil {
 			if(ij.left.getTableName().equalsIgnoreCase(j.right.getTableName())){
 				j.emp=j.left.getTableName();
 				ij.emp=ij.right.getTableName();
+				ij.nextTable=ij.right.getTableName();
 				j.nextTable=ij.left.getTableName();
 				j.next=ij;
 				ij.prev=j;
@@ -92,6 +94,8 @@ public class JoinTypeUtil {
 			if(ij.right.getTableName().equalsIgnoreCase(j.right.getTableName())){
 				j.emp=j.left.getTableName();
 				ij.emp=ij.left.getTableName();
+				ij.nextTable=j.nextTable;
+				ij.nextTable=ij.left.getTableName();
 				j.nextTable=ij.right.getTableName();
 				j.next=ij;
 				ij.prev=j;
@@ -102,6 +106,7 @@ public class JoinTypeUtil {
 			if(ij.right.getTableName().equalsIgnoreCase(j.left.getTableName())){
 				j.emp=j.right.getTableName();
 				ij.emp=ij.left.getTableName();
+				ij.nextTable=ij.left.getTableName();
 				j.nextTable=ij.right.getTableName();
 				j.next=ij;
 				ij.prev=j;
@@ -119,6 +124,7 @@ public class JoinTypeUtil {
 				
 				if(ij.left.getTableName().equalsIgnoreCase(jEnd.emp)){
 					ij.emp=ij.right.getTableName();
+					ij.nextTable=ij.left.getTableName();
 					jEnd.nextTable=jEnd.emp;
 					jEnd.next=ij;
 					ij.prev=jEnd;
@@ -129,6 +135,7 @@ public class JoinTypeUtil {
 			
 				if(ij.right.getTableName().equalsIgnoreCase(jEnd.emp)){
 					ij.emp=ij.left.getTableName();
+					ij.nextTable=ij.right.getTableName();
 					jEnd.next=ij;
 					jEnd.nextTable=jEnd.emp;
 					ij.prev=jEnd;
@@ -140,6 +147,7 @@ public class JoinTypeUtil {
 				
 				if(ij.right.getTableName().equalsIgnoreCase(j.emp)){
 					ij.emp=ij.left.getTableName();
+					ij.nextTable=ij.right.getTableName();
 					j.prev=ij;
 					ij.next=j;
 					ij.nextTable=j.emp;
@@ -149,6 +157,7 @@ public class JoinTypeUtil {
 				}
 				if(ij.left.getTableName().equalsIgnoreCase(j.emp)){
 					ij.emp=ij.right.getTableName();
+					ij.nextTable=ij.left.getTableName();
 					j.prev=ij;
 					ij.next=j;
 					ij.nextTable=j.emp;

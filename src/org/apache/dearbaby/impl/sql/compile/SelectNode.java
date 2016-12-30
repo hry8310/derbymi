@@ -666,6 +666,7 @@ public class SelectNode extends ResultSetNode {
 
 	@Override
 	public boolean fetch() {
+		//qs.bindContext(fetchCtx);
 		//System.out.println("is-isFilter-fetch  : "+isFilter);
 		if(getIsFilter()==true){
 			return rowValue.next();

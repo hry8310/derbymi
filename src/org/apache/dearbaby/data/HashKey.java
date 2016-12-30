@@ -44,13 +44,13 @@ public class HashKey {
 	//	System.out.println("nextMatch   "+keys.size());
 		for(int i=preId;i< values.size();i++){
 			Object o=getKey(i);
-			//System.out.println("unhhhhrr   "+obj +"    ,  "+o);
+	//		System.out.println("unhhhhrr   "+obj +"    ,  "+o);
 			if(ColCompare.compareObject(obj, o)==0){
 				rowId=i;
 				preId=i+1;
-				if(obj.equals("dept_67")){
-				System.out.println("hhhhrr   "+obj +"    ,  "+o+"  rowId  "+rowId);
-				}
+			 
+			//	System.out.println("hhhhrr   "+obj +"    ,  "+o+"  rowId  "+rowId);
+				 
 				return true;
 			}
 		}

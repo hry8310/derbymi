@@ -11,12 +11,14 @@ public class QueryResultManager extends QueryMananger {
 	private boolean isEnd = false;
 	private boolean first = true;
 	public IExecutor executor;
-	int i=0;
+ 
+ 
 	
-	public ArrayList<SinQuery> joinResult=new  ArrayList<SinQuery>();
+	public FetchContext cxt;
 	
-	private ArrayList<JoinType> js=new  ArrayList<JoinType>();
-	public JoinType  jHeader;
+	public void bindContext(FetchContext _cxt){
+		cxt =_cxt;
+	}
 	
 	public boolean next() {
 		
@@ -47,61 +49,58 @@ public class QueryResultManager extends QueryMananger {
 	}
 	
 	
-	private SinQuery drvQ=null;
-	private boolean isJnMatch=false;
-	//int matchTms=0;
-	private boolean isQueryNext=false;
+	
 	public boolean nextJoin() {
 		while(true){
-			if(isQueryNext==false){
+			if(cxt.isQueryNext==false){
 				if(next()==false){
 					return false;
 				}
-				isQueryNext=true;
+				cxt.isQueryNext=true;
 			}
 			boolean r= nextJoin0();
 			if(r==true){
 				return true;
 			}else{
-				isQueryNext=false;
+				cxt.isQueryNext=false;
 			}
 		}
 	}
-	boolean drvQFirst=true;
+	
 	public boolean nextJoin0() {
 	//	System.out.println("nextJoin-isJnMatch--0 "+drvQ.results);
-		while(!drvQ.isEndOut()){
-			if(isJnMatch==false){
+		while(!cxt.drvQ.isEndOut()){
+			if(cxt.isJnMatch==false){
 				
-				if (drvQFirst == true) {
-					drvQFirst = false;
+				if (cxt.drvQFirst == true) {
+					cxt.drvQFirst = false;
 				}else{
-					drvQ.nextTo();
+					cxt.drvQ.nextTo();
 				}
-				if(drvQ.isEndOut()==true){
+				if(cxt.drvQ.isEndOut()==true){
 					break;
 				}
 				 
 				
-				isJnMatch=matchNext(drvQ,js.get(0),joinResult.get(0));
-				if(isJnMatch==false){
+				cxt.isJnMatch=matchNext(cxt.drvQ,cxt.js.get(0),cxt.joinResult.get(0));
+				if(cxt.isJnMatch==false){
 					continue;
 				}
 				//System.out.println("nextJoin-isJnMatch--000000   "+joinResult.size());
-				for(int i=0;i<joinResult.size()-1;i++){
+				for(int i=0;i<cxt.joinResult.size()-1;i++){
 					System.out.println("nextJoin-isJnMatch-- ");
-					isJnMatch=matchNext(joinResult.get(i),js.get(i+1),joinResult.get(i+1));
-					if(isJnMatch==false){
+					cxt.isJnMatch=matchNext(cxt.joinResult.get(i),cxt.js.get(i+1),cxt.joinResult.get(i+1));
+					if(cxt.isJnMatch==false){
 						break;
 					}
 				}
-				if(isJnMatch==true){
+				if(cxt.isJnMatch==true){
 				//	System.out.println("nextJoin-isJnMatch_tms : "+(matchTms++));
 					return true;
 				}
 			}else{
-				for (int i = joinResult.size() - 1; i >= 0; i--) {
-					SinQuery sq = joinResult.get(i);
+				for (int i = cxt.joinResult.size() - 1; i >= 0; i--) {
+					SinQuery sq = cxt.joinResult.get(i);
 					
 					if(sq.nextToJn()==true){ 
 						return true;
@@ -109,7 +108,7 @@ public class QueryResultManager extends QueryMananger {
 						
 						if(i==0){
 							indexInit();
-							isJnMatch=false;
+							cxt.isJnMatch=false;
 							continue;
 						}else{
 							sq.firstMatch();
@@ -128,31 +127,31 @@ public class QueryResultManager extends QueryMananger {
 	}
 	
 	public boolean halfDrvNextTo(){
-		drvQ.nextTo();
-		return drvQ.isEndOut();
+		cxt.drvQ.nextTo();
+		return cxt.drvQ.isEndOut();
 	}
 	
 	public boolean halfNextJoinTo() {
-		 	if(isJnMatch==false){
-				isJnMatch=matchNext(drvQ,js.get(0),joinResult.get(0));
-				if(isJnMatch==false){
+		 	if(cxt.isJnMatch==false){
+		 		cxt.isJnMatch=matchNext(cxt.drvQ,cxt.js.get(0),cxt.joinResult.get(0));
+				if(cxt.isJnMatch==false){
 					return false;
 				}
 				//System.out.println("nextJoin-isJnMatch--000000   "+joinResult.size());
-				for(int i=0;i<joinResult.size()-1;i++){
+				for(int i=0;i<cxt.joinResult.size()-1;i++){
 					System.out.println("nextJoin-isJnMatch-- ");
-					isJnMatch=matchNext(joinResult.get(i),js.get(i+1),joinResult.get(i+1));
-					if(isJnMatch==false){
+					cxt.isJnMatch=matchNext(cxt.joinResult.get(i),cxt.js.get(i+1),cxt.joinResult.get(i+1));
+					if(cxt.isJnMatch==false){
 						break;
 					}
 				}
-				if(isJnMatch==true){
+				if(cxt.isJnMatch==true){
 				//	System.out.println("nextJoin-isJnMatch_tms : "+(matchTms++));
 					return true;
 				}
 			}else{
-				for (int i = joinResult.size() - 1; i >= 0; i--) {
-					SinQuery sq = joinResult.get(i);
+				for (int i = cxt.joinResult.size() - 1; i >= 0; i--) {
+					SinQuery sq = cxt.joinResult.get(i);
 					
 					if(sq.nextToJn()==true){
 						 	return true;
@@ -161,7 +160,7 @@ public class QueryResultManager extends QueryMananger {
 						if(i==0){
 						//	indexInit();
 						//	System.out.println("indexInit...... ");
-							isJnMatch=false;
+							cxt.isJnMatch=false;
 							continue;
 						}else{
 							sq.firstMatch();
@@ -182,8 +181,8 @@ public class QueryResultManager extends QueryMananger {
 	
 	//清除所有索引
 	private void indexInit(){
-		for (int i = joinResult.size() - 1; i >= 0; i--){
-			SinQuery sq = joinResult.get(i);
+		for (int i = cxt.joinResult.size() - 1; i >= 0; i--){
+			SinQuery sq = cxt.joinResult.get(i);
 			sq.indexInit();
 		}
 	}
@@ -210,21 +209,21 @@ public class QueryResultManager extends QueryMananger {
 	
 	public void buildIndex(ArrayList<JoinType > js){
 		
-		if(drvQ!=null){
+		if(cxt.drvQ!=null){
 			return;
 		}
-		drvQ = joinResult.get(0);
+		cxt.drvQ = cxt.joinResult.get(0);
 		QueryTaskCtrl ctr=new QueryTaskCtrl();
-		joinResult.remove(0);
-		System.out.println("ddddjoinResult.size()  "+joinResult.size());
-		ctr.setCount(joinResult.size());
-		for (int i = 0; i <joinResult.size(); i++) {
+		cxt.joinResult.remove(0);
+		System.out.println("ddddjoinResult.size()  "+cxt.joinResult.size());
+		ctr.setCount(cxt.joinResult.size());
+		for (int i = 0; i <cxt.joinResult.size(); i++) {
 			//joinResult.get(i).buildIndex(js.get(i));
-			joinResult.get(i).setTaskCtrlMust(ctr);
-			joinResult.get(i).addBuildIndexTask(js.get(i));
+			cxt.joinResult.get(i).setTaskCtrlMust(ctr);
+			cxt.joinResult.get(i).addBuildIndexTask(js.get(i));
 		}
 		ctr.await();
-		drvQ.setDrv();
+		cxt.drvQ.setDrv();
 	}
 	
 	
@@ -273,9 +272,9 @@ public class QueryResultManager extends QueryMananger {
 	
 	public void initDrv(int begin,int end){
 		//System.out.println(querys);
-		if(drvQ!=null){
-			System.out.println("drvQ     "+drvQ.tableName);
-			drvQ.drv(begin, end);
+		if(cxt.drvQ!=null){
+			System.out.println("drvQ     "+cxt.drvQ.tableName);
+			cxt.drvQ.drv(begin, end);
 			return ;
 		}
 		if(querys.size()>0)
@@ -283,8 +282,8 @@ public class QueryResultManager extends QueryMananger {
 	}
 	
 	public int  getDrvSize( ){
-		if(drvQ!=null){
-			return drvQ.getDrvSize();
+		if(cxt.drvQ!=null){
+			return cxt.drvQ.getDrvSize();
 			 
 		} 
 		return querys.get(0).getDrvSize();
@@ -293,26 +292,27 @@ public class QueryResultManager extends QueryMananger {
 	public QueryResultManager copyOf(){
 		QueryResultManager newObj=new QueryResultManager();
 		copyTo(newObj);
-		newObj.js=this.js;
-		newObj.jHeader=this.jHeader;
-		if(drvQ!=null)
+		newObj.cxt=new FetchContext();
+		newObj.cxt.js=this.cxt.js;
+		newObj.cxt.jHeader=this.cxt.jHeader;
+		if(cxt.drvQ!=null)
 		{
-			newObj.drvQ=this.drvQ.clone();
+			newObj.cxt.drvQ=this.cxt.drvQ.clone();
 			//newObj.drvQ=this.drvQ;
 		}
-		newObj.isJnMatch=this.isJnMatch;
+		newObj.cxt.isJnMatch=this.cxt.isJnMatch;
 		//int matchTms=0;
-		newObj.isQueryNext=this.isQueryNext;
+		newObj.cxt.isQueryNext=this.cxt.isQueryNext;
 		init();
 		return newObj;
 	}
 	
-	public ArrayList<JoinType> analyseJoin(JoinType jt){
+	public ArrayList<JoinType> analyseJoin(JoinType jt,FetchContext ctx){
 		String e=jt.emp;
 		SinQuery sq=findQuery(e);
 	 
 		System.out.println("fistttttttt "+sq.alias);
-		joinResult.add(sq);
+		ctx.joinResult.add(sq);
 		
 		querys.remove(sq);
 		
@@ -322,22 +322,22 @@ public class QueryResultManager extends QueryMananger {
 				break;
 			}
 			SinQuery sqi=findQuery(jt.nextTable); 
-			joinResult.add(sqi);
+			ctx.joinResult.add(sqi);
 			querys.remove(sqi);
 			JoinType jtt=jt;
-			js.add(jtt);
+			ctx.js.add(jtt);
 			jt=jt.next;
 			
 		}
-		return js;
+		return ctx.js;
 	}
 	
 	public ArrayList<SinQuery> getJoinSq(){
-		return joinResult;
+		return cxt.joinResult;
 	}
 	
 	public SinQuery getDrvQ(){
-		return drvQ;
+		return cxt.drvQ;
 	}
 	
 }

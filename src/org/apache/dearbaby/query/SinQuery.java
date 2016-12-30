@@ -172,7 +172,7 @@ public class SinQuery {
 	}
 	
 	public void buildIndex(JoinType jt){
-		
+		System.out.println("ac:"+alias+" left "+jt.left.getTableName()+"  "+jt.right.getTableName());
 		if(jt.left.getTableName().equalsIgnoreCase(alias)){
 			
 			int ct= lorLag(1,jt); 
@@ -370,6 +370,7 @@ public class SinQuery {
 	}
 
 	public void endFetch(){
+	//	System.out.println("endFetch............................");;
 		results.fetchEnd();
 	}
 }

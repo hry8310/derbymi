@@ -33,6 +33,7 @@ import java.util.SortedSet;
 import org.apache.dearbaby.config.InitConfig;
 import org.apache.dearbaby.data.ResultBuffer;
 import org.apache.dearbaby.data.ResultBufferDisk;
+import org.apache.dearbaby.query.FetchContext;
 import org.apache.dearbaby.query.FilterRowValue;
 import org.apache.dearbaby.query.JoinType;
 import org.apache.dearbaby.query.QueryMananger;
@@ -116,6 +117,8 @@ public abstract class QueryTreeNode implements Visitable {
 	 * 如果为集合处理后，数据将会存放在这里
 	 * */
 	public FilterRowValue rowValue=new FilterRowValue();
+	
+	public FetchContext fetchCtx;
 	
 	public void setIsFilter(boolean is){
 		isFilter=is;
@@ -322,9 +325,11 @@ public abstract class QueryTreeNode implements Visitable {
 		jss.addAll(ej);
 		
 		JoinType j=JoinTypeUtil.ans(jss);
-		 qs.jHeader=j;
-		 ArrayList<JoinType> _js=qs.analyseJoin(j); 
-		 return js;
+
+		 fetchCtx=new FetchContext();
+		 fetchCtx.jHeader=j;
+		 ArrayList<JoinType> _js=qs.analyseJoin(j,fetchCtx); 
+		 return _js;
 	}
 	
 	 private int desiMax( ArrayList<JoinType> _js){
@@ -456,6 +461,7 @@ public abstract class QueryTreeNode implements Visitable {
 		if(_js==null){
 			return;
 		}
+		qs.bindContext(fetchCtx); 
 		qs.buildIndex(_js);
 	}
 	
@@ -487,6 +493,15 @@ public abstract class QueryTreeNode implements Visitable {
 	
 	public void fetchEnd() {
 		qm.initFetch();
+	}
+	public void fetchCxtEnd() {
+		fetchCtx.drvQ.initJn();
+		for (int i = fetchCtx.joinResult.size() - 1; i >= 0; i--){
+			SinQuery sq = fetchCtx.joinResult.get(i);
+			sq.indexInit();
+		}
+		fetchCtx.isJnMatch=false;
+		fetchCtx.drvQFirst=true;
 	}
 	
 	public void endSelect(){
@@ -607,7 +622,7 @@ public abstract class QueryTreeNode implements Visitable {
     	ResultBuffer list=new ResultBuffer();
     	//	ResultBuffer list=new ResultBufferDisk();
     	int i=0;
-    
+    	qs.bindContext(fetchCtx);
     	while ( fetch()) {
     		//System.out.println("fetch-ok-----  "+(i++));;
 			if ( match()) {
@@ -685,10 +700,10 @@ public abstract class QueryTreeNode implements Visitable {
         		}
     		}
     		
-    		for(int i=0;i<qs.joinResult.size();i++){
+    		for(int i=0;i<qs.cxt.joinResult.size();i++){
     			for(int j=0;j<qm.querys.size();j++){
-        			 if(qs.joinResult.get(i)==qm.querys.get(j)){
-        				 tag.qs.joinResult.add( tag.qm.querys.get(j));
+        			 if(qs.cxt.joinResult.get(i)==qm.querys.get(j)){
+        				 tag.qs.cxt.joinResult.add( tag.qm.querys.get(j));
         				 break;
         			 }
         		}
