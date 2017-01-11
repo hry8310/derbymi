@@ -111,7 +111,7 @@ public  class RowBufferPool {
 	
 	public void chkNotify(){
 		double ratio=(double)allo.get()/capactiy;
-		if(ratio<0.5){
+		if(ratio<DRConstant.COMCU_TO_QUE_HOLD){
 			notifying(DRConstant.NOTI_ALL);
 		}else{
 			notifying(1);
@@ -249,7 +249,7 @@ public  class RowBufferPool {
 		if(holder!=DRConstant.NO_HOLDER||holder!=DRConstant.HOLDER_FREE_ING){
 			chkNotify();
 		}
-		System.out.println("holder................");
+		
 		if(rst.ref==null||rst.ref.r.get()==0){
 			return false;
 		}
