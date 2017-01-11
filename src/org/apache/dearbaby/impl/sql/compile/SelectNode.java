@@ -460,13 +460,17 @@ public class SelectNode extends ResultSetNode {
 					noGroupByOneRow.add2Row(alias, cName, obj);
 				}else if (t._expression instanceof SubqueryNode) {
 					exeSubCol(t,noGroupByOneRow);
+				} else if (t._expression instanceof AggregateNode) {
+					AggregateNode agg=(AggregateNode)t._expression;
+					String fun=agg.aggregateName; 
+					aggre(noGroupByOneRow,first,fun,t);
 				}
 			}
 			
 			rowValue.flushTheRow(noGroupByOneRow);
 			//rowValue.flushRow();
 		}
-		
+		 
 		for (Object o : resultColumns.v) {
 			ResultColumn t = (ResultColumn) o;
 			if (t._expression instanceof AggregateNode) {
@@ -476,6 +480,7 @@ public class SelectNode extends ResultSetNode {
 			}
 			
 		}
+		 
 		
 	}
 	 

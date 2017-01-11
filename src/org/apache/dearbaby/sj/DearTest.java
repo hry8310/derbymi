@@ -25,51 +25,51 @@ public class DearTest {
 	String sql = "";
 	 
 	sql = "select a.name,a.iss from news a ,comany c where a.id in(select b.iid from cust b) and a.ikey=c.ikey";
-	sql = "select a.workid as wid,(select b.kid from cust b where b.id=a.id ) as kid FROM WorkInforParameter  a ";
-	sql = "select a.workid,a.doctorName from WorkInforParameter a ,DoctorInforParameter c where a.doctorid=c.doctorid  ";
-	sql = "select a.workid,c.doctorName from WorkInforParameter a left join DoctorInforParameter c on a.doctorid=c.doctorid   ";
-	sql = "SELECT a.workid FROM WorkInforParameter  a , OrderListParameter e WHERE a.id IN(SELECT b.id FROM DoctorInforParameter b WHERE a.DoctorId=b.DoctorId AND b.DeptId IN(SELECT c.DeptId FROM DeptInforParameter c WHERE c.DeptName=a.DeptName)) or e.WorkId=a.WorkId ";
+	sql = "select a.workid as wid,(select b.kid from cust b where b.id=a.id ) as kid FROM worker  a ";
+	sql = "select a.workid,a.docName from worker a ,good c where a.docId=c.docId  ";
+	sql = "select a.workid,c.docName from worker a left join good c on a.docId=c.docId   ";
+	sql = "SELECT a.workid FROM worker  a , OrderListParameter e WHERE a.id IN(SELECT b.id FROM good b WHERE a.docId=b.docId AND b.DeptId IN(SELECT c.DeptId FROM DeptInforParameter c WHERE c.DeptName=a.DeptName)) or e.WorkId=a.WorkId ";
 */
 	public static void run3() {
 		String sql="";
-		sql = "SELECT  a.doctorName FROM DoctorInforParameter a WHERE a.doctorid IN (SELECT c.doctorid FROM WorkInforParameter c)";
-		sql="SELECT a.doctorName  FROM WorkInforParameter  a , doctorinforparameter b WHERE  a.DoctorId=b.DoctorId  OR a.Id>1380";
-		sql="SELECT a.doctorName  FROM WorkInforParameter  a , doctorinforparameter b WHERE  a.doctorName=b.DoctorId  OR a.Id>4380";
-		sql="SELECT a.doctorName  FROM WorkInforParameter  a   WHERE  a.DoctorId in (select b.DoctorId from doctorinforparameter b)  ";
-		sql="SELECT a.doctorId, sum(a.flag)    FROM WorkInforParameter  a   WHERE  a.DoctorId in (select b.DoctorId from doctorinforparameter b)   ";
-		sql="SELECT a.doctorId,  (select b.doctorName From doctorinforparameter b Where a.doctorId=b.doctorId) as name   FROM WorkInforParameter  a   ";
-		sql="SELECT a.doctorId   , b.doctorName  FROM WorkInforParameter  a  , (select  c.doctorName , c.doctorId From doctorinforparameter c where c.doctorId='222' ) as b  where    a.doctorId=b.doctorId";
-		sql = "SELECT a.workid,c.doctorName as Name FROM WorkInforParameter a  LEFT JOIN (SELECT d.doctorid,d.doctorName FROM  DoctorInforParameter d  WHERE d.id>120 ) c ON a.doctorid=c.doctorid      ";
-	//	sql = "  SELECT D.DOCTORID , D.DOCTORNAME , D.ID   FROM DOCTORINFORPARAMETER D  WHERE  d.id>10 AND d.id>100  ";
+		sql = "SELECT  a.docName FROM good a WHERE a.docId IN (SELECT c.docId FROM worker c)";
+		sql="SELECT a.docName  FROM worker  a , good b WHERE  a.docId=b.docId  OR a.Id>1380";
+		sql="SELECT a.docName  FROM worker  a , good b WHERE  a.docName=b.docId  OR a.Id>4380";
+		sql="SELECT a.docName  FROM worker  a   WHERE  a.docId in (select b.docId from good b)  ";
+		sql="SELECT a.docId, sum(a.flag)    FROM worker  a   WHERE  a.docId in (select b.docId from good b)   ";
+		sql="SELECT a.docId,  (select b.docName From good b Where a.docId=b.docId) as name   FROM worker  a   ";
+		sql="SELECT a.docId   , b.docName  FROM worker  a  , (select  c.docName , c.docId From good c where c.docId='222' ) as b  where    a.docId=b.docId";
+		sql = "SELECT a.workid,c.docName as Name FROM worker a  LEFT JOIN (SELECT d.docId,d.docName FROM  good d  WHERE d.id>120 ) c ON a.docId=c.docId      ";
+	//	sql = "  SELECT D.docId , D.docName , D.ID   FROM good D  WHERE  d.id>10 AND d.id>100  ";
 	
 		
-	//	sql="select e.doctorId from (SELECT a.doctorId   , a.doctorName  FROM WorkInforParameter  a  UNION all SELECT b.doctorId   , b.doctorName  FROM doctorinforparameter  b  UNION ALL SELECT c.doctorId   , c.doctorName  FROM doctorinforparameter  c ) e";
-	//	sql="select distinct e.doctorName from doctorinforparameter e  where e.id=10";
-		//sql="select distinct e.doctorName from doctorinforparameter e  where e.docName='ddd'";
-	//	sql="SELECT a.doctorName  FROM WorkInforParameter  a , doctorinforparameter b WHERE a.id=b.id+1200";
-	//	sql="SELECT a.id from DoctorInforParameter  a ";
-		sql="SELECT a.doctorName  FROM WorkInforParameter2  a , doctorinforparameter2 b, doctorinforparameter3 c WHERE  a.DoctorId=b.DoctorName   ";
-		sql="SELECT a.doctorName  FROM (select c.DoctorId from  WorkInforParameter2 c)  a , (select d.DoctorId from  doctorinforparameter2 d where d.id>200000) b  WHERE  a.DoctorId=b.DoctorId   ";
-	//	sql="SELECT a.doctorName  FROM WorkInforParameter4  a left join doctorinforparameter4 b on  a.DoctorId=b.DoctorId  ";
-	 	sql="SELECT a.doctorName,b.DoctorId  FROM WorkInforParameter6  a , doctorinforparameter7 b  WHERE  a.DoctorId=b.DoctorId   ";
-		sql="SELECT  a.DoctorId aid,b.DoctorId  bid   FROM workinforparameter7  a , doctorinforparameter6 b  WHERE  a.DoctorId=b.DoctorId   ";
+	//	sql="select e.docId from (SELECT a.docId   , a.docName  FROM worker  a  UNION all SELECT b.docId   , b.docName  FROM good  b  UNION ALL SELECT c.docId   , c.docName  FROM good  c ) e";
+	//	sql="select distinct e.docName from good e  where e.id=10";
+		//sql="select distinct e.docName from good e  where e.docName='ddd'";
+	//	sql="SELECT a.docName  FROM worker  a , good b WHERE a.id=b.id+1200";
+	//	sql="SELECT a.id from good  a ";
+		sql="SELECT a.docName  FROM worker2  a , good2 b, good3 c WHERE  a.docId=b.docName   ";
+		sql="SELECT a.docName  FROM (select c.docId from  worker2 c)  a , (select d.docId from  good2 d where d.id>200000) b  WHERE  a.docId=b.docId   ";
+	//	sql="SELECT a.docName  FROM worker4  a left join good4 b on  a.docId=b.docId  ";
+	 	sql="SELECT a.docName,b.docId  FROM worker6  a , good7 b  WHERE  a.docId=b.docId   ";
+		sql="SELECT  a.docId aid,b.docId  bid   FROM worker7  a , good6 b  WHERE  a.docId=b.docId   ";
 		
-		//sql="SELECT a.doctorName  FROM WorkInforParameter5  a    ";
+		//sql="SELECT a.docName  FROM worker5  a    ";
 	//	 Date d1=new Date();
 		
 		
 		ExcCacheConf ccf=new ExcCacheConf();
-		UserCacheConf userConf1=new UserCacheConf("WORKINFORPARAMETER7","WORK", CacheTableConf.ALL,DRConstant.USEIDX,3);
-		//UserCacheConf userConf2=new UserCacheConf("DOCTORINFORPARAMETER6", CacheTableConf.ALL,DRConstant.USEIDX,3);
+		UserCacheConf userConf1=new UserCacheConf("worker7","WORK", CacheTableConf.ALL,DRConstant.USEIDX,3);
+		//UserCacheConf userConf2=new UserCacheConf("good6", CacheTableConf.ALL,DRConstant.USEIDX,3);
 		
-		//ccf.put("doctorinforparameter", CacheTableConf.ALL,DRConstant.USEIDX);
-		//ccf.put("WORKINFORPARAMETER7", CacheTableConf.ALL,DRConstant.USEIDX);
+		//ccf.put("good", CacheTableConf.ALL,DRConstant.USEIDX);
+		//ccf.put("worker7", CacheTableConf.ALL,DRConstant.USEIDX);
 		ccf.put(userConf1);
 	//	ccf.put(userConf2);
 		DearSelector selector =new DearSelector();  
 		selector.setExecutor(new JdbcExecutor()); 
 		QuerySession s=QuerySession.jdbcSession();
-		s.useDriverTable="WORKINFORPARAMETER7";
+		s.useDriverTable="worker7";
 		s.cacheConf=ccf;
 		
 	
@@ -88,7 +88,7 @@ public class DearTest {
 		 list.init();
 		/* 
 		 while(list.isEndOut()==false){
-			 System.out.println("row - "+list.getCurrCol("a","doctorId") );
+			 System.out.println("row - "+list.getCurrCol("a","docId") );
 			 list.nextTo();
 		 }
 	 */
@@ -99,16 +99,16 @@ public class DearTest {
 	}
 	
 	public static void init(){
-		CacheTableConf ct=new JustCacheTableConf("doctorinforparameter7");
+		CacheTableConf ct=new JustCacheTableConf("good7");
 		ct.setType(CacheTableConf.ALL);
 		ct.setCacheType(DRConstant.DISKCACHE);
-	//	ct.setSql("select  DOCTORID   from DOCTORINFORPARAMETER7   ");
+	//	ct.setSql("select  docId   from good7   ");
 		ct.executor=new CacheExecuteImp(ct);
 		
-		CacheTableConf ct2=new JustCacheTableConf("WORKINFORPARAMETER7","WORK");
+		CacheTableConf ct2=new JustCacheTableConf("worker7","WORK");
 		ct2.setType(CacheTableConf.ALL);
 		ct2.setCacheType(DRConstant.DISKCACHE);
-	//	ct2.setSql("select  DOCTORNAME ,  DOCTORID   from WORKINFORPARAMETER6  ");
+	//	ct2.setSql("select  docName ,  docId   from worker6  ");
 		ct2.executor=new CacheExecuteImp(ct2);
 		
 	//	ResultCache.addTable(ct);
@@ -118,7 +118,7 @@ public class DearTest {
 	public static void hinit(){
  
 		
-		CacheTableConf ct2=new JustCacheTableConf("WORKINFORPARAMETER7","WORK");
+		CacheTableConf ct2=new JustCacheTableConf("worker7","WORK");
 		ct2.setType(CacheTableConf.ALL);
 		ct2.setCacheType(DRConstant.DISKCACHE); 
 		ct2.executor=new CacheExecuteImp(ct2);
@@ -135,12 +135,16 @@ public class DearTest {
 	
 	public static void test2(){
 		String sql;
-		sql="SELECT  a.DoctorId aid,b.DoctorId  bid   FROM workinforparameter2  a , doctorinforparameter2 b  WHERE  a.DoctorId=b.DoctorId   ";
-	 	sql=" SELECT  a.DoctorId aid,b.DoctorId  bid   FROM workinforparameter4  a , doctorinforparameter4 b  WHERE  a.DoctorId=b.DoctorId and  a.DoctorId in (select c.DoctorId from   workinforparameter5 c ,doctorinforparameter5 d where c.DoctorId=d.DoctorId) ";
-	//	sql="SELECT a.doctorName  FROM WorkInforParameter5  a    ";
+		sql="SELECT  a.docId aid,b.docId  bid   FROM worker2  a , good2 b  WHERE  a.docId=b.docId   ";
+	 	sql=" SELECT  a.docId aid,b.docId  bid   FROM worker4  a , good4 b  WHERE  a.docId=b.docId and  a.docId in"
+	 			+ " (select c.docId from   worker5 c ,good5 d where c.docId=d.docId and  c.docId=a.docId) ";
+	//	sql="SELECT a.docName  FROM worker5  a    ";
 	//	 Date d1=new Date();
-		
-		
+	 	
+	 	sql="SELECT count(a.docId) cnt   FROM worker4  a , good4 b  WHERE  a.docId=b.docId  group by  a.docId  ";
+	 	
+	 	//sql="SELECT  a.docId aid,b.docId  bid   FROM worker4  a , good4 b  WHERE  a.docId=b.docId   ";
+	 	
 		 
 		DearSelector selector =new DearSelector();  
 		selector.setExecutor(new JdbcExecutor()); 
@@ -156,6 +160,11 @@ public class DearTest {
 		 list.init();
 	 
 		 Date d2=new Date();
+		 while(list.isEndOut()==false){
+			 System.out.println("cnt:   - "+  list.getCurrCol("#.CNT"));
+			 list.nextTo();
+		 }
+		
 		 System.out.println("sizeiiiii - "+list.size()+" , time:"+(d2.getTime()-d1.getTime()));
 	
 	}
