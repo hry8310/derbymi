@@ -23,6 +23,7 @@ package org.apache.dearbaby.impl.sql.compile;
 
 import java.util.List;
 
+import org.apache.dearbaby.query.FetchContext;
 import org.apache.dearbaby.query.RowColumn;
 import org.apache.dearbaby.util.ColCompare;
 import org.apache.dearbaby.util.QueryUtil;
@@ -776,6 +777,9 @@ public class SubqueryNode extends ValueNode {
 		}
 		Object obj = leftOperand.getVal();
 		resultSet.fetchInit();
+		if(resultSet.fetchCtx==null){
+			resultSet.fetchCtx=new FetchContext();
+		}
 		this.qs.bindContext(resultSet.fetchCtx);
 		while (resultSet.fetch()) {
 			

@@ -144,7 +144,8 @@ public class DearTest {
 	 	sql="SELECT count(a.docId) cnt   FROM worker4  a , good4 b  WHERE  a.docId=b.docId  group by  a.docId  ";
 	 	
 	 	//sql="SELECT  a.docId aid,b.docId  bid   FROM worker4  a , good4 b  WHERE  a.docId=b.docId   ";
-	 	
+		//sql="SELECT  a.docId aid,b.docId  bid   FROM worker4  a , (select c.docId ,c.docName from good4 c where c.docName=a.docName ) b  WHERE  a.docId=b.docId   ";
+		//sql="SELECT  a.docId aid, a.docName aname  FROM worker4 a  where   a.docId in ( select c.docId   from good4 c  where a.docId=c.docId ) ";
 		 
 		DearSelector selector =new DearSelector();  
 		selector.setExecutor(new JdbcExecutor()); 
@@ -158,14 +159,15 @@ public class DearTest {
 		 Date d1=new Date();
 		 ResultBuffer  list=selector.getResult();
 		 list.init();
-	 
 		 Date d2=new Date();
-		 while(list.isEndOut()==false){
-			 System.out.println("cnt:   - "+  list.getCurrCol("#.CNT"));
+		 System.out.println("sizeiiiii - "+list.size()+" , time:"+(d2.getTime()-d1.getTime()));
+		 list.again();
+		 while(list.hasNext()){
+			 System.out.println("cnt:   - "+  list.getAggrCurrCol("CNT"));
 			 list.nextTo();
 		 }
 		
-		 System.out.println("sizeiiiii - "+list.size()+" , time:"+(d2.getTime()-d1.getTime()));
+		
 	
 	}
 	

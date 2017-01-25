@@ -104,9 +104,9 @@ public class DearSelector {
 
 	public ResultBuffer  getResult(){
 		
-		 StatementNode qtt=(StatementNode)qt.copy();
+		// StatementNode qtt=(StatementNode)qt.copy();
 		 
-		 qtt.initDrv(0,8);
+		// qtt.initDrv(0,8);
 		 return  qt.getMatchRows();
 	 }
 	 

@@ -495,7 +495,9 @@ public abstract class QueryTreeNode implements Visitable {
 		qm.initFetch();
 	}
 	public void fetchCxtEnd() {
-		fetchCtx.drvQ.initJn();
+		if(fetchCtx.drvQ!=null){
+			fetchCtx.drvQ.initJn();
+		}
 		for (int i = fetchCtx.joinResult.size() - 1; i >= 0; i--){
 			SinQuery sq = fetchCtx.joinResult.get(i);
 			sq.indexInit();

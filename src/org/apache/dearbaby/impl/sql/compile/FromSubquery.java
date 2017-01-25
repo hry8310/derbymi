@@ -182,8 +182,10 @@ class FromSubquery extends FromTable
 			 fetchEnd();
  
 		}
-		list.setQueryManager(qm);;
-		list.setTableName(origTableName.tableName);
+		list.setQueryManager(qm);
+		if(origTableName!=null){
+			list.setTableName(origTableName.tableName);
+		}else{}
 		return list;
 	}
 	

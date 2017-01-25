@@ -101,6 +101,12 @@ public class ResultBuffer {
 		return getCurrRow0();
 	}
 	
+	public  Object getAggrCurrCol (String name) {
+		 
+		String iName=QueryUtil.getColName(name);
+		return getCurrCol0(iName);
+	}
+	
 	public  Object getCurrCol (String name) {
 		 
 		return getCurrCol0(name);
@@ -139,6 +145,14 @@ public class ResultBuffer {
 	public void init() {
 		rowId = drvRowId;
 		endOut = false;
+	}
+	
+	public void again() {
+		rowId = drvRowId;
+	}
+	
+	public boolean hasNext() {
+		return rowId<rows-1;
 	}
 	
 	public boolean isEnd() {
