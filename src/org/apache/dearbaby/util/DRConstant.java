@@ -25,4 +25,9 @@ public class DRConstant {
 	public static final int POOL_FREE=2;
 	
 	public static final double COMCU_TO_QUE_HOLD=0.5d;
+	public static final int RESULT_LIST=1;
+	
+	public static final int RESULT_DIST=2;
+	
+	public static final int RESULT_BUFFER=3;
 }

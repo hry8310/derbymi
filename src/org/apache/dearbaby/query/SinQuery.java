@@ -36,7 +36,7 @@ public class SinQuery {
 	/*默认不是简单查询 */
 	public boolean simpleSelect=false;
 
-	public String andCondition = "1=1 ";
+	public String andCondition = " 3=3 ";
 
 	public String sql = "";
 

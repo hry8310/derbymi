@@ -54,7 +54,7 @@ public class DearTest {
 	 	sql="SELECT a.docName,b.docId  FROM worker6  a , good7 b  WHERE  a.docId=b.docId   ";
 		sql="SELECT  a.docId aid,b.docId  bid   FROM worker7  a , good6 b  WHERE  a.docId=b.docId   ";
 		
-		//sql="SELECT a.docName  FROM worker5  a    ";
+		sql="SELECT a.docName  FROM worker5  a   where a.docName like '%3%' ";
 	//	 Date d1=new Date();
 		
 		
@@ -142,7 +142,8 @@ public class DearTest {
 	//	 Date d1=new Date();
 	 	
 	 	sql="SELECT count(a.docId) cnt   FROM worker4  a , good4 b  WHERE  a.docId=b.docId  group by  a.docId  ";
-	 	
+	 	sql="SELECT a.docName  FROM worker5  a   , good4 b  WHERE  a.docId=b.docId  and a.docName like '%3%' ";
+		//
 	 	//sql="SELECT  a.docId aid,b.docId  bid   FROM worker4  a , good4 b  WHERE  a.docId=b.docId   ";
 		//sql="SELECT  a.docId aid,b.docId  bid   FROM worker4  a , (select c.docId ,c.docName from good4 c where c.docName=a.docName ) b  WHERE  a.docId=b.docId   ";
 		//sql="SELECT  a.docId aid, a.docName aname  FROM worker4 a  where   a.docId in ( select c.docId   from good4 c  where a.docId=c.docId ) ";

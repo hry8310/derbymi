@@ -24,6 +24,11 @@ package org.apache.dearbaby.impl.sql.compile;
 import java.sql.Types;
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.dearbaby.query.JoinType;
+import org.apache.dearbaby.query.SinQuery;
+import org.apache.dearbaby.sj.DearTest;
+import org.apache.dearbaby.util.ColCompare;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.Limits;
 import org.apache.derby.iapi.reference.SQLState; 
@@ -754,7 +759,106 @@ public final class LikeEscapeOperatorNode extends TernaryOperatorNode
 
         return newAnd;
     }
+    
+    @Override
+	public void genQuery0() {
+		leftOperand.genQuery(qm);
+		receiver.genQuery(qm);
+		genCondition();
+		
 
+	}
+
+    private boolean hasGenCond=false;
+	@Override
+	public void genCondition() {
+		
+		if(hasGenCond==true){
+			return;
+		}
+		hasGenCond=true;
+		if ((leftOperand instanceof ConstantNode || leftOperand instanceof CharConstantNode)
+				&& receiver instanceof ColumnReference) {
+			ConstantNode lc = (ConstantNode) leftOperand;
+			ColumnReference rc = (ColumnReference) receiver;
+		
+			Object obj = lc.getVal();
+			String v = "";
+			if (ColCompare.isNum(obj.getClass().getName()) == 1) {
+				v = obj.toString();
+			} else {
+				v = "'" + obj.toString() + "'";
+			}
+		//	qm.addCond(rc.getTableName(), v + " " + operator + " "
+		//			+ rc._columnName);
+			qm.addCondRight(rc.getTableName(), v , operator , rc._columnName);
+			if(qm.currWhereQuery!=null){
+				if(!rc.getTableName().equalsIgnoreCase(qm.currWhereQuery.alias)){
+					qm.currWhereQuery.simpleSelect=false;
+				}
+			}
+		} else if ((rightOperand instanceof ConstantNode||rightOperand instanceof CharConstantNode)
+				&& receiver instanceof ColumnReference) {
+			ColumnReference lc = (ColumnReference) receiver;
+			ConstantNode rc = (ConstantNode) rightOperand;
+			Object obj = rc.getVal();
+			String v = "";
+			if (ColCompare.isNum(obj.getClass().getName()) == 1) {
+				v = obj.toString();
+			} else {
+				v = "'" + obj.toString() + "'";
+			}
+			if(qm.currWhereQuery!=null){
+				if(!lc.getTableName().equalsIgnoreCase(qm.currWhereQuery.alias)){
+					qm.currWhereQuery.simpleSelect=false;
+				}
+			}
+		//	qm.addCond(lc.getTableName(), lc._columnName + " " + operator + " "
+		//			+ v);
+			qm.addCondLeft(lc.getTableName(), v , operator , lc._columnName);
+		}else{  //暂时没有用
+			if(qm.currWhereQuery!=null){
+				qm.currWhereQuery.simpleSelect=false;
+			}
+			if(rightOperand instanceof ColumnReference&&
+				  leftOperand instanceof ColumnReference){
+				SinQuery ls=qm.findQuery(leftOperand.getTableName());
+				SinQuery rs=qm.findQuery(rightOperand.getTableName());
+				
+				JoinType j=null;
+				if(ls.getDrvSize()<=rs.getDrvSize()){
+					j=new JoinType((ColumnReference)leftOperand,(ColumnReference)rightOperand,operator,qm);
+				}else{
+					j=new JoinType((ColumnReference)rightOperand,(ColumnReference)leftOperand,operator,qm);
+				}
+				//if(j.type==JoinType.HASH){
+				if(j.type!=JoinType.UN){
+					qm.addJoinTo(j);
+				}
+			}
+		}
+	}
+	
+	@Override
+	public boolean match() {
+		Object  o = null;
+		if(leftOperand!=null)
+			o=leftOperand.getVal();
+		else
+			o = rightOperand.getVal();
+		Object lo=receiver.getVal();
+		
+		int r = ColCompare.compareLikeObject(lo, o);
+		
+		
+		 
+		boolean br = ColCompare.matchOpr(r, operator);
+	//	System.out.println("lo:  "+lo+"  ro   "+ro +  "  . r "+r+"  op "+operator);
+		return br;
+		// return true;
+	}
+	
+	
     /**
      * Do code generation for this binary operator.
      *

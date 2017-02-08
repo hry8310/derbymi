@@ -114,7 +114,9 @@ public class SinResultBuffer  extends AbstractSinResult  {
 			}
 		}
 		byte[] b= rb.getRow(rowId);
-		 
+		if(head==null){
+			return null;
+		} 
 		for(int i=0;i<head.size();i++){
 			 if(head.get(i).equals(name)){
 				 return getCol(b,i);

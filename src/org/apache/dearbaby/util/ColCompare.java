@@ -15,6 +15,12 @@ public class ColCompare {
 		}
 		return ret;
 	}
+	
+	public static final int compareLikeObject(Object l, Object r) {
+		int ret = CompareUtil.compareLikeString(l.toString(), r.toString());
+		
+		return ret;
+	}
 
 	public static final int compareValue(Object l, String r) {
 		int ret = 0;
@@ -112,7 +118,14 @@ public class ColCompare {
 				return false;
 			}
 
+		}else if(opx.equalsIgnoreCase("like")){
+			if (ret == 0) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 		return r;
+		
 	}
 }

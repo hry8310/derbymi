@@ -49,6 +49,9 @@ public class HashIndex implements IIndex {
 
 	public boolean nextMatch(Object key){
 		hashId = (int)hash(key);
+		if(hashId==-1){
+			return false;
+		}
 		HashKey hk=hash[hashId];
 		matchKey=key;
 		if(hk==null){
@@ -81,6 +84,9 @@ public class HashIndex implements IIndex {
 	}
 	
 	private long hash(Object key){
+		if(key==null){
+			return -1;
+		}
 		long code = key.hashCode();
 		if(code<0)
 			code=code*(-1);

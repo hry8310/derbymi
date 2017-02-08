@@ -11,7 +11,7 @@ import org.apache.dearbaby.util.ByteUtil;
 import org.apache.dearbaby.util.ColCompare;
 import org.apache.dearbaby.util.QueryUtil;
 
-public class ResultBuffer {
+public class ResultBuffer  {
 	protected int rowId = 0;
 	protected int bufferId=0;
 	protected boolean endOut = false;
@@ -33,11 +33,7 @@ public class ResultBuffer {
 		results.add(rb);
 		
 	}
-	public void drv(int rowid,int end){
-		drvRowId=rowid;
-		rows=end;
-		rowId=rowid;
-	}
+	 
 	
 	public int endSize(){
 		return endSize;
@@ -117,20 +113,7 @@ public class ResultBuffer {
 		return getCurrCol0(iName);
 	}
 	
-	public Map nextRow() {
-		rowId++;
-/*
-		if (rowId > results2.size() - 1) {
-			endOut = true;
-			rowId = results2.size() - 1;
-		}
-*/
-		if (rowId > rows - 1) {
-			endOut = true;
-			rowId = rows - 1;
-		}
-		return getCurrRow();
-	}
+ 
 	
 	public void nextTo() {
 		rowId++;
@@ -155,11 +138,7 @@ public class ResultBuffer {
 		return rowId<rows-1;
 	}
 	
-	public boolean isEnd() {
-		//return rowId >= results2.size() - 1;
-		return rowId>=rows-1;
-	}
-
+	 
 	public boolean isEndOut() {
 		return endOut;
 	}

@@ -33,6 +33,7 @@ import java.util.SortedSet;
 import org.apache.dearbaby.config.InitConfig;
 import org.apache.dearbaby.data.ResultBuffer;
 import org.apache.dearbaby.data.ResultBufferDisk;
+import org.apache.dearbaby.data.SinResultFac;
 import org.apache.dearbaby.query.FetchContext;
 import org.apache.dearbaby.query.FilterRowValue;
 import org.apache.dearbaby.query.JoinType;
@@ -621,7 +622,7 @@ public abstract class QueryTreeNode implements Visitable {
     }
     
     public ResultBuffer getMatchRows(){
-    	ResultBuffer list=new ResultBuffer();
+    	ResultBuffer list=SinResultFac.getResultBuffer(qm.session.resultType);
     	//	ResultBuffer list=new ResultBufferDisk();
     	int i=0;
     	qs.bindContext(fetchCtx);

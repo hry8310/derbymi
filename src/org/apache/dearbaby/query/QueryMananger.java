@@ -122,13 +122,14 @@ public class QueryMananger {
 			found.andCondition = found.andCondition + " and " + cond;
 		}
 	}
-	private void addCond(String table, String cond){
-		addCond(table, table, cond);
-	}
+ 
 	private void setKeyCache(String table,String operator ,String cl){
 		SinQuery found = foundQuery(table, table);
 		if(found.isOrCond==true){
 			return ;
+		}
+		if(table==null){
+			return;
 		}
 		if(ResultCache.findTable(table)==null){
 			return;

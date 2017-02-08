@@ -1,5 +1,8 @@
 package org.apache.dearbaby.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class CompareUtil {
 	public static int compareInt(int l, int r) {
 
@@ -56,6 +59,18 @@ public class CompareUtil {
 		else if (r == null)
 			return 1;
 		return l.compareTo(r);
+	}
+	
+	public static int compareLikeString(String l, String r) {
+		 r = r.replace("_", "?");
+		 r = r.replace("%", "*");
+		 r="^"+r;
+		 Pattern pattern = Pattern.compile(r);
+		 Matcher matcher = pattern.matcher(l);
+		 
+		    // 字符串是否与正则表达式相匹配
+		 boolean rs = matcher.find();
+		 return (rs==true?0:1);
 	}
 
 	public static int compareChar(char l, char r) {

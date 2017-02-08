@@ -44,4 +44,14 @@ public class SinResultFac {
 		}
 		return   getSinResult(conf.getTable());
 	}
+	
+	public static ResultBuffer getResultBuffer(int  type){
+		if(type==DRConstant.RESULT_DIST){
+			return new ResultBufferDisk();
+		}
+		if(type==DRConstant.RESULT_BUFFER){
+			return new ResultBuffer();
+		}
+		return new ResultBufferList();
+	}
 }

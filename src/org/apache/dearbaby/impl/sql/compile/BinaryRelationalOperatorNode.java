@@ -278,7 +278,7 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 	public void genQuery0() {
 		leftOperand.genQuery(qm);
 		rightOperand.genQuery(qm);
-		//genCondition();
+		genCondition();
 	}
 
 	private boolean hasGenCond=false;
@@ -289,7 +289,7 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 			return;
 		}
 		hasGenCond=true;
-		if (leftOperand instanceof ConstantNode
+		if ((leftOperand instanceof ConstantNode || leftOperand instanceof CharConstantNode)
 				&& rightOperand instanceof ColumnReference) {
 			ConstantNode lc = (ConstantNode) leftOperand;
 			ColumnReference rc = (ColumnReference) rightOperand;
@@ -309,7 +309,7 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 					qm.currWhereQuery.simpleSelect=false;
 				}
 			}
-		} else if (rightOperand instanceof ConstantNode
+		} else if ((rightOperand instanceof ConstantNode||rightOperand instanceof CharConstantNode)
 				&& leftOperand instanceof ColumnReference) {
 			ColumnReference lc = (ColumnReference) leftOperand;
 			ConstantNode rc = (ConstantNode) rightOperand;
@@ -327,7 +327,7 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 			}
 		//	qm.addCond(lc.getTableName(), lc._columnName + " " + operator + " "
 		//			+ v);
-			qm.addCondRight(rc.getTableName(), v , operator , lc._columnName);
+			qm.addCondRight(lc.getTableName(), v , operator , lc._columnName);
 		}else{
 			if(qm.currWhereQuery!=null){
 				qm.currWhereQuery.simpleSelect=false;
@@ -354,13 +354,13 @@ class BinaryRelationalOperatorNode extends BinaryComparisonOperatorNode
 	
 	@Override
 	public void clearCondition() {
-		if (leftOperand instanceof ConstantNode
+		if ((leftOperand instanceof ConstantNode||leftOperand instanceof CharConstantNode)
 				&& rightOperand instanceof ColumnReference) {
 			 
 			ColumnReference rc = (ColumnReference) rightOperand;
 			 
 			qm.orCond(rc.getTableName());
-		} else if (rightOperand instanceof ConstantNode
+		} else if ((rightOperand instanceof ConstantNode||rightOperand instanceof CharConstantNode)
 				&& leftOperand instanceof ColumnReference) {
 			ColumnReference lc = (ColumnReference) leftOperand;
 			qm.orCond(lc.getTableName());
