@@ -142,7 +142,7 @@ public class DearTest {
 	//	 Date d1=new Date();
 	 	
 	 	sql="SELECT count(a.docId) cnt   FROM worker4  a , good4 b  WHERE  a.docId=b.docId  group by  a.docId  ";
-	 	sql="SELECT a.docName  FROM worker5  a   , good4 b  WHERE  a.docId=b.docId  and a.docName like '%3%' ";
+	 	sql="SELECT a.docName  FROM worker5  a   , good4 b  WHERE  a.docId=b.docId  or a.docName  like '%3%'  ";
 		//
 	 	//sql="SELECT  a.docId aid,b.docId  bid   FROM worker4  a , good4 b  WHERE  a.docId=b.docId   ";
 		//sql="SELECT  a.docId aid,b.docId  bid   FROM worker4  a , (select c.docId ,c.docName from good4 c where c.docName=a.docName ) b  WHERE  a.docId=b.docId   ";

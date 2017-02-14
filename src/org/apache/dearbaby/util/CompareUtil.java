@@ -62,8 +62,8 @@ public class CompareUtil {
 	}
 	
 	public static int compareLikeString(String l, String r) {
-		 r = r.replace("_", "?");
-		 r = r.replace("%", "*");
+		 r = r.replace("_", ".");
+		 r = r.replace("%", ".*");
 		 r="^"+r;
 		 Pattern pattern = Pattern.compile(r);
 		 Matcher matcher = pattern.matcher(l);

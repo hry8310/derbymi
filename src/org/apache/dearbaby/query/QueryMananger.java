@@ -26,7 +26,7 @@ public class QueryMananger {
 	private ArrayList<JoinType> joins =new ArrayList<JoinType>();
 	
 	 
-	
+	public boolean isOrCond=false;
 	
 	public SinQuery foundQuery(String alias, String table) {
 		SinQuery found = null;
@@ -126,6 +126,7 @@ public class QueryMananger {
 	private void setKeyCache(String table,String operator ,String cl){
 		SinQuery found = foundQuery(table, table);
 		if(found.isOrCond==true){
+			isOrCond=true;
 			return ;
 		}
 		if(table==null){
@@ -160,6 +161,7 @@ public class QueryMananger {
 	public void orCond(String alias, String table ) {
 		SinQuery found = foundQuery(alias, table);
 		found.isOrCond=true;
+		isOrCond=true;
 		found.andCondition = " 2 =2 ";
 		 
 	}

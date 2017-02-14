@@ -100,6 +100,15 @@ public final class LikeEscapeOperatorNode extends TernaryOperatorNode
     */
     boolean addedEquals;
     String  escape;
+    boolean isNot=false;
+    String not="";
+    
+    public void setIsNot(boolean isNot){
+    	if(isNot==true){
+    		not="not";
+    	}
+    	this.isNot=isNot;
+    }
 
     /**
      * Constructor for a LikeEscapeOperatorNode
@@ -791,7 +800,7 @@ public final class LikeEscapeOperatorNode extends TernaryOperatorNode
 			}
 		//	qm.addCond(rc.getTableName(), v + " " + operator + " "
 		//			+ rc._columnName);
-			qm.addCondRight(rc.getTableName(), v , operator , rc._columnName);
+			qm.addCondRight(rc.getTableName(), v , not+" "+operator  , rc._columnName);
 			if(qm.currWhereQuery!=null){
 				if(!rc.getTableName().equalsIgnoreCase(qm.currWhereQuery.alias)){
 					qm.currWhereQuery.simpleSelect=false;
@@ -815,7 +824,7 @@ public final class LikeEscapeOperatorNode extends TernaryOperatorNode
 			}
 		//	qm.addCond(lc.getTableName(), lc._columnName + " " + operator + " "
 		//			+ v);
-			qm.addCondLeft(lc.getTableName(), v , operator , lc._columnName);
+			qm.addCondLeft(lc.getTableName(), v , not+" "+operator , lc._columnName);
 		}else{  //暂时没有用
 			if(qm.currWhereQuery!=null){
 				qm.currWhereQuery.simpleSelect=false;
@@ -841,6 +850,9 @@ public final class LikeEscapeOperatorNode extends TernaryOperatorNode
 	
 	@Override
 	public boolean match() {
+		if(qm.isOrCond==false){
+			return true;
+		}
 		Object  o = null;
 		if(leftOperand!=null)
 			o=leftOperand.getVal();
@@ -853,11 +865,26 @@ public final class LikeEscapeOperatorNode extends TernaryOperatorNode
 		
 		 
 		boolean br = ColCompare.matchOpr(r, operator);
+		
 	//	System.out.println("lo:  "+lo+"  ro   "+ro +  "  . r "+r+"  op "+operator);
 		return br;
 		// return true;
 	}
 	
+	@Override
+	public void clearCondition() {
+		if ((leftOperand instanceof ConstantNode||leftOperand instanceof CharConstantNode)
+				&& receiver instanceof ColumnReference) {
+			 
+			 
+			 
+			qm.orCond(receiver.getTableName());
+		} else if ((rightOperand instanceof ConstantNode||rightOperand instanceof CharConstantNode)
+				&& receiver instanceof ColumnReference) {
+			
+			qm.orCond(receiver.getTableName());
+		}
+	}
 	
     /**
      * Do code generation for this binary operator.

@@ -60,6 +60,8 @@ class OrNode extends BinaryLogicalOperatorNode
 	
 	@Override
 	public void genQuery0() {
+
+
 		leftOperand.genQuery(qm);
 		rightOperand.genQuery(qm);
 		leftOperand.clearCondition();

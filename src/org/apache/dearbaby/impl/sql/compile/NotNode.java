@@ -111,4 +111,29 @@ public final class NotNode extends UnaryLogicalOperatorNode
 
 	 
 	}
+    
+    @Override
+   	public void genQuery0() {
+   		 
+   		 if(operand instanceof LikeEscapeOperatorNode){
+   			LikeEscapeOperatorNode o=(LikeEscapeOperatorNode)operand;
+   			o.setIsNot(true);
+   			o.genQuery(qm);
+   			
+   		 }
+   		
+
+   	}
+    
+    @Override
+	public boolean match() {
+    	 if(operand instanceof LikeEscapeOperatorNode){
+    		 if(qm.isOrCond==false){
+    				return true;
+    		 }
+    		 boolean rb= !operand.match();
+    		 return rb;
+    	 }
+    	 return true;
+    }
 }
